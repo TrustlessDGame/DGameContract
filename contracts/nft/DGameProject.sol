@@ -120,6 +120,58 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         return _currentGameId;
     }
 
+    function updateGameProjectScriptType(
+        uint256 gameId,
+        string memory scriptType,
+        uint256 i
+    )
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._scriptType[i] = scriptType;
+    }
+
+    /* @UpdateProject
+    */
+    function addGameProjectScript(uint256 gameId, string memory _script)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._scripts.push(_script);
+    }
+
+    function updateGameProjectScript(uint256 gameId, uint256 scriptIndex, string memory script)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._scripts[scriptIndex] = script;
+    }
+
+    function deleteGameProjectScript(uint256 gameId, uint256 scriptIndex)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        delete _games[gameId]._scripts[scriptIndex];
+    }
+
+    function updateGameProjectName(uint256 gameId, string memory projectName)
+    external {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._name = projectName;
+    }
+
+    function updateGameCreatorName(uint256 gameId, string memory creatorName)
+    external {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._creator = creatorName;
+    }
+
     function gameDetail(uint256 gameId) external view returns (NFTDGameProject.DGameProject memory game) {
         require(_exists(gameId), Errors.INV_GAME_ID);
         game = _games[gameId];
