@@ -6,11 +6,11 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 
-import "../interfaces/IGameProject.sol";
-import "../libs/structs/NFTGame.sol";
+import "../interfaces/IDGameProject.sol";
+import "../libs/structs/NFTDGame.sol";
 import "../libs/helpers/Errors.sol";
 
-contract GameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, IGameProject {
+contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, IDGameProject {
     // super admin
     address public _admin;
     // parameter control address
@@ -20,7 +20,7 @@ contract GameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
     // _currentGameId is tokenID of game nft
     uint256 private _currentGameId;
 
-    mapping(uint256 => NFTGame.Game) _games;
+    mapping(uint256 => NFTDGame.DGame) _games;
 
     function initialize(
         string memory name,
@@ -70,7 +70,7 @@ contract GameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
     }
 
     function mint(
-        NFTGame.Game memory game
+        NFTDGame.DGame memory game
     ) external payable nonReentrant returns (uint256) {
         // verify
         require(bytes(game._name).length > 3 && bytes(game._creator).length > 3 && bytes(game._image).length > 0, Errors.MISSING_NAME);
@@ -78,7 +78,7 @@ contract GameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         return _currentGameId;
     }
 
-    function gameDetail(uint256 gameId) external view returns (NFTGame.Game memory game) {
+    function gameDetail(uint256 gameId) external view returns (NFTDGame.DGame memory game) {
         require(_exists(gameId), Errors.INV_TOKEN);
         game = _games[gameId];
     }

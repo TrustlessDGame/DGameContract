@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.0;
+
+library NFTDGame {
+    struct DGame {
+        string _name; // required
+        string _creator;// required
+        string _desc; // not require
+        string _image;// base64 of image
+
+        string[] _scriptType;// not require
+        string[] _scripts;// required
+        string _styles;// not require
+
+        string _creator;// required
+        address _creatorAddr;// required
+    }
+}
