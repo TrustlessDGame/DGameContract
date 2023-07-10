@@ -10,7 +10,7 @@ import "../interfaces/IDGameProject.sol";
 import "../libs/helpers/Errors.sol";
 import "../libs/structs/NFTDGameProject.sol";
 
-import "../libs/configs/DGameConfigs.sol";
+import "../libs/configs/DGameProjectConfigs.sol";
 
 import "../interfaces/IDGameProjectData.sol";
 import "../interfaces/IParameterControl.sol";
@@ -78,11 +78,11 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         if (msg.sender != _admin) {
             IParameterControl _p = IParameterControl(_paramsAddress);
             // at least require value 1ETH
-            uint256 operationFee = _p.getUInt256(DGameConfigs.CREATE_GAME_PROJECT_FEE);
+            uint256 operationFee = _p.getUInt256(DGameProjectConfigs.CREATE_GAME_PROJECT_FEE);
             if (operationFee > 0) {
-                address operationFeeToken = _p.getAddress(DGameConfigs.CREATE_GAME_FEE_TOKEN);
+                address operationFeeToken = _p.getAddress(DGameProjectConfigs.CREATE_GAME_FEE_TOKEN);
                 address operatorTreasureAddress = address(this);
-                address operatorTreasureConfig = _p.getAddress(DGameConfigs.OPERATOR_TREASURE_ADDR);
+                address operatorTreasureConfig = _p.getAddress(DGameProjectConfigs.OPERATOR_TREASURE_ADDR);
                 if (operatorTreasureConfig != Errors.ZERO_ADDR) {
                     operatorTreasureAddress = operatorTreasureConfig;
                 }

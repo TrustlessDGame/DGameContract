@@ -8,7 +8,7 @@ import "../interfaces/IDGameProjectData.sol";
 import "../interfaces/IDGameProject.sol";
 import "../interfaces/IBFS.sol";
 
-import "../libs/configs/DGameConfigs.sol";
+import "../libs/configs/DGameProjectConfigs.sol";
 import "../libs/helpers/Inflate.sol";
 import "../libs/helpers/Base64.sol";
 import "../libs/structs/NFTDGameData.sol";
