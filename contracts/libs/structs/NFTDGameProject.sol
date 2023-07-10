@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-library NFTDGame {
-    struct DGame {
+library NFTDGameProject {
+    struct DGameProject {
         string _name; // required
         string _desc; // not require
         string _image;// base64 of image

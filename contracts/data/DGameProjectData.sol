@@ -69,7 +69,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
     function gameURI(uint256 gameId) external view returns (string memory result) {
         NFTDGameData.DGameURIContext memory ctx;
         IDGameProject p = IDGameProject(_gamesProjectAddr);
-        NFTDGame.DGame memory d = p.gameDetail(gameId);
+        NFTDGameProject.DGameProject memory d = p.gameDetail(gameId);
         string memory html = this.tokenHTML(gameId);
         if (bytes(html).length > 0) {
             html = string(abi.encodePacked('data:text/html;base64,', Base64.encode(abi.encodePacked(html))));
@@ -105,7 +105,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
 
     function tokenHTML(uint256 gameId) external view returns (string memory result) {
         IDGameProject gamesProjectContract = IDGameProject(_gamesProjectAddr);
-        NFTDGame.DGame memory gameProjectDetail = gamesProjectContract.gameDetail(gameId);
+        NFTDGameProject.DGameProject memory gameProjectDetail = gamesProjectContract.gameDetail(gameId);
         if (gameProjectDetail._scripts.length == 0) {
             result = "";
         } else if (gameProjectDetail._scripts.length == 1) {
