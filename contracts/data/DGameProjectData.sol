@@ -19,13 +19,13 @@ import "../libs/structs/NFTDGame.sol";
 contract DGameProjectData is OwnableUpgradeable, IDGameData {
     address public _admin;
     address public _paramAddr;
-    address public _generativeProjectAddr;
+    address public _gamesProjectAddr;
     address public _bfs;
 
-    function initialize(address admin, address paramAddr, address generativeProjectAddr) initializer public {
+    function initialize(address admin, address paramAddr, address gamesProjectAddr) initializer public {
         _admin = admin;
         _paramAddr = paramAddr;
-        _generativeProjectAddr = generativeProjectAddr;
+        _gamesProjectAddr = gamesProjectAddr;
         __Ownable_init();
     }
 
@@ -47,12 +47,12 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
         }
     }
 
-    function changeProjectAddress(address newAddr) external {
+    function changeGamesProjectAddress(address newAddr) external {
         require(msg.sender == _admin && newAddr != address(0), Errors.ONLY_ADMIN_ALLOWED);
 
         // change Generative project address
-        if (_generativeProjectAddr != newAddr) {
-            _generativeProjectAddr = newAddr;
+        if (_gamesProjectAddr != newAddr) {
+            _gamesProjectAddr = newAddr;
         }
     }
 
@@ -66,18 +66,17 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
 
     /* @GameDATA:
     */
-    function gameURI(uint256 projectId) external view returns (string memory result) {
+    function gameURI(uint256 gameId) external view returns (string memory result) {
         NFTDGameData.DGameURIContext memory ctx;
-        IDGameProject p = IDGameProject(_generativeProjectAddr);
-        NFTDGame.DGame memory d = p.gameDetail(projectId);
-        uint256 tokenID = projectId;
-        string memory html = this.tokenHTML(projectId, tokenID, keccak256(abi.encodePacked(tokenID)));
+        IDGameProject p = IDGameProject(_gamesProjectAddr);
+        NFTDGame.DGame memory d = p.gameDetail(gameId);
+        string memory html = this.tokenHTML(gameId);
         if (bytes(html).length > 0) {
             html = string(abi.encodePacked('data:text/html;base64,', Base64.encode(abi.encodePacked(html))));
         }
         string memory animationURI = string(abi.encodePacked(', "animation_url":"', html, '"'));
 
-        ctx._name = string(abi.encodePacked(d._name, " #", StringsUpgradeable.toString(projectId)));
+        ctx._name = string(abi.encodePacked(d._name, " #", StringsUpgradeable.toString(gameId)));
         ctx._desc = d._desc;
         string memory inflate;
         Inflate.ErrorCode err;
@@ -106,20 +105,20 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
         );
     }
 
-    function tokenHTML(uint256 projectId, uint256 tokenId, bytes32 seed) external view returns (string memory result) {
-        IDGameProject projectContract = IDGameProject(_generativeProjectAddr);
-        NFTDGame.DGame memory projectDetail = projectContract.projectDetails(projectId);
-        if (projectDetail._scripts.length == 0) {
+    function tokenHTML(uint256 gameId) external view returns (string memory result) {
+        IDGameProject gamesProjectContract = IDGameProject(_gamesProjectAddr);
+        NFTDGame.DGame memory gameProjectDetail = gamesProjectContract.gameDetail(gameId);
+        if (gameProjectDetail._scripts.length == 0) {
             result = "";
-        } else if (projectDetail._scripts.length == 1) {
+        } else if (gameProjectDetail._scripts.length == 1) {
             // for old format which used simple template file
             string memory scripts = "";
             string memory inflate;
             Inflate.ErrorCode err;
-            if (bytes(projectDetail._scripts[0]).length > 0) {
-                (inflate, err) = this.inflateString(projectDetail._scripts[0]);
+            if (bytes(gameProjectDetail._scripts[0]).length > 0) {
+                (inflate, err) = this.inflateString(gameProjectDetail._scripts[0]);
                 if (err != Inflate.ErrorCode.ERR_NONE) {
-                    scripts = string(abi.encodePacked(scripts, projectDetail._scripts[0]));
+                    scripts = string(abi.encodePacked(scripts, gameProjectDetail._scripts[0]));
                 } else {
                     scripts = string(abi.encodePacked(scripts, inflate));
                 }
@@ -130,11 +129,11 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
             string memory scripts = "";
             string memory inflate;
             Inflate.ErrorCode err;
-            for (uint256 i = 1; i < projectDetail._scripts.length; i++) {
-                if (bytes(projectDetail._scripts[i]).length > 0) {
-                    (inflate, err) = this.inflateString(projectDetail._scripts[i]);
+            for (uint256 i = 1; i < gameProjectDetail._scripts.length; i++) {
+                if (bytes(gameProjectDetail._scripts[i]).length > 0) {
+                    (inflate, err) = this.inflateString(gameProjectDetail._scripts[i]);
                     if (err != Inflate.ErrorCode.ERR_NONE) {
-                        scripts = string(abi.encodePacked(scripts, '<script>', projectDetail._scripts[i], '</script>'));
+                        scripts = string(abi.encodePacked(scripts, '<script>', gameProjectDetail._scripts[i], '</script>'));
                     } else {
                         scripts = string(abi.encodePacked(scripts, '<script>', inflate, '</script>'));
                     }
@@ -143,9 +142,8 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
             scripts = string(abi.encodePacked(
                     "<html>",
                     "<head><meta charset='UTF-8'>",
-                    libsScript(projectDetail._scriptType), // load libs here
-                    variableScript(seed, tokenId), // load vars
-                    '<style>', projectDetail._styles, '</style>', // load css
+                    libsScript(gameProjectDetail._scriptType), // load libs here
+                    '<style>', gameProjectDetail._styles, '</style>', // load css
                     '</head><body>',
                     scripts, // load main code of user
                     "</body>",
@@ -181,13 +179,6 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
             string memory lib = libScript(libs[i]);
             scriptLibs = string(abi.encodePacked(scriptLibs, lib));
         }
-    }
-
-    function variableScript(bytes32 seed, uint256 tokenId) public view returns (string memory result) {
-        result = '<script type="text/javascript" id="snippet-contract-code">';
-        result = string(abi.encodePacked(result, "let seed='", StringsUtils.toHex(seed), "';"));
-        result = string(abi.encodePacked(result, "let tokenId='", StringsUpgradeable.toString(tokenId), "';"));
-        result = string(abi.encodePacked(result, "</script>"));
     }
 
     function inflateScript(string memory script) public view returns (string memory result, Inflate.ErrorCode err) {
