@@ -18,16 +18,6 @@ library Errors {
 
     // validation error
     string public constant MISSING_NAME = "200";
-    string public constant INV_FEE_PROJECT = "201";
-    string public constant INV_PROJECT = "202";
-    string public constant REACH_MAX = "203";
-    string public constant INV_PARAMS = "204";
-    string public constant TOO_HIGH = "205";
-    string public constant TOKEN_HAS_SEED = "206";
-    string public constant ZERO_SEED = "207";
-    string public constant OPENING_SCHEDULE = "208";
-    string public constant INV_TOKEN = "209";
-    string public constant FORBIDDEN_TRANSFER_PROJECT = "210";
-    string public constant ONLY_GENERATIVE_PROJECT = "211";
-
+    string public constant INV_ADD_GAME_CONTRACT = "201";
+    string public constant INV_GAME_ID = "202";
 }

@@ -9,7 +9,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 import "../interfaces/IDGameProject.sol";
 import "../libs/helpers/Errors.sol";
 import "../libs/structs/NFTDGameProject.sol";
+
+import "../libs/configs/DGameConfigs.sol";
+
 import "../interfaces/IDGameProjectData.sol";
+import "../interfaces/IParameterControl.sol";
 
 contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, IDGameProject {
     // super admin
@@ -70,22 +74,59 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         }
     }
 
+    function _paymentMintGameProject() internal {
+        if (msg.sender != _admin) {
+            IParameterControl _p = IParameterControl(_paramsAddress);
+            // at least require value 1ETH
+            uint256 operationFee = _p.getUInt256(DGameConfigs.CREATE_GAME_PROJECT_FEE);
+            if (operationFee > 0) {
+                address operationFeeToken = _p.getAddress(DGameConfigs.CREATE_GAME_FEE_TOKEN);
+                address operatorTreasureAddress = address(this);
+                address operatorTreasureConfig = _p.getAddress(DGameConfigs.OPERATOR_TREASURE_ADDR);
+                if (operatorTreasureConfig != Errors.ZERO_ADDR) {
+                    operatorTreasureAddress = operatorTreasureConfig;
+                }
+                if (!(operationFeeToken == Errors.ZERO_ADDR)) {
+                    IERC20Upgradeable tokenERC20 = IERC20Upgradeable(operationFeeToken);
+                    // transfer erc-20 token to this contract
+                    require(tokenERC20.transferFrom(
+                            msg.sender,
+                            operatorTreasureAddress,
+                            operationFee
+                        ));
+                } else {
+                    require(msg.value >= operationFee);
+                    (bool success,) = operatorTreasureAddress.call{value : msg.value}("");
+                    require(success);
+                }
+            }
+        }
+    }
+
     function mint(
         NFTDGameProject.DGameProject memory game
     ) external payable nonReentrant returns (uint256) {
         // verify
+        require(game._creatorAddr != Errors.ZERO_ADDR, Errors.INV_ADD);
         require(bytes(game._name).length > 3 && bytes(game._creator).length > 3 && bytes(game._image).length > 0, Errors.MISSING_NAME);
+        require(game._gameContract != Errors.ZERO_ADDR, Errors.INV_ADD_GAME_CONTRACT);
+
+
+        _currentGameId++;
+        _paymentMintGameProject();
+        _games[_currentGameId] = game;
+        _safeMint(game._creatorAddr, _currentGameId);
 
         return _currentGameId;
     }
 
     function gameDetail(uint256 gameId) external view returns (NFTDGameProject.DGameProject memory game) {
-        require(_exists(gameId), Errors.INV_TOKEN);
+        require(_exists(gameId), Errors.INV_GAME_ID);
         game = _games[gameId];
     }
 
     function tokenURI(uint256 gameId) override public view returns (string memory result) {
-        require(_exists(gameId), Errors.INV_TOKEN);
+        require(_exists(gameId), Errors.INV_GAME_ID);
         result = IDGameProjectData(_gameDataContextAddr).gameURI(gameId);
     }
 

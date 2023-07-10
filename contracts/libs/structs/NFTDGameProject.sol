@@ -13,5 +13,7 @@ library NFTDGameProject {
 
         string _creator;// required
         address _creatorAddr;// required
+
+        address _gameContract; // required
     }
 }
