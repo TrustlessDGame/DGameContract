@@ -24,19 +24,19 @@ module.exports = {
         apiKey: process.env.ETHSCAN_API_KEY,
         customChains: [
             {
-                network: "tc_mainnet",
-                chainId: 22213,
+                network: "nos_mainnet",
+                chainId: 42213,
                 urls: {
-                    apiURL: "https://explorer.trustless.computer/api",
-                    browserURL: "https://explorer.trustless.computer/api"
+                    apiURL: "https://explorer.l2.trustless.computer/api",
+                    browserURL: "https://explorer.l2.trustless.computer/api"
                 }
             },
             {
-                network: "tc_testnet",
-                chainId: 22215,
+                network: "nos_testnet",
+                chainId: 42070,
                 urls: {
-                    apiURL: "https://explorer.regtest.trustless.computer/api",
-                    browserURL: "https://explorer.regtest.trustless.computer/api"
+                    apiURL: "https://nos-explorer.regtest.trustless.computer/api",
+                    browserURL: "https://nos-explorer.regtest.trustless.computer/api"
                 }
             }
         ]
