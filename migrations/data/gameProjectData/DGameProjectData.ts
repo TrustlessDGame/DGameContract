@@ -6,7 +6,8 @@ import {ethers as eth1} from "ethers";
 const {ethers, upgrades} = require("hardhat");
 const hardhatConfig = require("../../../hardhat.config");
 
-class DGameProject {
+class DGameProjectData {
+
     network: string;
     senderPublicKey: string;
     senderPrivateKey: string;
@@ -17,27 +18,26 @@ class DGameProject {
         this.senderPublicKey = senderPublicKey;
     }
 
-    async deployUpgradeable(name: string, symbol: string,
-                            adminAddress: any,
+    async deployUpgradeable(adminAddress: any,
                             paramAdd: any,
-                            datacontext: any
+                            generativeProjectAdd: any
     ) {
-        // if (this.network == "local") {
-        //     console.log("not run local");
-        //     return;
-        // }
+        /*if (this.network == "local") {
+            console.log("not run local");
+            return;
+        }*/
 
-        const contract = await ethers.getContractFactory("DGameProject");
-        console.log("DGameProject.deploying ...")
-        const proxy = await upgrades.deployProxy(contract, [name, symbol, adminAddress, paramAdd, datacontext], {
-            initializer: 'initialize(string, string, address, address, address)',
+        const contract = await ethers.getContractFactory("DGameProjectData");
+        console.log("DGameProjectData.deploying ...")
+        const proxy = await upgrades.deployProxy(contract, [adminAddress, paramAdd, generativeProjectAdd], {
+            initializer: 'initialize(address, address, address)',
         });
         await proxy.deployed();
-        console.log("DGameProject deployed at proxy:", proxy.address);
+        console.log("DGameProjectData deployed at proxy:", proxy.address);
         return proxy.address;
     }
 
-    getContract(contractAddress: any, contractName: any = "./artifacts/contracts/nfts/DGameProject.sol/DGameProject.json") {
+    getContract(contractAddress: any, contractName: any = "./artifacts/contracts/data/DGameProjectData.sol/DGameProjectData.json") {
         console.log("Network run", this.network, hardhatConfig.networks[this.network].url);
         // if (this.network == "local") {
         //     console.log("not run local");
@@ -54,10 +54,10 @@ class DGameProject {
     }
 
     async upgradeContract(proxyAddress: any) {
-        const contractUpdated = await ethers.getContractFactory("DGameProject");
-        console.log('Upgrading DGameProject... by proxy ' + proxyAddress);
+        const contractUpdated = await ethers.getContractFactory("DGameProjectData");
+        console.log('Upgrading DGameProjectData... by proxy ' + proxyAddress);
         const tx = await upgrades.upgradeProxy(proxyAddress, contractUpdated);
-        console.log('DGameProject upgraded on tx address ' + tx.address);
+        console.log('DGameProjectData upgraded on tx address ' + tx.address);
         return tx;
     }
 
@@ -86,11 +86,56 @@ class DGameProject {
         return null;
     }
 
-    async changeDataContextAddr(contractAddress: any, newAddr: any, gas: any) {
+    async tokenHTML(contractAddress: any, projectId: any) {
         let temp = this.getContract(contractAddress);
         const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
 
-        const fun = temp?.nftContract.methods.changeDataContextAddr(newAddr)
+        //the transaction
+        const tx = {
+            from: this.senderPublicKey,
+            to: contractAddress,
+            nonce: nonce,
+        }
+
+        const val: any = await temp?.nftContract.methods.tokenHTML(projectId).call(tx);
+        return val;
+    }
+
+    async gameURI(contractAddress: any, gameId: any) {
+        let temp = this.getContract(contractAddress);
+        const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
+
+        //the transaction
+        const tx = {
+            from: this.senderPublicKey,
+            to: contractAddress,
+            nonce: nonce,
+        }
+
+        const val: any = await temp?.nftContract.methods.gameURI(gameId).call(tx);
+        return val;
+    }
+
+    async inflateScript(contractAddress: any, script: any) {
+        let temp = this.getContract(contractAddress);
+        const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
+
+        //the transaction
+        const tx = {
+            from: this.senderPublicKey,
+            to: contractAddress,
+            nonce: nonce,
+        }
+
+        const val: any = await temp?.nftContract.methods.inflateScript(script).call(tx);
+        return val;
+    }
+
+    async changeProjectAddress(contractAddress: any, newAddr: any, gas: any) {
+        let temp = this.getContract(contractAddress);
+        const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
+
+        const fun = temp?.nftContract.methods.changeProjectAddress(newAddr)
         //the transaction
         const tx = {
             from: this.senderPublicKey,
@@ -107,11 +152,11 @@ class DGameProject {
         return await this.signedAndSendTx(temp?.web3, tx);
     }
 
-    async changeProjectImplementation(contractAddress: any, newAddr: any, gas: any) {
+    async changeBfs(contractAddress: any, newAddr: any, gas: any) {
         let temp = this.getContract(contractAddress);
         const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
 
-        const fun = temp?.nftContract.methods.changeProjectImplementation(newAddr)
+        const fun = temp?.nftContract.methods.changeBfs(newAddr)
         //the transaction
         const tx = {
             from: this.senderPublicKey,
@@ -128,50 +173,7 @@ class DGameProject {
         return await this.signedAndSendTx(temp?.web3, tx);
     }
 
-    async mint(contractAddress: any, project: any, mintFee: any, gas: any) {
-        let temp = this.getContract(contractAddress);
-        const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
-
-        const fun = temp?.nftContract.methods.mint(project)
-        //the transaction
-        const tx = {
-            from: this.senderPublicKey,
-            to: contractAddress,
-            nonce: nonce,
-            gas: gas,
-            data: fun.encodeABI(),
-            value: ethers.utils.parseEther(mintFee)
-        }
-
-        if (tx.gas == 0) {
-            tx.gas = await fun.estimateGas(tx);
-        }
-
-        return await this.signedAndSendTx(temp?.web3, tx);
-    }
-
-    async updateProjectScript(contractAddress: any, projectId: any, index: any, script: any, gas: any) {
-        let temp = this.getContract(contractAddress);
-        const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
-
-        const fun = temp?.nftContract.methods.updateProjectScript(projectId, index, script)
-        //the transaction
-        const tx = {
-            from: this.senderPublicKey,
-            to: contractAddress,
-            nonce: nonce,
-            gas: gas,
-            data: fun.encodeABI(),
-        }
-
-        if (tx.gas == 0) {
-            tx.gas = await fun.estimateGas(tx);
-        }
-
-        return await this.signedAndSendTx(temp?.web3, tx);
-    }
-
-    async gameDetail(contractAddress: any, tokenID: any) {
+    async getChainID(contractAddress: any) {
         let temp = this.getContract(contractAddress);
         const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
 
@@ -182,71 +184,9 @@ class DGameProject {
             nonce: nonce,
         }
 
-        return await temp?.nftContract.methods.gameDetail(tokenID).call(tx);
-    }
-
-    async projectStatus(contractAddress: any, tokenID: any) {
-        let temp = this.getContract(contractAddress);
-        const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
-
-        //the transaction
-        const tx = {
-            from: this.senderPublicKey,
-            to: contractAddress,
-            nonce: nonce,
-        }
-
-        return await temp?.nftContract.methods.projectStatus(tokenID).call(tx);
-    }
-
-    async tokenURI(contractAddress: any, tokenID: any) {
-        let temp = this.getContract(contractAddress);
-        const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
-
-        //the transaction
-        const tx = {
-            from: this.senderPublicKey,
-            to: contractAddress,
-            nonce: nonce,
-        }
-
-        return await temp?.nftContract.methods.tokenURI(tokenID).call(tx);
-    }
-
-    async randomizerAddr(contractAddress: any) {
-        let temp = this.getContract(contractAddress);
-        const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
-
-        //the transaction
-        const tx = {
-            from: this.senderPublicKey,
-            to: contractAddress,
-            nonce: nonce,
-        }
-
-        return await temp?.nftContract.methods._randomizerAddr().call(tx);
-    }
-
-    async transfer(contractAddress: any, receiver: any, tokenID: any, gas: number) {
-        let temp = this.getContract(contractAddress);
-        const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
-
-        let fun = temp?.nftContract.methods.safeTransferFrom(this.senderPublicKey, receiver, tokenID);
-        //the transaction
-        const tx = {
-            from: this.senderPublicKey,
-            to: contractAddress,
-            nonce: nonce,
-            gas: gas,
-            data: fun.encodeABI(),
-        }
-
-        if (tx.gas == 0) {
-            tx.gas = await fun.estimateGas(tx);
-        }
-
-        return await this.signedAndSendTx(temp?.web3, tx);
+        const val: any = await temp?.nftContract.methods.getChainID().call(tx);
+        return val;
     }
 }
 
-export {DGameProject};
+export {DGameProjectData};
