@@ -4,7 +4,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
 import "../interfaces/IParameterControl.sol";
-import "../interfaces/IDGameData.sol";
+import "../interfaces/IDGameProjectData.sol";
 import "../interfaces/IDGameProject.sol";
 import "../interfaces/IBFS.sol";
 
@@ -16,7 +16,7 @@ import "../libs/helpers/StringsUtils.sol";
 import "../libs/helpers/Errors.sol";
 
 
-contract DGameProjectData is OwnableUpgradeable, IDGameData {
+contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     address public _admin;
     address public _paramAddr;
     address public _gamesProjectAddr;

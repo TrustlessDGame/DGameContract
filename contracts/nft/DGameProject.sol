@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 import "../interfaces/IDGameProject.sol";
 import "../libs/helpers/Errors.sol";
 import "../libs/structs/NFTDGameProject.sol";
+import "../interfaces/IDGameProjectData.sol";
 
 contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, IDGameProject {
     // super admin
@@ -85,5 +86,14 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
 
     function tokenURI(uint256 gameId) override public view returns (string memory result) {
         require(_exists(gameId), Errors.INV_TOKEN);
+        result = IDGameProjectData(_gameDataContextAddr).gameURI(gameId);
+    }
+
+    function transferFrom(address from, address to, uint256 tokenId) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+        require(1 == 0);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+        require(1 == 0);
     }
 }
