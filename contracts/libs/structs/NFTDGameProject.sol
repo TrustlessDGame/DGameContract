@@ -15,5 +15,8 @@ library NFTDGameProject {
         address _creatorAddr;// required
 
         address _gameContract; // required
+        address _gameTokenERC20; // optional
+        address _gameNFTERC721; // optional
+        address _gameNFTERC1155; // optional
     }
 }
