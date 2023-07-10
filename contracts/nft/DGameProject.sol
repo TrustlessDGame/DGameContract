@@ -111,7 +111,6 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         require(bytes(game._name).length > 3 && bytes(game._creator).length > 3 && bytes(game._image).length > 0, Errors.MISSING_NAME);
         require(game._gameContract != Errors.ZERO_ADDR, Errors.INV_ADD_GAME_CONTRACT);
 
-
         _currentGameId++;
         _paymentMintGameProject();
         _games[_currentGameId] = game;
