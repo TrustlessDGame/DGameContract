@@ -5,16 +5,16 @@ import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
 import "../interfaces/IParameterControl.sol";
 import "../interfaces/IDGameData.sol";
-import "../libs/configs/DGameConfigs.sol";
-
-import "../libs/helpers/Errors.sol";
-import "../libs/helpers/Base64.sol";
-import "../libs/helpers/Inflate.sol";
-import "../libs/helpers/StringsUtils.sol";
-import "../services/BFS.sol";
-import "../libs/structs/NFTDGameData.sol";
 import "../interfaces/IDGameProject.sol";
-import "../libs/structs/NFTDGame.sol";
+import "../interfaces/IBFS.sol";
+
+import "../libs/configs/DGameConfigs.sol";
+import "../libs/helpers/Inflate.sol";
+import "../libs/helpers/Base64.sol";
+import "../libs/structs/NFTDGameData.sol";
+import "../libs/helpers/StringsUtils.sol";
+import "../libs/helpers/Errors.sol";
+
 
 contract DGameProjectData is OwnableUpgradeable, IDGameData {
     address public _admin;
@@ -93,14 +93,12 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
             scriptType = string(abi.encodePacked(scriptType, ',{"trait_type": "Lib ', StringsUpgradeable.toString(i + 1), '", "value": "', d._scriptType[i], '"}'));
         }
         result = string(
-            abi.encodePacked('data:application/json;base64,',
-            Base64.encode(abi.encodePacked(
+            abi.encodePacked(
                 '{"name":"', ctx._name, '"',
                 ',"description":"', Base64.encode(abi.encodePacked(ctx._desc)), '"',
                 ',"image":"', ctx._image, '"',
                 ctx._animationURI,
                 '}'
-            ))
             )
         );
     }
@@ -155,7 +153,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameData {
 
     function loadLibFileContent(string memory fileName) internal view returns (string memory script) {
         script = "";
-        BFS bfs = BFS(_bfs);
+        IBFS bfs = IBFS(_bfs);
         // count file
         address scriptProvider = IParameterControl(_paramAddr).getAddress("SCRIPT_PROVIDER");
         uint256 count = bfs.count(scriptProvider, fileName);
