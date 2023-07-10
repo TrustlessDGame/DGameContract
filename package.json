@@ -1,5 +1,5 @@
 {
-  "name": "generative-metaverse",
+  "name": "dgame-contract",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -39,7 +39,6 @@
   "dependencies": {
     "@chainlink/contracts": "^0.5.1",
     "@ericxstone/hardhat-blockscout-verify": "^1.0.2",
-    "@openzeppelin/contracts": "^4.7.3",
     "buffer-type": "^1.0.0",
     "dayjs": "^1.11.7",
     "file-type": "^18.2.1",
