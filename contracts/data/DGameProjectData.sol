@@ -141,6 +141,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                     "<html>",
                     "<head><meta charset='UTF-8'>",
                     libsScript(gameProjectDetail._scriptType), // load libs here
+                    variableScript(gameProjectDetail), // load vars
                     '<style>', gameProjectDetail._styles, '</style>', // load css
                     '</head><body>',
                     scripts, // load main code of user
@@ -177,6 +178,12 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             string memory lib = libScript(libs[i]);
             scriptLibs = string(abi.encodePacked(scriptLibs, lib));
         }
+    }
+
+    function variableScript(NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
+        result = '<script type="text/javascript" id="snippet-contract-code">';
+        result = string(abi.encodePacked(result, "let GAME_CONTRACT_ADDRESS='", game._gameContract, "';"));
+        result = string(abi.encodePacked(result, "</script>"));
     }
 
     function inflateScript(string memory script) public view returns (string memory result, Inflate.ErrorCode err) {
