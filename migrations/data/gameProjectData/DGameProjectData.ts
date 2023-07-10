@@ -131,11 +131,11 @@ class DGameProjectData {
         return val;
     }
 
-    async changeProjectAddress(contractAddress: any, newAddr: any, gas: any) {
+    async changeGamesProjectAddress(contractAddress: any, newAddr: any, gas: any) {
         let temp = this.getContract(contractAddress);
         const nonce = await temp?.web3.eth.getTransactionCount(this.senderPublicKey, "latest") //get latest nonce
 
-        const fun = temp?.nftContract.methods.changeProjectAddress(newAddr)
+        const fun = temp?.nftContract.methods.changeGamesProjectAddress(newAddr)
         //the transaction
         const tx = {
             from: this.senderPublicKey,
