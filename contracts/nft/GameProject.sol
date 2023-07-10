@@ -5,15 +5,12 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import "../libs/operator-filter-registry/upgradeable/DefaultOperatorFiltererUpgradeable.sol";
 
 import "../interfaces/IGameProject.sol";
-
 import "../libs/structs/NFTGame.sol";
 import "../libs/helpers/Errors.sol";
 
-contract GameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, IERC2981Upgradeable, IGameProject, DefaultOperatorFiltererUpgradeable {
+contract GameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, IGameProject {
     // super admin
     address public _admin;
     // parameter control address
@@ -36,12 +33,11 @@ contract GameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         require(paramsAddress != Errors.ZERO_ADDR, Errors.INV_ADD);
         _paramsAddress = paramsAddress;
         _admin = admin;
-        _gameDataContextAddr = projectDataContextAddr;
+        _gameDataContextAddr = gameDataContextAddr;
 
         __ERC721_init(name, symbol);
         __ReentrancyGuard_init();
         __ERC721Pausable_init();
-        __DefaultOperatorFilterer_init();
         __Ownable_init();
     }
 
@@ -77,20 +73,17 @@ contract GameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         NFTGame.Game memory game
     ) external payable nonReentrant returns (uint256) {
         // verify
-        require(bytes(game._name).length > 3 && bytes(game._creator).length > 3 && bytes(project._image).length > 0, Errors.MISSING_NAME);
+        require(bytes(game._name).length > 3 && bytes(game._creator).length > 3 && bytes(game._image).length > 0, Errors.MISSING_NAME);
 
         return _currentGameId;
     }
 
+    function gameDetail(uint256 gameId) external view returns (NFTGame.Game memory game) {
+        require(_exists(gameId), Errors.INV_TOKEN);
+        game = _games[gameId];
+    }
+
     function tokenURI(uint256 gameId) override public view returns (string memory result) {
         require(_exists(gameId), Errors.INV_TOKEN);
-    }
-
-    function transferFrom(address from, address to, uint256 tokenId) public override {
-        // NOT allow transfer
-    }
-
-    function burn(uint256 tokenId) public override {
-        // NOT allow burn
     }
 }

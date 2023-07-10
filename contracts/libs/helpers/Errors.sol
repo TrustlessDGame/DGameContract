@@ -30,22 +30,4 @@ library Errors {
     string public constant FORBIDDEN_TRANSFER_PROJECT = "210";
     string public constant ONLY_GENERATIVE_PROJECT = "211";
 
-    // validator market error
-    string public constant INVALID_ERC721_OWNER = "300";
-    string public constant ERC_721_NOT_APPROVED = "301";
-    string public constant OFFERING_CLOSED = "302";
-    string public constant VALUE_INVALID = "303";
-    string public constant ERC20_BALANCE_INVALID = "304";
-    string public constant ERC20_NOT_APPROVED = "305";
-    string public constant TRANSFER_FAIL = "306";
-    string public constant ERC_20_NOT_ALLOW = "307";
-    string public constant ZERO_PRICE = "308";
-    string public constant ZERO_DURATION = "309";
-
-    // GEN Token
-    string public constant POA_INVALID_TOKEN = "400";
-    string public constant TEAM_VESTING_ERROR_ADDR = "401";
-    string public constant DAO_VESTING_ERROR_ADDR = "402";
-    string public constant VESTING_TIME_LOCK = "403";
-    string public constant VESTING_REMAIN = "404";
 }
