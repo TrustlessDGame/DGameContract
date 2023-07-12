@@ -70,13 +70,8 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         NFTDGameData.DGameURIContext memory ctx;
         IDGameProject p = IDGameProject(_gamesProjectAddr);
         NFTDGameProject.DGameProject memory d = p.gameDetail(gameId);
-        string memory html = this.tokenHTML(gameId);
-        if (bytes(html).length > 0) {
-            html = string(abi.encodePacked('data:text/html;base64,', Base64.encode(abi.encodePacked(html))));
-        }
-        string memory animationURI = string(abi.encodePacked(', "animation_url":"', html, '"'));
 
-        ctx._name = string(abi.encodePacked(d._name, " #", StringsUpgradeable.toString(gameId)));
+        ctx._name = d._name;
         ctx._desc = d._desc;
         string memory inflate;
         Inflate.ErrorCode err;
@@ -85,19 +80,13 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             ctx._desc = inflate;
         }
         ctx._image = d._image;
-        ctx._animationURI = animationURI;
         ctx._creatorAddr = d._creatorAddr;
         ctx._creator = d._creator;
-        string memory scriptType = "";
-        for (uint8 i; i < d._scriptType.length; i++) {
-            scriptType = string(abi.encodePacked(scriptType, ',{"trait_type": "Lib ', StringsUpgradeable.toString(i + 1), '", "value": "', d._scriptType[i], '"}'));
-        }
         result = string(
             abi.encodePacked(
                 '{"name":"', ctx._name, '"',
                 ',"description":"', Base64.encode(abi.encodePacked(ctx._desc)), '"',
                 ',"image":"', ctx._image, '"',
-                ctx._animationURI,
                 '}'
             )
         );
