@@ -181,6 +181,10 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         result = IDGameProjectData(_gameDataContextAddr).gameURI(gameId);
     }
 
+    function ethersjsLibScript(uint256 chunkIndex) public view returns (bytes memory data, int256 nextChunkIndex) {
+        (data, nextChunkIndex) = IDGameProjectData(_gameDataContextAddr).ethersjsLibScript("", chunkIndex);
+    }
+
     function transferFrom(address from, address to, uint256 tokenId) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
         require(1 == 0);
     }

@@ -70,11 +70,6 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         NFTDGameData.DGameURIContext memory ctx;
         IDGameProject p = IDGameProject(_gamesProjectAddr);
         NFTDGameProject.DGameProject memory d = p.gameDetail(gameId);
-        string memory html = this.tokenHTML(gameId);
-        if (bytes(html).length > 0) {
-            html = string(abi.encodePacked('data:text/html;base64,', Base64.encode(abi.encodePacked(html))));
-        }
-        string memory animationURI = string(abi.encodePacked(', "animation_url":"', html, '"'));
 
         ctx._name = string(abi.encodePacked(d._name, " #", StringsUpgradeable.toString(gameId)));
         ctx._desc = d._desc;
@@ -85,7 +80,6 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             ctx._desc = inflate;
         }
         ctx._image = d._image;
-        ctx._animationURI = animationURI;
         ctx._creatorAddr = d._creatorAddr;
         ctx._creator = d._creator;
         string memory scriptType = "";
@@ -97,7 +91,6 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 '{"name":"', ctx._name, '"',
                 ',"description":"', Base64.encode(abi.encodePacked(ctx._desc)), '"',
                 ',"image":"', ctx._image, '"',
-                ctx._animationURI,
                 '}'
             )
         );
@@ -120,45 +113,39 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             }
         }
         scripts = string(abi.encodePacked(
-                "<html>",
-                "<head><meta charset='UTF-8'>",
                 libsScript(gameProjectDetail._scriptType), // load libs here
                 variableScript(gameId, gameProjectDetail), // load vars
                 '<style>', gameProjectDetail._styles, '</style>', // load css
                 '</head><body>',
                 scripts, // load main code of user
-                "</body>",
-                "</html>"
+                "</body>"
             ));
         result = scripts;
     }
 
-    function loadLibFileContent(string memory fileName) internal view returns (string memory script) {
-        script = "";
-        IBFS bfs = IBFS(_bfs);
-        // count file
-        address scriptProvider = IParameterControl(_paramAddr).getAddress("SCRIPT_PROVIDER");
-        uint256 count = bfs.count(scriptProvider, fileName);
-        count += 1;
-        // load and concat string
-        for (uint256 i = 0; i < count; i++) {
-            (bytes memory data, int256 nextChunk) = bfs.load(scriptProvider, fileName, i);
-            script = string(abi.encodePacked(script, string(data)));
-        }
-    }
-
-    function libScript(string memory fileName) public view returns (string memory result){
-        result = "<script sandbox='allow-scripts' type='text/javascript'>";
-        result = string(abi.encodePacked(result, loadLibFileContent(fileName)));
+    function libScript(string memory fileName) private view returns (string memory result){
+        result = "<script sandbox='allow-scripts' type='text/javascript' preload='";
+        result = string(abi.encodePacked(result, fileName, "'>"));
         result = string(abi.encodePacked(result, "</script>"));
     }
 
-    function libsScript(string[] memory libs) private view returns (string memory scriptLibs) {
+    function libsScript(string[] memory libs) public view returns (string memory scriptLibs) {
         scriptLibs = "";
         for (uint256 i = 0; i < libs.length; i++) {
             string memory lib = libScript(libs[i]);
-            scriptLibs = string(abi.encodePacked(scriptLibs, lib));
+            if (keccak256(abi.encodePacked(lib)) != keccak256(abi.encodePacked("ethersjs@5.7.2.js"))) {
+                scriptLibs = string(abi.encodePacked(scriptLibs, lib));
+            }
         }
+    }
+
+    function ethersjsLibScript(string memory fileName, uint256 chunkIndex) public view returns (bytes memory data, int256 nextChunkIndex) {
+        IBFS bfs = IBFS(_bfs);
+        if (bytes(fileName).length == 0) {
+            fileName = "ethersjs@5.7.2.js";
+        }
+        address scriptProvider = IParameterControl(_paramAddr).getAddress("SCRIPT_PROVIDER");
+        (data, nextChunkIndex) = bfs.load(scriptProvider, fileName, chunkIndex);
     }
 
     function variableScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
