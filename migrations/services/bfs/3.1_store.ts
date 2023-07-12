@@ -32,7 +32,7 @@ function getByteArray(filePath: string) {
             console.log("chunk - ", temp)
         }
         console.log("Split to ", chunks.length);
-        for (let i = 1; i < chunks.length; i++) {
+        for (let i = 0; i < chunks.length; i++) {
             try {
                 console.log('inscribe chunk', i, 'of file', fileName, 'with', chunks[i].length, 'bytes');
                 const tx = await data.store(args[0], fileName, i, chunks[i], 29000000);// max gas limit

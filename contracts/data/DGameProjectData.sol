@@ -106,50 +106,31 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     function tokenHTML(uint256 gameId) external view returns (string memory result) {
         IDGameProject gamesProjectContract = IDGameProject(_gamesProjectAddr);
         NFTDGameProject.DGameProject memory gameProjectDetail = gamesProjectContract.gameDetail(gameId);
-        if (gameProjectDetail._scripts.length == 0) {
-            result = "";
-        } else if (gameProjectDetail._scripts.length == 1) {
-            // for old format which used simple template file
-            string memory scripts = "";
-            string memory inflate;
-            Inflate.ErrorCode err;
-            if (bytes(gameProjectDetail._scripts[0]).length > 0) {
-                (inflate, err) = this.inflateString(gameProjectDetail._scripts[0]);
+        string memory scripts = "";
+        string memory inflate;
+        Inflate.ErrorCode err;
+        for (uint256 i = 1; i < gameProjectDetail._scripts.length; i++) {
+            if (bytes(gameProjectDetail._scripts[i]).length > 0) {
+                (inflate, err) = this.inflateString(gameProjectDetail._scripts[i]);
                 if (err != Inflate.ErrorCode.ERR_NONE) {
-                    scripts = string(abi.encodePacked(scripts, gameProjectDetail._scripts[0]));
+                    scripts = string(abi.encodePacked(scripts, '<script>', gameProjectDetail._scripts[i], '</script>'));
                 } else {
-                    scripts = string(abi.encodePacked(scripts, inflate));
+                    scripts = string(abi.encodePacked(scripts, '<script>', inflate, '</script>'));
                 }
             }
-            result = scripts;
-        } else {
-            // for new format which used advance template file for supporting fully on-chain javascript libs
-            string memory scripts = "";
-            string memory inflate;
-            Inflate.ErrorCode err;
-            for (uint256 i = 1; i < gameProjectDetail._scripts.length; i++) {
-                if (bytes(gameProjectDetail._scripts[i]).length > 0) {
-                    (inflate, err) = this.inflateString(gameProjectDetail._scripts[i]);
-                    if (err != Inflate.ErrorCode.ERR_NONE) {
-                        scripts = string(abi.encodePacked(scripts, '<script>', gameProjectDetail._scripts[i], '</script>'));
-                    } else {
-                        scripts = string(abi.encodePacked(scripts, '<script>', inflate, '</script>'));
-                    }
-                }
-            }
-            scripts = string(abi.encodePacked(
-                    "<html>",
-                    "<head><meta charset='UTF-8'>",
-                    libsScript(gameProjectDetail._scriptType), // load libs here
-                    variableScript(gameId, gameProjectDetail), // load vars
-                    '<style>', gameProjectDetail._styles, '</style>', // load css
-                    '</head><body>',
-                    scripts, // load main code of user
-                    "</body>",
-                    "</html>"
-                ));
-            result = scripts;
         }
+        scripts = string(abi.encodePacked(
+                "<html>",
+                "<head><meta charset='UTF-8'>",
+                libsScript(gameProjectDetail._scriptType), // load libs here
+                variableScript(gameId, gameProjectDetail), // load vars
+                '<style>', gameProjectDetail._styles, '</style>', // load css
+                '</head><body>',
+                scripts, // load main code of user
+                "</body>",
+                "</html>"
+            ));
+        result = scripts;
     }
 
     function loadLibFileContent(string memory fileName) internal view returns (string memory script) {
