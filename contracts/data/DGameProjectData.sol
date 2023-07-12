@@ -151,10 +151,11 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     function variableScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
         result = '<script type="text/javascript" id="snippet-contract-code">';
         result = string(abi.encodePacked(result, "let GAME_ID='", StringsUpgradeable.toString(gameId), "';"));
-        result = string(abi.encodePacked(result, "let GAME_CONTRACT_ADDRESS='", game._gameContract, "';"));
-        result = string(abi.encodePacked(result, "let GAME_TOKEN_ERC20_ADDRESS='", game._gameTokenERC20, "';"));
-        result = string(abi.encodePacked(result, "let GAME_NFT_ERC721_ADDRESS='", game._gameNFTERC721, "';"));
-        result = string(abi.encodePacked(result, "let GAME_TOKEN_ERC1155_ADDRESS='", game._gameNFTERC1155, "';"));
+        result = string(abi.encodePacked(result, "let GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract), "';"));
+        result = string(abi.encodePacked(result, "let GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20), "';"));
+        result = string(abi.encodePacked(result, "let GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721), "';"));
+        result = string(abi.encodePacked(result, "let GAME_TOKEN_ERC1155_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC1155), "';"));
+        result = string(abi.encodePacked(result, "let BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs), "';"));
         result = string(abi.encodePacked(result, "</script>"));
     }
 
