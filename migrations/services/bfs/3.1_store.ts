@@ -37,7 +37,6 @@ function getByteArray(filePath: string) {
                 console.log('inscribe chunk', i, 'of file', fileName, 'with', chunks[i].length, 'bytes');
                 const tx = await data.store(args[0], fileName, i, chunks[i], 29000000);// max gas limit
                 console.log("tx:", tx?.transactionHash, tx?.status);
-                await sleep(3000);
             } catch (e) {
                 console.log("Error: ", e);
                 break;
