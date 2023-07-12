@@ -8,5 +8,6 @@ library NFTDGameData {
         string _name;
         string _image;
         string _desc;
+        string _animationURI;
     }
 }
