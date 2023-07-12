@@ -121,7 +121,7 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
 
     /* @UpdateProject
     */
-    
+
     function updateGameProjectScriptType(
         uint256 gameId,
         string memory scriptType,
@@ -189,6 +189,11 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
     function tokenURI(uint256 gameId) override public view returns (string memory result) {
         require(_exists(gameId), Errors.INV_GAME_ID);
         result = IDGameProjectData(_gameDataContextAddr).gameURI(gameId);
+    }
+
+    function gameHtml(uint256 gameId) public view returns (string memory result) {
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        result = IDGameProjectData(_gameDataContextAddr).gameHTML(gameId);
     }
 
     function transferFrom(address from, address to, uint256 tokenId) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {

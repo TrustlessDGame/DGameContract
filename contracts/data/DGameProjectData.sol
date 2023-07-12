@@ -92,7 +92,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         );
     }
 
-    function tokenHTML(uint256 gameId) external view returns (string memory result) {
+    function gameHTML(uint256 gameId) external view returns (string memory result) {
         IDGameProject gamesProjectContract = IDGameProject(_gamesProjectAddr);
         NFTDGameProject.DGameProject memory gameProjectDetail = gamesProjectContract.gameDetail(gameId);
         string memory scripts = "";
