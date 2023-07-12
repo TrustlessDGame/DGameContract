@@ -25,7 +25,7 @@ import dayjs = require("dayjs");
                     _image: "ipfs://QmZha95v86iME98rpxrJWbHerK3JjEHKkiGpdS4NgZKjdb",
                     _creator: "Dev team",
                     _creatorAddr: process.env.PUBLIC_KEY,
-                    _scriptType: JSON.parse(JSON.stringify([])),
+                    _scriptType: JSON.parse(JSON.stringify(["ethersumdjs@5.7.2.js.gz"])),
                     _scripts: ['let web3;function preload(){web3=new Web3(Web3.givenProvider),window.ethereum||alert("Please install metamask")}preload();', 'class WalletData{Wallet;Balance;constructor(){}async LoadWallet(){let t=localStorage.getItem("walletData");if(null==t){console.log("not exist wallet");let a=web3.eth.accounts.create(web3.utils.randomHex(32)),l=web3.eth.accounts.wallet.add(a),e=l.encrypt(web3.utils.randomHex(32));t={account:a,wallet:l,keystore:e},localStorage.setItem("walletData",JSON.stringify(t))}else console.log("exist wallet"),t=JSON.parse(t);this.Wallet=t,this.Balance=await web3.eth.getBalance(this.Wallet.account.address),console.log(this.Wallet.account.address,web3.utils.fromWei(this.Balance.toString()),"TC")}}let wallet=new WalletData;wallet.LoadWallet();'],
                     _styles: "",
                     _gameContract: "0xb537f09Ae5bF453fc881b25BCC8687f54ee70DB6",

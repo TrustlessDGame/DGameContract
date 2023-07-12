@@ -119,6 +119,9 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         return _currentGameId;
     }
 
+    /* @UpdateProject
+    */
+    
     function updateGameProjectScriptType(
         uint256 gameId,
         string memory scriptType,
@@ -131,8 +134,15 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         _games[gameId]._scriptType[i] = scriptType;
     }
 
-    /* @UpdateProject
-    */
+    function addGameProjectScriptType(uint256 gameId, string memory scriptType)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._scriptType.push(scriptType);
+    }
+
+
     function addGameProjectScript(uint256 gameId, string memory _script)
     external
     {
