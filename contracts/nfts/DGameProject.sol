@@ -14,16 +14,14 @@ import "../libs/configs/DGameProjectConfigs.sol";
 
 import "../interfaces/IDGameProjectData.sol";
 import "../interfaces/IParameterControl.sol";
+import "../interfaces/IRandomizer.sol";
 
 contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, IDGameProject {
-    // super admin
     address public _admin;
-    // parameter control address
     address public _paramsAddress;
-    // game data
+    address public _randomizer;
     address public _gameDataContextAddr;
-    // _currentGameId is tokenID of game nft
-    uint256 private _currentGameId;
+    uint256 public _currentGameId;
 
     mapping(uint256 => NFTDGameProject.DGameProject) _games;
 
@@ -64,6 +62,13 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
             _paramsAddress = newAddr;
         }
     }
+
+    function changeRandomizerAddr(address newAddr) external {
+        require(msg.sender == _admin && newAddr != Errors.ZERO_ADDR, Errors.ONLY_ADMIN_ALLOWED);
+        // change
+        _randomizer = newAddr;
+    }
+
 
     function changeDataContextAddr(address newAddr) external {
         require(msg.sender == _admin && newAddr != Errors.ZERO_ADDR, Errors.ONLY_ADMIN_ALLOWED);
@@ -113,6 +118,9 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
 
         _currentGameId++;
         _paymentMintGameProject();
+        // random seed
+        IRandomizer random = IRandomizer(_randomizer);
+        game._seed = random.generateTokenHash(_currentGameId);
         _games[_currentGameId] = game;
         _safeMint(game._creatorAddr, _currentGameId);
 

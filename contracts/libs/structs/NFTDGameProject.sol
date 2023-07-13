@@ -9,7 +9,9 @@ library NFTDGameProject {
 
         string[] _scriptType;// not require
         string[] _scripts;// required
-        string _styles;// not require
+        string[] _assets;// not required
+        string _styles;// not required
+        bytes32 _seed; // not required
 
         string _creator;// required
         address _creatorAddr;// required
