@@ -30,13 +30,15 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         string memory symbol,
         address admin,
         address paramsAddress,
-        address gameDataContextAddr
+        address gameDataContextAddr,
+        address randomizeAddr
     ) initializer public {
         require(admin != Errors.ZERO_ADDR, Errors.INV_ADD);
         require(paramsAddress != Errors.ZERO_ADDR, Errors.INV_ADD);
         _paramsAddress = paramsAddress;
         _admin = admin;
         _gameDataContextAddr = gameDataContextAddr;
+        _randomizer = randomizeAddr;
 
         __ERC721_init(name, symbol);
         __ReentrancyGuard_init();
