@@ -12,7 +12,7 @@ import {DGameProjectData} from "./DGameProjectData";
         const address = await nft.deployUpgradeable(
             process.env.PUBLIC_KEY,
             "0xB044122f1CD9080A60Da25b1A8d59162290D7275",
-            "0xCace1b78160AE76398F486c8a18044da0d66d86D",
+            "0x09Bc099B59C696aE2970Ca0caE4f2FD91d0919Fc",
         );
         console.log("%s GenerativeProjectData address: %s", process.env.NETWORK, address);
     } catch (e) {
