@@ -20,7 +20,8 @@ class DGameProject {
     async deployUpgradeable(name: string, symbol: string,
                             adminAddress: any,
                             paramAdd: any,
-                            datacontext: any
+                            datacontext: any,
+                            random: any
     ) {
         // if (this.network == "local") {
         //     console.log("not run local");
@@ -29,8 +30,8 @@ class DGameProject {
 
         const contract = await ethers.getContractFactory("DGameProject");
         console.log("DGameProject.deploying ...")
-        const proxy = await upgrades.deployProxy(contract, [name, symbol, adminAddress, paramAdd, datacontext], {
-            initializer: 'initialize(string, string, address, address, address)',
+        const proxy = await upgrades.deployProxy(contract, [name, symbol, adminAddress, paramAdd, datacontext, random], {
+            initializer: 'initialize(string, string, address, address, address, address)',
         });
         await proxy.deployed();
         console.log("DGameProject deployed at proxy:", proxy.address);

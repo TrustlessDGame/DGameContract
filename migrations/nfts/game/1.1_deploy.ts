@@ -15,6 +15,7 @@ import {DGameProject} from "./DGameProject";
             process.env.PUBLIC_KEY,
             "0xB044122f1CD9080A60Da25b1A8d59162290D7275",
             "0xb537f09Ae5bF453fc881b25BCC8687f54ee70DB6",
+            '0x158C0Ca719cd3a5e263f45e104C9B5f567039Df3'
         );
         console.log("%s DGameProject address: %s", process.env.NETWORK, address);
     } catch (e) {
