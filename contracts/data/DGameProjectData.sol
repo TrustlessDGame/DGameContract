@@ -114,6 +114,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 loadDecompressLib(),
                 libsScript(gameProjectDetail._scriptType), // load libs here
                 variableScript(gameId, gameProjectDetail), // load vars
+                assetsScript(gameProjectDetail), // load assets
                 '<style>', gameProjectDetail._styles, '</style>', // load css
                 '</head><body>',
                 scripts, // load main code of user
@@ -156,6 +157,21 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             string memory lib = libScript(libs[i]);
             scriptLibs = string(abi.encodePacked(scriptLibs, lib));
         }
+    }
+
+    function assetsScript(NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
+        result = '<script type="text/javascript" id="snippet-contract-code">';
+        result = string(abi.encodePacked(result, "const GAME_ASSETS={"));
+        for (uint256 i = 0; i < game._assets.length; i++) {
+            result = string(abi.encodePacked(result, "'", game._assets[i],
+                "':'bfs://",
+                StringsUpgradeable.toString(getChainID()), "/",
+                StringsUpgradeable.toHexString(game._creatorAddr), "/",
+                game._assets[i],
+                "',"));
+        }
+        result = string(abi.encodePacked(result, "};"));
+        result = string(abi.encodePacked(result, "</script>"));
     }
 
     function variableScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
@@ -204,7 +220,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         }
     }
 
-    function getChainID() external view returns (uint256) {
+    function getChainID() internal view returns (uint256) {
         uint256 id;
         assembly {
             id := chainid()
