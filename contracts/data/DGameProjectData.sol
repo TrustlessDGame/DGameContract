@@ -174,7 +174,6 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 "':'bfs://",
                 StringsUpgradeable.toString(getChainID()), "/",
                 StringsUpgradeable.toHexString(game._creatorAddr), "/",
-                StringsUpgradeable.toString(gameId), "/",
                 game._assets[i],
                 "',"));
         }
