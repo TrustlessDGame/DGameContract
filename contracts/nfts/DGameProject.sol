@@ -177,6 +177,37 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         delete _games[gameId]._scripts[scriptIndex];
     }
 
+    function addGameProjectAsset(uint256 gameId, string memory asset)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._assets.push(asset);
+    }
+
+    function updateGameProjectAsset(uint256 gameId, uint256 assetIndex, string memory asset)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._assets[assetIndex] = asset;
+    }
+
+    function deleteGameProjectAsset(uint256 gameId, uint256 assetIndex)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        delete _games[gameId]._assets[assetIndex];
+    }
+
+    function updateGameProjectStyles(uint256 gameId, string memory styles)
+    external {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._styles = styles;
+    }
+
     function updateGameProjectName(uint256 gameId, string memory projectName)
     external {
         require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
