@@ -222,6 +222,34 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         _games[gameId]._creator = creatorName;
     }
 
+    function updateGameContract(uint256 gameId, address newAddr)
+    external {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._gameContract = newAddr;
+    }
+
+    function updateGameTokenERC20(uint256 gameId, address newAddr)
+    external {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._gameTokenERC20 = newAddr;
+    }
+
+    function updateGameNFTERC721(uint256 gameId, address newAddr)
+    external {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._gameNFTERC721 = newAddr;
+    }
+
+    function updateGameNFTERC1155(uint256 gameId, address newAddr)
+    external {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._gameNFTERC1155 = newAddr;
+    }
+
     function gameDetail(uint256 gameId) external view returns (NFTDGameProject.DGameProject memory game) {
         require(_exists(gameId), Errors.INV_GAME_ID);
         game = _games[gameId];
