@@ -20,4 +20,5 @@ library Errors {
     string public constant MISSING_NAME = "200";
     string public constant INV_ADD_GAME_CONTRACT = "201";
     string public constant INV_GAME_ID = "202";
+    string public constant INV_DECOMPRESS_SCRIPT = "203";
 }
