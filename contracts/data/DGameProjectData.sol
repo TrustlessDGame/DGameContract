@@ -109,6 +109,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 }
             }
         }
+        scripts = string(abi.encodePacked(scripts, loadPreloadScript()));
         scripts = string(abi.encodePacked(
                 "<html>",
                 "<head><meta charset='UTF-8'>",
@@ -137,6 +138,18 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             require(1 == 0, Errors.INV_DECOMPRESS_SCRIPT);
         }
         result = string(abi.encodePacked(result, '"/>'));
+    }
+
+    function loadPreloadScript() public view returns (string memory result) {
+        // run preload script
+        result = "<script sandbox='allow-scripts' type='text/javascript' name='PRELOAD_SCRIPT' src='data:@file/javascript;base64,";
+        string memory temp = IParameterControl(_paramAddr).get(DGameProjectDataConfigs.PRELOAD_SCRIPT);
+        if (bytes(temp).length > 0) {
+            result = string(abi.encodePacked(result, temp));
+        } else {
+            require(1 == 0, Errors.INV_DECOMPRESS_SCRIPT);
+        }
+        result = string(abi.encodePacked(result, "'></script>"));
     }
 
     function loadABIJsonInterfaceBasic() public view returns (string memory result) {

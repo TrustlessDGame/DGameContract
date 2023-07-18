@@ -6,4 +6,5 @@ library  DGameProjectDataConfigs {
     string public constant ABI_JSON_BASIC = "ABI_JSON_BASIC";
     string public constant CONTRACT_INTERACTION_BASIC = "CONTRACT_INTERACTION_BASIC";
     string public constant INTERNAL_STYLE = "INTERNAL_STYLE";
+    string public constant PRELOAD_SCRIPT = "PRELOAD_SCRIPT";
 }
