@@ -116,7 +116,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 loadABIJsonInterfaceBasic(), // load abi json interface: erc-20, erc-1155, erc-721, bfs
                 libsScript(gameProjectDetail._scriptType), // load libs here
                 variableScript(gameId, gameProjectDetail), // load vars
-                loadContractInteractionBasic(), //
+                loadContractInteractionBasic(), // wallet, bfs call asset, ...
                 assetsScript(gameId, gameProjectDetail), // load assets
                 loadInternalStyle(), // load internal style css
                 '<style>', gameProjectDetail._styles, '</style>', // load css
@@ -129,14 +129,14 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function loadInternalStyle() public view returns (string memory result) {
-        result = "<style>";
+        result = '<link rel="stylesheet" name="INTERNAL_STYLE" type="text/css" href="data:text/css;base64,';
         string memory temp = IParameterControl(_paramAddr).get(DGameProjectDataConfigs.INTERNAL_STYLE);
         if (bytes(temp).length > 0) {
             result = string(abi.encodePacked(result, temp));
         } else {
             require(1 == 0, Errors.INV_DECOMPRESS_SCRIPT);
         }
-        result = string(abi.encodePacked(result, "</style>"));
+        result = string(abi.encodePacked(result, '"/>'));
     }
 
     function loadABIJsonInterfaceBasic() public view returns (string memory result) {
