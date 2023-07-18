@@ -235,6 +235,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         result = string(abi.encodePacked(result, "const GAME_ID='", StringsUpgradeable.toString(gameId), "';"));
         result = string(abi.encodePacked(result, "const SALT_PASS='", StringsUtils.toHex(game._seed), "';"));
         result = string(abi.encodePacked(result, "const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs), "';"));
+        result = string(abi.encodePacked(result, "const CHAIN_ID='", StringsUpgradeable.toString(getChainID()), "';"));
         result = string(abi.encodePacked(result, "const GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract), "';"));
         result = string(abi.encodePacked(result, "const GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20), "';"));
         result = string(abi.encodePacked(result, "const GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721), "';"));
