@@ -112,10 +112,13 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         scripts = string(abi.encodePacked(
                 "<html>",
                 "<head><meta charset='UTF-8'>",
-                loadDecompressLib(),
+                loadDecompressLib(), // load decompress lib
+                loadABIJsonInterfaceBasic(), // load abi json interface: erc-20, erc-1155, erc-721, bfs
                 libsScript(gameProjectDetail._scriptType), // load libs here
                 variableScript(gameId, gameProjectDetail), // load vars
+                loadContractInteractionBasic(), //
                 assetsScript(gameId, gameProjectDetail), // load assets
+                loadInternalStyle(), // load internal style css
                 '<style>', gameProjectDetail._styles, '</style>', // load css
                 '</head><body>',
                 scripts, // load main code of user
@@ -125,8 +128,41 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         result = scripts;
     }
 
+    function loadInternalStyle() public view returns (string memory result) {
+        result = "<style>";
+        string memory temp = IParameterControl(_paramAddr).get(DGameProjectDataConfigs.INTERNAL_STYLE);
+        if (bytes(temp).length > 0) {
+            result = string(abi.encodePacked(result, temp));
+        } else {
+            require(1 == 0, Errors.INV_DECOMPRESS_SCRIPT);
+        }
+        result = string(abi.encodePacked(result, "</style>"));
+    }
+
+    function loadABIJsonInterfaceBasic() public view returns (string memory result) {
+        result = "<script sandbox='allow-scripts' type='text/javascript' name='ABI_JSON_BASIC' src='data:@file/javascript;base64,";
+        string memory temp = IParameterControl(_paramAddr).get(DGameProjectDataConfigs.ABI_JSON_BASIC);
+        if (bytes(temp).length > 0) {
+            result = string(abi.encodePacked(result, temp));
+        } else {
+            require(1 == 0, Errors.INV_DECOMPRESS_SCRIPT);
+        }
+        result = string(abi.encodePacked(result, "'></script>"));
+    }
+
+    function loadContractInteractionBasic() public view returns (string memory result) {
+        result = "<script sandbox='allow-scripts' type='text/javascript' name='CONTRACT_INTERACTION_BASIC' src='data:@file/javascript;base64,";
+        string memory temp = IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC);
+        if (bytes(temp).length > 0) {
+            result = string(abi.encodePacked(result, temp));
+        } else {
+            require(1 == 0, Errors.INV_DECOMPRESS_SCRIPT);
+        }
+        result = string(abi.encodePacked(result, "'></script>"));
+    }
+
     function loadDecompressLib() public view returns (string memory result) {
-        result = "<script sandbox='allow-scripts' type='text/javascript' src='data:@file/javascript;base64,";
+        result = "<script sandbox='allow-scripts' type='text/javascript' name='DECOMPRESS_LIB' src='data:@file/javascript;base64,";
         string memory temp = IParameterControl(_paramAddr).get(DGameProjectDataConfigs.DECOMPRESS_LIB);
         if (bytes(temp).length > 0) {
             result = string(abi.encodePacked(result, temp));
@@ -182,14 +218,14 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function variableScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
-        result = '<script type="text/javascript" id="snippet-contract-code">';
+        result = '<script type="text/javascript" id="snippet-contract-code" name="VARIABLES">';
         result = string(abi.encodePacked(result, "const GAME_ID='", StringsUpgradeable.toString(gameId), "';"));
+        result = string(abi.encodePacked(result, "const SALT_PASS='", StringsUtils.toHex(game._seed), "';"));
+        result = string(abi.encodePacked(result, "const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs), "';"));
         result = string(abi.encodePacked(result, "const GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract), "';"));
         result = string(abi.encodePacked(result, "const GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20), "';"));
         result = string(abi.encodePacked(result, "const GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721), "';"));
         result = string(abi.encodePacked(result, "const GAME_TOKEN_ERC1155_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC1155), "';"));
-        result = string(abi.encodePacked(result, "const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs), "';"));
-        result = string(abi.encodePacked(result, "const SALT_PASS='", StringsUtils.toHex(game._seed), "';"));
         result = string(abi.encodePacked(result, "</script>"));
     }
 

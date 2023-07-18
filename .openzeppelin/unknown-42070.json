@@ -5097,6 +5097,330 @@
           }
         }
       }
+    },
+    "cb020a34b7bbe1b5f3a3389aef4b73b57dc33e55ebd24692b65d3024fc80b4b8": {
+      "address": "0x4d11595Cba5D8ac58EB42B51f5fd3a056f4FEBb8",
+      "txHash": "0xdd441d604a640ee86df8ae168a8e91fd33cbb69fd58a65bd83a98c1dd2788aa2",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_admin",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:21"
+          },
+          {
+            "label": "_paramAddr",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:22"
+          },
+          {
+            "label": "_gamesProjectAddr",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:23"
+          },
+          {
+            "label": "_bfs",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:24"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "47f7ccf62d3c00b08388d5a32ecad059bf8af070cad5cd5fed305525042cbe8b": {
+      "address": "0x5E7aDaFFd0a79EBdC2A01D4D5A08695Fde667fC0",
+      "txHash": "0x7a2ba1106624313f8c9ad670dc5928e24196c86477aa1fcfd13fd798f8e5a459",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_admin",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:21"
+          },
+          {
+            "label": "_paramAddr",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:22"
+          },
+          {
+            "label": "_gamesProjectAddr",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:23"
+          },
+          {
+            "label": "_bfs",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:24"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "c1090adc6798d911703d5a2c951343ae57c5280bdf413288e2fd64655d216c96": {
+      "address": "0x4146075D3637d8C6f3E61425d9ccf782544FE49B",
+      "txHash": "0x90c6b095070d89a7207248afc54ff62906b175345a5ca71cecb73818a2ca6dae",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_admin",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:21"
+          },
+          {
+            "label": "_paramAddr",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:22"
+          },
+          {
+            "label": "_gamesProjectAddr",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:23"
+          },
+          {
+            "label": "_bfs",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_address",
+            "contract": "DGameProjectData",
+            "src": "contracts/data/DGameProjectData.sol:24"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
     }
   }
 }
