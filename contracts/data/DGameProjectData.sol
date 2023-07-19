@@ -111,8 +111,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         }
         scripts = string(abi.encodePacked(scripts, loadPreloadScript()));
         scripts = string(abi.encodePacked(
-                "<html>",
-                "<head><meta charset='UTF-8'>",
+                "<html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'/>",
                 loadDecompressLibAndABIJsonInterfaceBasic(), // load decompress lib and load abi json interface: erc-20, erc-1155, erc-721, bfs
                 libScript("ethersumdjs@5.7.2.js.gz"), // load libs ethjs here
                 libsScript(gameProjectDetail._scriptType), // load libs here
@@ -120,11 +119,9 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 loadContractInteractionBasic(), // wallet, bfs call asset, ...
                 assetsScript(gameId, gameProjectDetail), // load assets
                 loadInternalStyle(), // load internal style css
-                '<style>', gameProjectDetail._styles, '</style>', // load css
-                '</head><body>',
+                '<style>', gameProjectDetail._styles, '</style></head><body>', // load css
                 scripts, // load main code of user
-                "</body>",
-                "</html>"
+                "</body></html>"
             ));
         result = scripts;
     }
