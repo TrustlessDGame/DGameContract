@@ -152,6 +152,13 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         _games[gameId]._scriptType.push(scriptType);
     }
 
+    function deleteGameProjectScriptType(uint256 gameId, uint256 scriptIndex)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        delete _games[gameId]._scriptType[scriptIndex];
+    }
 
     function addGameProjectScript(uint256 gameId, string memory _script)
     external
