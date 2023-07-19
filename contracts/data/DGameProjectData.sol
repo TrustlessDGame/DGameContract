@@ -226,6 +226,11 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 game._assets[i],
                 "',"));
         }
+        for (uint256 i = 0; i < game._bfsAssetsKey.length; i++) {
+            result = string(abi.encodePacked(result, "'", game._bfsAssetsKey[i],
+                "':'", game._bfsAssetsValue[i],
+                "',"));
+        }
         result = string(abi.encodePacked(result, "};"));
         result = string(abi.encodePacked(result, "</script>"));
     }

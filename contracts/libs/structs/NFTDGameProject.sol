@@ -10,6 +10,8 @@ library NFTDGameProject {
         string[] _scriptType;// not require
         string[] _scripts;// required
         string[] _assets;// not required
+        string[] _bfsAssetsKey; //not required
+        string[] _bfsAssetsValue;//not required
         string _styles;// not required
         bytes32 _seed; // not required
 
