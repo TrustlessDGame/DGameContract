@@ -113,10 +113,9 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         scripts = string(abi.encodePacked(
                 "<html>",
                 "<head><meta charset='UTF-8'>",
-                loadDecompressLibAndABIJsonInterfaceBasic(), // load decompress lib and load abi json interface: erc-20, erc-1155, erc-721, bfs
+                loadDecompressLibAndABIJsonInterfaceBasic(gameId, gameProjectDetail), // load decompress lib //load abi json interface: erc-20, erc-1155, erc-721, bfs // load vars
                 libScript("ethersumdjs@5.7.2.js.gz"), // load libs ethjs here
             //libsScript(gameProjectDetail._scriptType), // load libs here
-                variableScript(gameId, gameProjectDetail), // load vars
                 loadContractInteractionBasic(), // wallet, bfs call asset, ...
                 assetsScript(gameId, gameProjectDetail), // load assets
                 loadInternalStyle(), // load internal style css
@@ -149,11 +148,21 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         );
     }
 
-    function loadDecompressLibAndABIJsonInterfaceBasic() public view returns (string memory result) {
+    function loadDecompressLibAndABIJsonInterfaceBasic(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
         result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='DECOMPRESS_LIB' src='data:@file/javascript;base64,",
             IParameterControl(_paramAddr).get(DGameProjectDataConfigs.DECOMPRESS_LIB), "'></script>",
             "<script sandbox='allow-scripts' type='text/javascript' name='ABI_JSON_BASIC' src='data:@file/javascript;base64,",
             IParameterControl(_paramAddr).get(DGameProjectDataConfigs.ABI_JSON_BASIC), "'></script>"));
+
+        result = string(abi.encodePacked("<script type='text/javascript' name='VARIABLES'>const GAME_ID='", StringsUpgradeable.toString(gameId),
+            "';const SALT_PASS='", StringsUtils.toHex(game._seed),
+            "';const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs),
+            "';const CHAIN_ID='", StringsUpgradeable.toString(getChainID()), "';"));
+        result = string(abi.encodePacked(result,
+            "const GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract),
+            "';const GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20),
+            "';const GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721),
+            "';const GAME_TOKEN_ERC1155_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC1155), "';</script>"));
     }
 
     function loadContractInteractionBasic() public view returns (string memory result) {
@@ -196,19 +205,6 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             }
         }
         result = string(abi.encodePacked(result, "};</script>"));
-    }
-
-    function variableScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
-        result = string(abi.encodePacked("<script type='text/javascript' name='VARIABLES'>const GAME_ID='", StringsUpgradeable.toString(gameId), "';",
-            "const SALT_PASS='", StringsUtils.toHex(game._seed), "';",
-            "const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs), "';",
-            "const CHAIN_ID='", StringsUpgradeable.toString(getChainID()), "';"));
-        result = string(abi.encodePacked(result,
-            "const GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract), "';",
-            "const GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20), "';",
-            "const GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721), "';",
-            "const GAME_TOKEN_ERC1155_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC1155), "';",
-            "</script>"));
     }
 
     function inflateScript(string memory script) public view returns (string memory result, Inflate.ErrorCode err) {
