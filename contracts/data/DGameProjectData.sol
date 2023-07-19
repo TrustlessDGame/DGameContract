@@ -150,8 +150,9 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function loadContractInteractionBasic() public view returns (string memory result) {
-        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='CONTRACT_INTERACTION_BASIC' src='data:@file/javascript;base64,",
-            IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC), "'></script>"));
+        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript'>", "getGzipFile(dataURItoBlob('", IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC), "'))", "</script>"));
+        /*result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='CONTRACT_INTERACTION_BASIC' src='data:@file/javascript;base64,",
+            IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC), "'></script>"));*/
     }
 
     function loadLibFileContent(string memory fileName) internal view returns (string memory script) {
