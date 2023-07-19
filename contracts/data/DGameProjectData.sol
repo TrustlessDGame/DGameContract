@@ -99,7 +99,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         string memory scripts = "";
         string memory inflate;
         Inflate.ErrorCode err;
-        for (uint256 i = 1; i < gameProjectDetail._scripts.length; i++) {
+        for (uint256 i = 0; i < gameProjectDetail._scripts.length; i++) {
             if (bytes(gameProjectDetail._scripts[i]).length > 0) {
                 (inflate, err) = this.inflateString(gameProjectDetail._scripts[i]);
                 if (err != Inflate.ErrorCode.ERR_NONE) {
@@ -218,18 +218,22 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     function assetsScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
         result = '<script type="text/javascript" id="snippet-contract-code">';
         result = string(abi.encodePacked(result, "const GAME_ASSETS={"));
-        for (uint256 i = 0; i < game._assets.length; i++) {
-            result = string(abi.encodePacked(result, "'", game._assets[i],
-                "':'bfs://",
-                StringsUpgradeable.toString(getChainID()), "/",
-                StringsUpgradeable.toHexString(game._creatorAddr), "/",
-                game._assets[i],
-                "',"));
+        if (game._assets.length > 0) {
+            for (uint256 i = 0; i < game._assets.length; i++) {
+                result = string(abi.encodePacked(result, "'", game._assets[i],
+                    "':'bfs://",
+                    StringsUpgradeable.toString(getChainID()), "/",
+                    StringsUpgradeable.toHexString(game._creatorAddr), "/",
+                    game._assets[i],
+                    "',"));
+            }
         }
-        for (uint256 i = 0; i < game._bfsAssetsKey.length; i++) {
-            result = string(abi.encodePacked(result, "'", game._bfsAssetsKey[i],
-                "':'", game._bfsAssetsValue[i],
-                "',"));
+        if (game._bfsAssetsKey.length > 0) {
+            for (uint256 i = 0; i < game._bfsAssetsKey.length; i++) {
+                result = string(abi.encodePacked(result, "'", game._bfsAssetsKey[i],
+                    "':'", game._bfsAssetsValue[i],
+                    "',"));
+            }
         }
         result = string(abi.encodePacked(result, "};"));
         result = string(abi.encodePacked(result, "</script>"));
