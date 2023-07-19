@@ -115,7 +115,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 "<head><meta charset='UTF-8'>",
                 loadDecompressLibAndABIJsonInterfaceBasic(), // load decompress lib and load abi json interface: erc-20, erc-1155, erc-721, bfs
                 libScript("ethersumdjs@5.7.2.js.gz"), // load libs ethjs here
-            //libsScript(gameProjectDetail._scriptType), // load libs here
+                libsScript(gameProjectDetail._scriptType), // load libs here
                 variableScript(gameId, gameProjectDetail), // load vars
                 loadContractInteractionBasic(), // wallet, bfs call asset, ...
                 assetsScript(gameId, gameProjectDetail), // load assets
@@ -130,14 +130,10 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function loadInternalStyle() public view returns (string memory result) {
-        result = '<link rel="stylesheet" name="INTERNAL_STYLE" type="text/css" href="data:text/css;base64,';
-        string memory temp = IParameterControl(_paramAddr).get(DGameProjectDataConfigs.INTERNAL_STYLE);
-        if (bytes(temp).length > 0) {
-            result = string(abi.encodePacked(result, temp));
-        } else {
-            require(1 == 0, Errors.INV_DECOMPRESS_SCRIPT);
-        }
-        result = string(abi.encodePacked(result, '"/>'));
+        result = string(abi.encodePacked(
+                '<link rel="stylesheet" name="INTERNAL_STYLE" type="text/css" href="data:text/css;base64,',
+                IParameterControl(_paramAddr).get(DGameProjectDataConfigs.INTERNAL_STYLE),
+                '"/>'));
     }
 
     function loadPreloadScript() public view returns (string memory result) {
@@ -180,16 +176,26 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript'>", "getGzipFile(dataURItoBlob('", loadLibFileContent(fileName), "'))", "</script>"));
     }
 
-    function libsScript(string[] memory libs) private view returns (string memory scriptLibs) {
+    function libsScript(string[] memory libs) private view returns (string memory result) {
         /*scriptLibs = "";
         for (uint256 i = 0; i < libs.length; i++) {
             string memory lib = libScript(libs[i]);
             scriptLibs = string(abi.encodePacked(scriptLibs, lib));
         }*/
+        result = '<script type="text/javascript">const LIB_ASSETS={';
+        if (libs.length > 0) {
+            for (uint256 i = 0; i < libs.length; i++) {
+                result = string(abi.encodePacked(result, "'", libs[i], "':'bfs://",
+                    StringsUpgradeable.toString(getChainID()), "/",
+                    StringsUpgradeable.toHexString(IParameterControl(_paramAddr).getAddress(DGameProjectDataConfigs.SCRIPT_PROVIDER)), "/",
+                    libs[i], "',"));
+            }
+        }
+        result = string(abi.encodePacked(result, "};</script>"));
     }
 
     function assetsScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
-        result = string(abi.encodePacked(result, '<script type="text/javascript" id="snippet-contract-code">const GAME_ASSETS={'));
+        result = '<script type="text/javascript">const GAME_ASSETS={';
         if (game._bfsAssetsKey.length > 0) {
             for (uint256 i = 0; i < game._bfsAssetsKey.length; i++) {
                 result = string(abi.encodePacked(result, "'", game._bfsAssetsKey[i], "':'", game._bfsAssetsValue[i], "',"));
