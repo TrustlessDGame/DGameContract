@@ -113,10 +113,9 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         scripts = string(abi.encodePacked(
                 "<html>",
                 "<head><meta charset='UTF-8'>",
-                loadDecompressLib(), // load decompress lib
-                loadABIJsonInterfaceBasic(), // load abi json interface: erc-20, erc-1155, erc-721, bfs
+                loadDecompressLibAndABIJsonInterfaceBasic(), // load decompress lib and load abi json interface: erc-20, erc-1155, erc-721, bfs
                 libScript("ethersumdjs@5.7.2.js.gz"), // load libs ethjs here
-                libsScript(gameProjectDetail._scriptType), // load libs here
+            //libsScript(gameProjectDetail._scriptType), // load libs here
                 variableScript(gameId, gameProjectDetail), // load vars
                 loadContractInteractionBasic(), // wallet, bfs call asset, ...
                 assetsScript(gameId, gameProjectDetail), // load assets
@@ -150,19 +149,16 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         );
     }
 
-    function loadABIJsonInterfaceBasic() public view returns (string memory result) {
-        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='ABI_JSON_BASIC' src='data:@file/javascript;base64,",
+    function loadDecompressLibAndABIJsonInterfaceBasic() public view returns (string memory result) {
+        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='DECOMPRESS_LIB' src='data:@file/javascript;base64,",
+            IParameterControl(_paramAddr).get(DGameProjectDataConfigs.DECOMPRESS_LIB), "'></script>",
+            "<script sandbox='allow-scripts' type='text/javascript' name='ABI_JSON_BASIC' src='data:@file/javascript;base64,",
             IParameterControl(_paramAddr).get(DGameProjectDataConfigs.ABI_JSON_BASIC), "'></script>"));
     }
 
     function loadContractInteractionBasic() public view returns (string memory result) {
         result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='CONTRACT_INTERACTION_BASIC' src='data:@file/javascript;base64,",
             IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC), "'></script>"));
-    }
-
-    function loadDecompressLib() public view returns (string memory result) {
-        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='DECOMPRESS_LIB' src='data:@file/javascript;base64,",
-            IParameterControl(_paramAddr).get(DGameProjectDataConfigs.DECOMPRESS_LIB), "'></script>"));
     }
 
     function loadLibFileContent(string memory fileName) internal view returns (string memory script) {
