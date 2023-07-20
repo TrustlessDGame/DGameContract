@@ -211,14 +211,13 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     function variableScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
         result = string(abi.encodePacked("<script type='text/javascript' name='VARIABLES'>const GAME_ID='", StringsUpgradeable.toString(gameId),
             "';const SALT_PASS='", StringsUtils.toHex(game._seed),
-            "';const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs),
+        //"';const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs),
             "';const CHAIN_ID='", StringsUpgradeable.toString(getChainID()),
             "';const GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract),
             "';const GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20),
             "';const GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721),
-            "';const GAME_TOKEN_ERC1155_ADDRESS='"));
-        result = string(abi.encodePacked(result,
-            StringsUpgradeable.toHexString(game._gameNFTERC1155), "';</script>"));
+            "';const GAME_TOKEN_ERC1155_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC1155),
+            "';</script>"));
     }
 
     function inflateScript(string memory script) public view returns (string memory result, Inflate.ErrorCode err) {
