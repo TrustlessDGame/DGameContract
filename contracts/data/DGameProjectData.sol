@@ -103,7 +103,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             if (bytes(gameProjectDetail._scripts[i]).length > 0) {
                 /* (inflate, err) = this.inflateString(gameProjectDetail._scripts[i]);
                  if (err != Inflate.ErrorCode.ERR_NONE) {*/
-                scripts = string(abi.encodePacked(scripts, '<script name="dev">getGzipFile(dataURItoBlob("', gameProjectDetail._scripts[i], '");</script>'));
+                scripts = string(abi.encodePacked(scripts, '<script name="dev">getGzipFile(dataURItoBlob("', gameProjectDetail._scripts[i], '"));</script>'));
                 /* } else {
                   scripts = string(abi.encodePacked(scripts, '<script>', inflate, '</script>'));
                  }*/
