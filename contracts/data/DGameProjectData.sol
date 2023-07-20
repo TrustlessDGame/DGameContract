@@ -185,7 +185,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             string memory lib = libScript(libs[i]);
             result = string(abi.encodePacked(scriptLibs, lib));
         }*/
-        result = '<script type="text/javascript">const LIB_ASSETS={';
+        result = '<script type="text/javascript">let LIB_ASSETS={';
         if (libs.length > 0) {
             for (uint256 i = 0; i < libs.length; i++) {
                 result = string(abi.encodePacked(result, "'", libs[i], "':'bfs://",
@@ -199,7 +199,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function assetsScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
-        result = '<script type="text/javascript">const GAME_ASSETS={';
+        result = '<script type="text/javascript">let GAME_ASSETS={';
         if (game._bfsAssetsKey.length > 0) {
             for (uint256 i = 0; i < game._bfsAssetsKey.length; i++) {
                 result = string(abi.encodePacked(result, "'", game._bfsAssetsKey[i], "':'", game._bfsAssetsValue[i], "',"));
