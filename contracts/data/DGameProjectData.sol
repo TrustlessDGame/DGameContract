@@ -93,26 +93,40 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         );
     }
 
-    function gameHTML(uint256 gameId) external view returns (string memory result) {
+    function gameHTML(uint256 gameId) external view returns (string memory) {
         NFTDGameProject.DGameProject memory gameProjectDetail = IDGameProject(_gamesProjectAddr).gameDetail(gameId);
-        string memory scripts = "";
+        string memory scripts = string(abi.encodePacked(
+                "<html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'/>",
+                loadDecompressLibAndABIJsonInterfaceBasic(), // load decompress lib and load abi json interface: erc-20, erc-1155, erc-721, bfs
+                libsScript(gameProjectDetail._scriptType), // load libs here
+                variableScript(gameId, gameProjectDetail) // load vars
+            ));
+        return scripts;
+    }
+
+    function gameAssetsHtml(uint256 gameId) external view returns (string memory) {
+        NFTDGameProject.DGameProject memory gameProjectDetail = IDGameProject(_gamesProjectAddr).gameDetail(gameId);
+        string memory scripts = string(abi.encodePacked(
+                loadContractInteractionBasic(), // wallet, bfs call asset, ...
+                assetsScript(gameId, gameProjectDetail), // load assets
+                loadInternalStyle(), // load internal style css
+                loadStyles(gameProjectDetail._styles), '</head>' // load css
+            ));
+        return scripts;
+    }
+
+    function gameScriptsHtml(uint256 gameId) external view returns (string memory) {
+        NFTDGameProject.DGameProject memory gameProjectDetail = IDGameProject(_gamesProjectAddr).gameDetail(gameId);
+        string memory scripts = "<body>";
         for (uint256 i = 0; i < gameProjectDetail._scripts.length; i++) {
             scripts = string(abi.encodePacked(scripts, '<script name="dev">getGzipFile(dataURItoBlob("', gameProjectDetail._scripts[i], '"));</script>'));
         }
         scripts = string(abi.encodePacked(scripts, loadPreloadScript()));
-        scripts = string(abi.encodePacked(
-                "<html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'/>",
-                loadDecompressLibAndABIJsonInterfaceBasic(), // load decompress lib and load abi json interface: erc-20, erc-1155, erc-721, bfs
-                libsScript(gameProjectDetail._scriptType), // load libs here
-                variableScript(gameId, gameProjectDetail), // load vars
-                loadContractInteractionBasic(), // wallet, bfs call asset, ...
-                assetsScript(gameId, gameProjectDetail), // load assets
-                loadInternalStyle(), // load internal style css
-                loadStyles(gameProjectDetail._styles), '</head><body>', // load css
-                scripts, // load main code of user
-                "</body></html>"
-            ));
-        result = scripts;
+        return scripts;
+    }
+
+    function gameHTMLFooter() external view returns (string memory) {
+        return "</body></html>";
     }
 
     function loadInternalStyle() internal view returns (string memory result) {
