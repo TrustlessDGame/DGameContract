@@ -150,7 +150,9 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function loadContractInteractionBasic() public view returns (string memory result) {
-        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript'>", "getGzipFile(dataURItoBlob('", IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC), "'))", "</script>"));
+        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='CONTRACT_INTERACTION_BASIC'>getGzipFile(dataURItoBlob('",
+            IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC),
+            "'))</script>"));
         /*result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='CONTRACT_INTERACTION_BASIC' src='data:@file/javascript;base64,",
             IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC), "'></script>"));*/
     }
@@ -171,7 +173,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function libScript(string memory fileName) public view returns (string memory result){
-        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript'>", "getGzipFile(dataURItoBlob('", loadLibFileContent(fileName), "'))", "</script>"));
+        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript'>getGzipFile(dataURItoBlob('", loadLibFileContent(fileName), "'))</script>"));
     }
 
     function libsScript(string[] memory libs) private view returns (string memory result) {
@@ -185,6 +187,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             for (uint256 i = 0; i < libs.length; i++) {
                 result = string(abi.encodePacked(result, "'", libs[i], "':'bfs://",
                     StringsUpgradeable.toString(getChainID()), "/",
+                    StringsUpgradeable.toHexString(_bfs), "/",
                     StringsUpgradeable.toHexString(IParameterControl(_paramAddr).getAddress(DGameProjectDataConfigs.SCRIPT_PROVIDER)), "/",
                     libs[i], "',"));
             }
