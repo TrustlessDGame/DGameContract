@@ -119,7 +119,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 loadContractInteractionBasic(), // wallet, bfs call asset, ...
                 assetsScript(gameId, gameProjectDetail), // load assets
                 loadInternalStyle(), // load internal style css
-                '<style>', gameProjectDetail._styles, '</style></head><body>', // load css
+                loadStyles(gameProjectDetail._styles), '</head><body>', // load css
                 scripts, // load main code of user
                 "</body></html>"
             ));
@@ -131,6 +131,10 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
                 '<link rel="stylesheet" name="INTERNAL_STYLE" type="text/css" href="data:text/css;base64,',
                 IParameterControl(_paramAddr).get(DGameProjectDataConfigs.INTERNAL_STYLE),
                 '"/>'));
+    }
+
+    function loadStyles(string memory style) public view returns (string memory result) {
+        result = string(abi.encodePacked('<link rel="stylesheet" name="INTERNAL_STYLE" type="text/css" href="', style, '"/>'));
     }
 
     function loadPreloadScript() public view returns (string memory result) {
