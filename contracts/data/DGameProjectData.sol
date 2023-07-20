@@ -173,15 +173,24 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
 
     }
 
+    function compare(string memory str1, string memory str2) internal pure returns (bool) {
+        if (bytes(str1).length != bytes(str2).length) {
+            return false;
+        }
+        return keccak256(abi.encodePacked(str1)) == keccak256(abi.encodePacked(str2));
+    }
+
     function libsScript(string[] memory libs) private view returns (string memory result) {
         result = '<script type="text/javascript">let LIB_ASSETS={';
         if (libs.length > 0) {
             for (uint256 i = 0; i < libs.length; i++) {
-                result = string(abi.encodePacked(result, "'", libs[i], "':'bfs://",
-                    StringsUpgradeable.toString(getChainID()), "/",
-                    StringsUpgradeable.toHexString(_bfs), "/",
-                    StringsUpgradeable.toHexString(IParameterControl(_paramAddr).getAddress(DGameProjectDataConfigs.SCRIPT_PROVIDER)), "/",
-                    libs[i], "',"));
+                if (!compare("ethersumdjs@5.7.2.js.gz", libs[i]) && !compare("cryptojsmin@4.1.1.js.gz", libs[i])) {
+                    result = string(abi.encodePacked(result, "'", libs[i], "':'bfs://",
+                        StringsUpgradeable.toString(getChainID()), "/",
+                        StringsUpgradeable.toHexString(_bfs), "/",
+                        StringsUpgradeable.toHexString(IParameterControl(_paramAddr).getAddress(DGameProjectDataConfigs.SCRIPT_PROVIDER)), "/",
+                        libs[i], "',"));
+                }
             }
         }
         result = string(abi.encodePacked(result, "};</script>"));
