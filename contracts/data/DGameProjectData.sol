@@ -148,8 +148,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
 
     function loadDecompressLibAndABIJsonInterfaceBasic() public view returns (string memory result) {
         result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='DECOMPRESS_LIB' src='data:@file/javascript;base64,",
-            IParameterControl(_paramAddr).get(DGameProjectDataConfigs.DECOMPRESS_LIB), "'></script>",
-            "<script sandbox='allow-scripts' type='text/javascript' name='ABI_JSON_BASIC' src='data:@file/javascript;base64,",
+            IParameterControl(_paramAddr).get(DGameProjectDataConfigs.DECOMPRESS_LIB), "'></script><script sandbox='allow-scripts' type='text/javascript' name='ABI_JSON_BASIC' src='data:@file/javascript;base64,",
             IParameterControl(_paramAddr).get(DGameProjectDataConfigs.ABI_JSON_BASIC), "'></script>"));
     }
 
@@ -181,10 +180,10 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function libsScript(string[] memory libs) private view returns (string memory result) {
-        /*scriptLibs = "";
+        /*result = "";
         for (uint256 i = 0; i < libs.length; i++) {
             string memory lib = libScript(libs[i]);
-            scriptLibs = string(abi.encodePacked(scriptLibs, lib));
+            result = string(abi.encodePacked(scriptLibs, lib));
         }*/
         result = '<script type="text/javascript">const LIB_ASSETS={';
         if (libs.length > 0) {
@@ -210,16 +209,16 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function variableScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
-        result = string(abi.encodePacked("<script type='text/javascript' name='VARIABLES'>const GAME_ID='", StringsUpgradeable.toString(gameId), "';",
-            "const SALT_PASS='", StringsUtils.toHex(game._seed), "';",
-            "const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs), "';",
-            "const CHAIN_ID='", StringsUpgradeable.toString(getChainID()), "';"));
+        result = string(abi.encodePacked("<script type='text/javascript' name='VARIABLES'>const GAME_ID='", StringsUpgradeable.toString(gameId),
+            "';const SALT_PASS='", StringsUtils.toHex(game._seed),
+            "';const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs),
+            "';const CHAIN_ID='", StringsUpgradeable.toString(getChainID()),
+            "';const GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract),
+            "';const GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20),
+            "';const GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721),
+            "';const GAME_TOKEN_ERC1155_ADDRESS='"));
         result = string(abi.encodePacked(result,
-            "const GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract), "';",
-            "const GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20), "';",
-            "const GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721), "';",
-            "const GAME_TOKEN_ERC1155_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC1155), "';",
-            "</script>"));
+            StringsUpgradeable.toHexString(game._gameNFTERC1155), "';</script>"));
     }
 
     function inflateScript(string memory script) public view returns (string memory result, Inflate.ErrorCode err) {
