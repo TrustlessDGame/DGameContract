@@ -101,19 +101,13 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         Inflate.ErrorCode err;
         for (uint256 i = 0; i < gameProjectDetail._scripts.length; i++) {
             if (bytes(gameProjectDetail._scripts[i]).length > 0) {
-                /* (inflate, err) = this.inflateString(gameProjectDetail._scripts[i]);
-                 if (err != Inflate.ErrorCode.ERR_NONE) {*/
                 scripts = string(abi.encodePacked(scripts, '<script name="dev">getGzipFile(dataURItoBlob("', gameProjectDetail._scripts[i], '"));</script>'));
-                /* } else {
-                  scripts = string(abi.encodePacked(scripts, '<script>', inflate, '</script>'));
-                 }*/
             }
         }
         scripts = string(abi.encodePacked(scripts, loadPreloadScript()));
         scripts = string(abi.encodePacked(
                 "<html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'/>",
                 loadDecompressLibAndABIJsonInterfaceBasic(), // load decompress lib and load abi json interface: erc-20, erc-1155, erc-721, bfs
-                libScript("ethersumdjs@5.7.2.js.gz"), // load libs ethjs here
                 libsScript(gameProjectDetail._scriptType), // load libs here
                 variableScript(gameId, gameProjectDetail), // load vars
                 loadContractInteractionBasic(), // wallet, bfs call asset, ...
@@ -153,11 +147,15 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function loadContractInteractionBasic() public view returns (string memory result) {
-        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='CONTRACT_INTERACTION_BASIC'>getGzipFile(dataURItoBlob('",
+        string memory etherjs = loadLibFileContent("ethersumdjs@5.7.2.js.gz");
+        string memory cryptojs = loadLibFileContent("cryptojsmin@4.1.1.js.gz");
+        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='CONTRACT_INTERACTION_BASIC'>(async () => {await getGzipFile(dataURItoBlob('",
+            etherjs,
+            "'));await getGzipFile(dataURItoBlob('",
+            cryptojs,
+            "'));await getGzipFile(dataURItoBlob('",
             IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC),
-            "'))</script>"));
-        /*result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript' name='CONTRACT_INTERACTION_BASIC' src='data:@file/javascript;base64,",
-            IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CONTRACT_INTERACTION_BASIC), "'></script>"));*/
+            "'))})();</script>"));
     }
 
     function loadLibFileContent(string memory fileName) internal view returns (string memory script) {
@@ -175,16 +173,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
 
     }
 
-    function libScript(string memory fileName) public view returns (string memory result){
-        result = string(abi.encodePacked("<script sandbox='allow-scripts' type='text/javascript'>getGzipFile(dataURItoBlob('", loadLibFileContent(fileName), "'))</script>"));
-    }
-
     function libsScript(string[] memory libs) private view returns (string memory result) {
-        /*result = "";
-        for (uint256 i = 0; i < libs.length; i++) {
-            string memory lib = libScript(libs[i]);
-            result = string(abi.encodePacked(scriptLibs, lib));
-        }*/
         result = '<script type="text/javascript">let LIB_ASSETS={';
         if (libs.length > 0) {
             for (uint256 i = 0; i < libs.length; i++) {
@@ -211,17 +200,12 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     function variableScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
         result = string(abi.encodePacked("<script type='text/javascript' name='VARIABLES'>const GAME_ID='", StringsUpgradeable.toString(gameId),
             "';const SALT_PASS='", StringsUtils.toHex(game._seed),
-        //"';const BFS_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(_bfs),
             "';const CHAIN_ID='", StringsUpgradeable.toString(getChainID()),
             "';const GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract),
             "';const GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20),
             "';const GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721),
             "';const GAME_TOKEN_ERC1155_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC1155),
             "';</script>"));
-    }
-
-    function inflateScript(string memory script) public view returns (string memory result, Inflate.ErrorCode err) {
-        return inflateString(StringsUtils.getSlice(9, bytes(script).length - 9, script));
     }
 
     function inflateString(string memory data) public view returns (string memory result, Inflate.ErrorCode err) {
