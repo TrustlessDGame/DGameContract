@@ -134,7 +134,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
     }
 
     function loadStyles(string memory style) public view returns (string memory result) {
-        result = string(abi.encodePacked('<link rel="stylesheet" name="INTERNAL_STYLE" type="text/css" href="', style, '"/>'));
+        result = string(abi.encodePacked('<link rel="stylesheet" name="DEV_STYLE" type="text/css" href="', style, '"/>'));
     }
 
     function loadPreloadScript() public view returns (string memory result) {
