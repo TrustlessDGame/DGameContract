@@ -8,4 +8,7 @@ library  DGameProjectDataConfigs {
     string public constant INTERNAL_STYLE = "INTERNAL_STYLE";
     string public constant PRELOAD_SCRIPT = "PRELOAD_SCRIPT";
     string public constant RPC_LINK = "RPC_LINK";
+    string public constant RPC_EXPLORER_LINK = "RPC_EXPLORER_LINK";
+    string public constant NETWORK_NAME = "NETWORK_NAME";
+    string public constant CURRENCY_SYMBOL = "CURRENCY_SYMBOL";
 }
