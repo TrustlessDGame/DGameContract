@@ -7,4 +7,5 @@ library  DGameProjectDataConfigs {
     string public constant CONTRACT_INTERACTION_BASIC = "CONTRACT_INTERACTION_BASIC";
     string public constant INTERNAL_STYLE = "INTERNAL_STYLE";
     string public constant PRELOAD_SCRIPT = "PRELOAD_SCRIPT";
+    string public constant RPC_LINK = "RPC_LINK";
 }
