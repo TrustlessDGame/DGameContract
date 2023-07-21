@@ -66,7 +66,7 @@ class ParamControl {
         const param = await ethers.getContractFactory("ParameterControl");
         const paramDeployed = await param.deploy(adminAddress);
 
-        console.log("Rove Param control deployed:", paramDeployed.address);
+        console.log("Param control deployed:", paramDeployed.address);
         return paramDeployed.address;
     }
 
