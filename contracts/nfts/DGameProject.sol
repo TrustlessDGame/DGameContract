@@ -184,6 +184,23 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         delete _games[gameId]._scripts[scriptIndex];
     }
 
+    function addGameProjectBfsAsset(uint256 gameId, string memory bfsAssetName, string memory bfsAssetValue)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._bfsAssetsKey.push(bfsAssetName);
+        _games[gameId]._bfsAssetsValue.push(bfsAssetValue);
+    }
+
+    function updateGameProjectBfsAsset(uint256 gameId, uint256 assetIndex, string memory bfsAssetValue)
+    external
+    {
+        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(_exists(gameId), Errors.INV_GAME_ID);
+        _games[gameId]._bfsAssetsValue[assetIndex] = bfsAssetValue;
+    }
+
     function addGameProjectAsset(uint256 gameId, string memory asset)
     external
     {
