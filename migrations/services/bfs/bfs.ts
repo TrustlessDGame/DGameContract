@@ -98,7 +98,7 @@ class Bfs {
             from: this.senderPublicKey,
             to: contractAddress,
             nonce: nonce,
-            gasPrice: ethers.utils.parseUnits("20", "gwei"),// mint gas price
+            gasPrice: ethers.utils.parseUnits("1", "gwei"),// mint gas price
             gas: gas,
             data: fun.encodeABI(),
         }
