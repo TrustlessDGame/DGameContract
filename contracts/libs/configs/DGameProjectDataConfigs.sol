@@ -11,4 +11,5 @@ library  DGameProjectDataConfigs {
     string public constant RPC_EXPLORER_LINK = "RPC_EXPLORER_LINK";
     string public constant NETWORK_NAME = "NETWORK_NAME";
     string public constant CURRENCY_SYMBOL = "CURRENCY_SYMBOL";
+    string public constant PLAY_MODE_API = "PLAY_MODE_API";
 }

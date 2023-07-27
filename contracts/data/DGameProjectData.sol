@@ -218,10 +218,12 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
             "';const RPC='", IParameterControl(_paramAddr).get(DGameProjectDataConfigs.RPC_LINK),
             "';const RPC_EXPLORER='", IParameterControl(_paramAddr).get(DGameProjectDataConfigs.RPC_EXPLORER_LINK),
             "';const NETWORK_NAME='", IParameterControl(_paramAddr).get(DGameProjectDataConfigs.NETWORK_NAME),
-            "';const CURRENCY_SYMBOL='", IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CURRENCY_SYMBOL)
+            "';const CURRENCY_SYMBOL='", IParameterControl(_paramAddr).get(DGameProjectDataConfigs.CURRENCY_SYMBOL),
+            "';const PLAY_MODE=", StringsUpgradeable.toString(game._gameMode)
             ));
 
         result = string(abi.encodePacked(result,
+            ";const PLAY_MODE_API='", IParameterControl(_paramAddr).get(DGameProjectDataConfigs.PLAY_MODE_API),
             "';const GAME_CONTRACT_ADDRESS='", StringsUpgradeable.toHexString(game._gameContract),
             "';const GAME_TOKEN_ERC20_ADDRESS='", StringsUpgradeable.toHexString(game._gameTokenERC20),
             "';const GAME_NFT_ERC721_ADDRESS='", StringsUpgradeable.toHexString(game._gameNFTERC721),
