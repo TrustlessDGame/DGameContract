@@ -23,6 +23,6 @@ library NFTDGameProject {
         address _gameNFTERC721; // optional
         address _gameNFTERC1155; // optional
 
-        uint256 _gameMode; // 0: play for fun, 1: win to earn
+        uint256 _gameMode; // 0: paid mode, 1: practice mode
     }
 }

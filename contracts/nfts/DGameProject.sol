@@ -133,7 +133,7 @@ contract DGameProject is Initializable, ERC721PausableUpgradeable, ReentrancyGua
     */
 
     function updateGameProjectGameMode(uint256 gameId, uint256 mode) external {
-        require(msg.sender == _admin || msg.sender == _games[gameId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
+        require(msg.sender == _admin, Errors.ONLY_ADMIN_ALLOWED);
         require(_exists(gameId), Errors.INV_GAME_ID);
         _games[gameId]._gameMode = mode;
     }
