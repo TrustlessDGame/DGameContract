@@ -109,8 +109,14 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         string memory scripts = string(abi.encodePacked(
                 loadContractInteractionBasic(), // wallet, bfs call asset, ...
                 assetsScript(gameId, gameProjectDetail), // load assets
-                loadInternalStyle(), // load internal style css
-                loadStyles(gameProjectDetail._styles), '</head>' // load css
+                loadInternalStyle() // load internal style css
+            ));
+        return scripts;
+    }
+
+    function gameStyleHtml(uint256 gameId) external view returns (string memory) {
+        NFTDGameProject.DGameProject memory gameProjectDetail = IDGameProject(_gamesProjectAddr).gameDetail(gameId);
+        string memory scripts = string(abi.encodePacked(loadStyles(gameProjectDetail._styles), '</head>' // load css
             ));
         return scripts;
     }
