@@ -209,7 +209,7 @@ contract DGameProjectData is OwnableUpgradeable, IDGameProjectData {
         result = string(abi.encodePacked(result, "};</script>"));
     }
 
-    function assetsScript(uint256 gameId, NFTDGameProject.DGameProject memory game) internal view returns (string memory result) {
+    function assetsScript(uint256 gameId, NFTDGameProject.DGameProject memory game) public view returns (string memory result) {
         result = '<script type="text/javascript">let GAME_ASSETS={';
         for (uint256 i = 0; i < game._bfsAssetsKey.length; i++) {
             result = string(abi.encodePacked(result, "'", game._bfsAssetsKey[i], "':'", game._bfsAssetsValue[i], "',"));
