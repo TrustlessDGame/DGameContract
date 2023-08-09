@@ -42,6 +42,7 @@ function getByteArray(filePath: string) {
                 break;
             }
         }
+        console.log(`bfs://42070/${args[0]}/${process.env.PUBLIC_KEY}/${fileName}`)
 
     } catch (e) {
         // Deal with the fact the chain failed
