@@ -102,6 +102,7 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
 
     function setParticipantData(uint256 eventId, address participantAddr, string memory data) external nonReentrant {
         require(_exists(eventId), Errors.INV_GAME_ID);
+        require(_groupParticipants[eventId][_participants[eventId][participantAddr]._groupId][participantAddr]);
         require(!StringsUtils.compareStringWithEmpty(_participants[eventId][participantAddr]._twitterId));
         require(_moderators[msg.sender], Errors.ONLY_MODERATOR);
 
