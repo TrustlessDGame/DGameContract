@@ -144,7 +144,7 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         // Ensure that the sender has approved the contract to transfer tokens
         require(IERC20Upgradeable(tokenAddress).transferFrom(msg.sender, address(this), amount), Errors.TRANSFER_FAIL);
 
-        _sponsorships[eventId][tokenAddress] = amount;
+        _sponsorships[eventId][tokenAddress] += amount;
         _sponsors[eventId][msg.sender][tokenAddress] += amount;
 
         // Emit an event to log the token transfer
