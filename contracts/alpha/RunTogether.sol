@@ -81,7 +81,7 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         // verify
         require(msg.sender == _admin || _moderators[msg.sender]);
         require(eventData._creatorAddr != Errors.ZERO_ADDR, Errors.INV_ADD);
-        require(bytes(eventData._name).length > 3 && bytes(eventData._creator).length > 3 && bytes(eventData._image).length > 0, Errors.MISSING_NAME);
+        require(bytes(eventData._name).length > 3 && bytes(eventData._creator).length > 3, Errors.MISSING_NAME);
 
         _currentGameId++;
         _paymentCreateEvent();
