@@ -120,6 +120,14 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         data = _participants[eventId][participantAddr];
     }
 
+    function getSponsorship(uint256 eventId, address token) external view returns(uint256)  {
+        return _sponsorships[eventId][token];
+    }
+
+    function getSponsor(uint256 eventId, address sponsor, address token) external view returns(uint256)  {
+        return _sponsors[eventId][sponsor][token];
+    }
+
     function updateEventDescription(uint256 eventId, string memory desc) external {
         require(msg.sender == _admin || msg.sender == _events[eventId]._creatorAddr, Errors.ONLY_ADMIN_ALLOWED);
         require(_exists(eventId), Errors.INV_GAME_ID);
