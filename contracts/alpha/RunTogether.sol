@@ -94,15 +94,18 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         require(_exists(eventId), Errors.INV_GAME_ID);
         require(_moderators[msg.sender], Errors.ONLY_MODERATOR);
         require(StringsUtils.compareStringWithEmpty(_participants[eventId][participantAddr]._twitterId));
-        require(_participants[eventId][data._groupId][participantAddr] == false);
+        require(_groupParticipants[eventId][data._groupId][participantAddr] == false);
 
         _participants[eventId][participantAddr] = data;
-        _participants[eventId][data._groupId][participantAddr] = true;
+        _groupParticipants[eventId][data._groupId][participantAddr] = true;
     }
 
-    function setParticipantData(uint256 eventId, address athlete, string memory data) external nonReentrant {
+    function setParticipantData(uint256 eventId, address participantAddr, string memory data) external nonReentrant {
+        require(_exists(eventId), Errors.INV_GAME_ID);
+        require(!StringsUtils.compareStringWithEmpty(_participants[eventId][participantAddr]._twitterId));
         require(_moderators[msg.sender], Errors.ONLY_MODERATOR);
-        _participants[eventId][athlete]._data = data;
+
+        _participants[eventId][participantAddr]._data = data;
     }
 
     function eventDetail(uint256 eventId) external view returns (RunTogetherObjectStruct.RunTogetherEvent memory eventData) {
