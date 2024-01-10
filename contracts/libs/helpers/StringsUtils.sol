@@ -30,7 +30,7 @@ library StringsUtils {
         return string(a);
     }
 
-    function compareStringWithEmpty(string memory input) external pure returns (bool) {
+    function compareStringWithEmpty(string memory input) internal pure returns (bool) {
         // Compare the keccak256 hash of the input string with the keccak256 hash of an empty string
         return keccak256(abi.encodePacked(input)) == keccak256(abi.encodePacked(""));
     }

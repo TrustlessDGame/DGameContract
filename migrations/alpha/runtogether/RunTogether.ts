@@ -28,8 +28,9 @@ class RunTogether {
 
         const contract = await ethers.getContractFactory("RunTogether");
         console.log("RunTogether.deploying ...")
-        const proxy = await upgrades.deployProxy(contract, [name, symbol, adminAddress, paramAdd, {
-            initializer: 'initialize(string, string, address, address)',});
+        const proxy = await upgrades.deployProxy(contract, [name, symbol, adminAddress, paramAdd], {
+            initializer: 'initialize(string, string, address, address)',
+        });
         await proxy.deployed();
         console.log("RunTogether deployed at proxy:", proxy.address);
         return proxy.address;
