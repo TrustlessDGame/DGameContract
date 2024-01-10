@@ -79,6 +79,7 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
 
     function createEvent(RunTogetherObjectStruct.RunTogetherEvent memory eventData) external payable nonReentrant returns (uint256) {
         // verify
+        require(msg.sender == _admin || _moderators[msg.sender]);
         require(eventData._creatorAddr != Errors.ZERO_ADDR, Errors.INV_ADD);
         require(bytes(eventData._name).length > 3 && bytes(eventData._creator).length > 3 && bytes(eventData._image).length > 0, Errors.MISSING_NAME);
 
