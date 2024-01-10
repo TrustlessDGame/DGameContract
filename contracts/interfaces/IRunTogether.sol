@@ -10,7 +10,7 @@ interface IRunTogether is IERC721Upgradeable {
 
     function receiveTokens(uint256 eventId, address tokenAddress, uint256 amount) external;
 
-    function join(uint256 eventId, RunTogetherObjectStruct.RunTogetherParticipant memory data) external payable;
+    function join(uint256 eventId, address participantAddr, RunTogetherObjectStruct.RunTogetherParticipant memory data) external payable;
 
     function setParticipantData(uint256 eventId, address athlete, string memory data) external;
 }

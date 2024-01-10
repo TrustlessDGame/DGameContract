@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 import "../interfaces/IRunTogether.sol";
 import "../libs/helpers/Errors.sol";
+import "../libs/helpers/StringsUtils.sol";
 import "../libs/structs/RunTogetherStruct.sol";
 
 
@@ -16,9 +17,16 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
     uint256 public _currentGameId;
     mapping(address => bool) public _moderators;
 
+    // event data
     mapping(uint256 => RunTogetherObjectStruct.RunTogetherEvent) private _events;
-    mapping(uint256 => mapping(address => RunTogetherObjectStruct.RunTogetherParticipant)) private _athletes;
-    mapping(uint256 => mapping(address => uint256)) private _donates;
+
+    // participant data
+    mapping(uint256 => mapping(address => RunTogetherObjectStruct.RunTogetherParticipant)) private _participants;
+    mapping(uint256 => mapping(string => mapping(address => bool))) private _groupParticipants;
+
+    // sponsor data
+    mapping(uint256 => mapping(address => uint256)) private _sponsorships;
+    mapping(uint256 => mapping(address => mapping(address => uint256))) private _sponsors;
 
     function initialize(
         string memory name,
@@ -82,19 +90,19 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         return _currentGameId;
     }
 
-    function join(uint256 eventId, RunTogetherObjectStruct.RunTogetherParticipant memory data) external payable nonReentrant {
+    function join(uint256 eventId, address participantAddr, RunTogetherObjectStruct.RunTogetherParticipant memory data) external payable nonReentrant {
         require(_exists(eventId), Errors.INV_GAME_ID);
         require(_moderators[msg.sender], Errors.ONLY_MODERATOR);
-        _athletes[eventId][msg.sender] = data;
+        require(StringsUtils.compareStringWithEmpty(_participants[eventId][participantAddr]._twitterId));
+        require(_participants[eventId][data._groupId][participantAddr] == false);
+
+        _participants[eventId][participantAddr] = data;
+        _participants[eventId][data._groupId][participantAddr] = true;
     }
 
     function setParticipantData(uint256 eventId, address athlete, string memory data) external nonReentrant {
         require(_moderators[msg.sender], Errors.ONLY_MODERATOR);
-        _athletes[eventId][athlete]._data = data;
-    }
-
-    function donate() external nonReentrant {
-
+        _participants[eventId][athlete]._data = data;
     }
 
     function eventDetail(uint256 eventId) external view returns (RunTogetherObjectStruct.RunTogetherEvent memory eventData) {
@@ -102,9 +110,9 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         eventData = _events[eventId];
     }
 
-    function getAthleteDetail(uint256 eventId, address athleteAddr) external view returns (RunTogetherObjectStruct.RunTogetherParticipant memory data) {
+    function getParticipantData(uint256 eventId, address participantAddr) external view returns (RunTogetherObjectStruct.RunTogetherParticipant memory data) {
         require(_exists(eventId), Errors.INV_GAME_ID);
-        data = _athletes[eventId][athleteAddr];
+        data = _participants[eventId][participantAddr];
     }
 
     function updateEventDescription(uint256 eventId, string memory desc) external {
@@ -122,6 +130,9 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
     function receiveTokens(uint256 eventId, address tokenAddress, uint256 amount) external {
         // Ensure that the sender has approved the contract to transfer tokens
         require(IERC20Upgradeable(tokenAddress).transferFrom(msg.sender, address(this), amount), Errors.TRANSFER_FAIL);
+
+        _sponsorships[eventId][tokenAddress] = amount;
+        _sponsors[eventId][msg.sender][tokenAddress] += amount;
 
         // Emit an event to log the token transfer
         emit TokensReceived(msg.sender, eventId, tokenAddress, amount);
