@@ -4,6 +4,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/presets/ERC721PresetMin
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
 import "../interfaces/IRunTogether.sol";
 import "../libs/helpers/Errors.sol";
@@ -69,6 +70,20 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         _moderators[moderator] = approval;
     }
 
+    function withdraw(address erc20Addr, uint256 amount) external virtual {
+        require(msg.sender == _admin, Errors.ONLY_ADMIN_ALLOWED);
+        bool success;
+        if (erc20Addr == address(0x0)) {
+            require(address(this).balance >= amount);
+            (success,) = msg.sender.call{value: amount}("");
+            require(success);
+        } else {
+            IERC20Upgradeable tokenERC20 = IERC20Upgradeable(erc20Addr);
+            // transfer erc-20 token
+            require(tokenERC20.transfer(msg.sender, amount));
+        }
+    }
+
     function _paymentCreateEvent() internal {
         if (msg.sender != _admin) {
             require(msg.value >= 10000);
@@ -120,11 +135,11 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
         data = _participants[eventId][participantAddr];
     }
 
-    function getSponsorship(uint256 eventId, address token) external view returns(uint256)  {
+    function getSponsorship(uint256 eventId, address token) external view returns (uint256)  {
         return _sponsorships[eventId][token];
     }
 
-    function getSponsor(uint256 eventId, address sponsor, address token) external view returns(uint256)  {
+    function getSponsor(uint256 eventId, address sponsor, address token) external view returns (uint256)  {
         return _sponsors[eventId][sponsor][token];
     }
 
@@ -157,5 +172,29 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
 
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
         require(1 == 0);
+    }
+
+    function getMessageHash(address user, uint256 eventId, address erc20Addr, uint256 reward) public view returns (bytes32) {
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        return keccak256(abi.encode(address(this), chainId, user, eventId, erc20Addr, reward));
+    }
+
+    function _verifySigner(address user, uint256 eventId, address erc20Addr, uint256 reward, bytes memory signature) internal view returns (address, bytes32) {
+        bytes32 messageHash = getMessageHash(user, eventId, erc20Addr, reward);
+        address signer = ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(messageHash), signature);
+        // GP_NA: Signer Is Not ADmin
+        require(_moderators[signer], "GP_NA");
+        return (signer, messageHash);
+    }
+
+    function claimReward(uint256 eventId, address erc20Addr, uint256 reward, bytes calldata signature) public nonReentrant {
+        _verifySigner(msg.sender, eventId, erc20Addr, reward, signature);
+
+        IERC20Upgradeable tokenERC20 = IERC20Upgradeable(erc20Addr);
+        // transfer erc-20 token
+        require(tokenERC20.transfer(msg.sender, reward));
     }
 }
