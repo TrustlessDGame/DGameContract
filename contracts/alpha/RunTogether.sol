@@ -198,6 +198,9 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
 
     function claimReward(uint256 eventId, address erc20Addr, uint256 reward, bytes calldata signature) public nonReentrant {
         _verifySigner(msg.sender, eventId, erc20Addr, reward, signature);
+        require(_sponsorships[eventId][erc20Addr] >= reward);
+
+        _sponsorships[eventId][erc20Addr] = _sponsorships[eventId][erc20Addr] - reward;
 
         IERC20Upgradeable tokenERC20 = IERC20Upgradeable(erc20Addr);
         // transfer erc-20 token
