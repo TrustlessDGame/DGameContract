@@ -202,8 +202,7 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
 
         _sponsorships[eventId][erc20Addr] = _sponsorships[eventId][erc20Addr] - reward;
 
-        IERC20Upgradeable tokenERC20 = IERC20Upgradeable(erc20Addr);
         // transfer erc-20 token
-        require(tokenERC20.transfer(msg.sender, reward));
+        require(IERC20Upgradeable(erc20Addr).transfer(msg.sender, reward));
     }
 }
