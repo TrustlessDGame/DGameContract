@@ -29,6 +29,8 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
     mapping(uint256 => mapping(address => uint256)) private _sponsorships;
     mapping(uint256 => mapping(address => mapping(address => uint256))) private _sponsors;
 
+    mapping(uint256 => mapping(address => bool)) private _claimer;
+
     function initialize(
         string memory name,
         string memory symbol,
@@ -190,6 +192,7 @@ contract RunTogether is Initializable, ERC721PausableUpgradeable, ReentrancyGuar
     }
 
     function _verifySigner(address user, uint256 eventId, address erc20Addr, uint256 reward, bytes memory signature) internal view returns (address, bytes32) {
+        require(!_claimer[eventId][user], Errors.INV_ADD);
         bytes32 messageHash = getMessageHash(user, eventId, erc20Addr, reward);
         address signer = ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(messageHash), signature);
         // GP_NA: Signer Is Not ADmin
