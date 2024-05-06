@@ -18,11 +18,6 @@ class DelegateNode {
     }
 
     async deployUpgradeable(adminAddress: any) {
-        // if (this.network == "local") {
-        //     console.log("not run local");
-        //     return;
-        // }
-
         const contract = await ethers.getContractFactory("DelegateNode");
         console.log("DelegateNode.deploying ...")
         const proxy = await upgrades.deployProxy(contract, [adminAddress], {
