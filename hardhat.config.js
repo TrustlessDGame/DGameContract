@@ -59,6 +59,15 @@ module.exports = {
             url: process.env.NOS_MAINNET_API_URL,
             accounts: [`0x${process.env.PRIVATE_KEY}`],
             timeout: 100_000,
+        },
+        eai_testnet: {
+            url: process.env.EAI_TESTNET_API_URL,
+            accounts: [`0x${process.env.PRIVATE_KEY}`],
+        },
+        eai_mainnet: {
+            url: process.env.EAI_MAINNET_API_URL,
+            accounts: [`0x${process.env.PRIVATE_KEY}`],
+            timeout: 100_000,
         }
     },
     mocha: {

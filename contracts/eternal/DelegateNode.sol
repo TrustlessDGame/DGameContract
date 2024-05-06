@@ -29,6 +29,7 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
     uint256 public _defaultAmountToActive; // 8000 EAI
     mapping(uint32 => DelegateNodeStruct.PoolInfo) public _pools;
 
+
     function initialize(
         string memory name,
         string memory symbol,
@@ -59,9 +60,9 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         }
     }
 
-    function getPoolInfo(uint32 poolId) external view returns (DelegateNodeStruct.PoolInfo memory) {
-        return _pools[poolId];
-    }
+//    function getPoolInfo(uint32 poolId) external view returns (DelegateNodeStruct.PoolInfo memory) {
+//        return _pools[poolId];
+//    }
 
     // ADMIN update amountToActive for a pool
     function adminUpdateAmountToActive(uint32 poolId, uint256 amount) external onlyAdmin {
@@ -75,13 +76,11 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         // loop to PRE-CREATE pool
         for (uint32 i = 0; i < amountPool; i++) {
             _nextPoolId = _nextPoolId + 1;
-            _pools[_nextPoolId] = DelegateNodeStruct.PoolInfo({
-                status: DelegateNodeStruct.PoolStatus.INACTIVE, // only convert to ACTIVE when enough $EAI staked
-                id: _nextPoolId,
-                amountToActive: _defaultAmountToActive,
-                stakedAmount: 0,
-                stakedInfos: new DelegateNodeStruct.StakedInfo[](0)
-            });
+            DelegateNodeStruct.PoolInfo storage pool = _pools[_nextPoolId];
+            pool.status = DelegateNodeStruct.PoolStatus.INACTIVE;
+            pool.id = _nextPoolId;
+            pool.amountToActive = _defaultAmountToActive;
+            pool.stakedAmount = 0;
         }
     }
 
@@ -111,8 +110,6 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
             amount: amount,
             blockTime: block.timestamp
         }));
-
-        _pools[poolId].stakedAmounts[msg.sender] = _pools[poolId].stakedAmounts[msg.sender] + amount;
 
         emit Stake(msg.sender, amount, poolId);
     }

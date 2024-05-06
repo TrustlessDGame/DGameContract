@@ -11,7 +11,6 @@ library DelegateNodeStruct {
         uint32 id;
         uint256 stakedAmount;
         uint256 amountToActive;
-        mapping(address => uint256) stakedAmounts; // map user address to staked amount
         StakedInfo[] stakedInfos;  // Array of stake info of this pool
     }
 
