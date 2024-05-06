@@ -13,7 +13,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
 import "../libs/helpers/Errors.sol";
-import "../libs/helpers/StringsUtils.sol";
 import "../libs/structs/DelegateNode.sol";
 
 contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeable {
@@ -33,8 +32,6 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
 
 
     function initialize(
-        string memory name,
-        string memory symbol,
         address admin
     )  initializer public {
         _admin = admin;
@@ -71,6 +68,22 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
 
         _pools[poolId].amountToActive = amount;
     }
+
+
+    // admin set name for pool
+    function adminSetName(uint32 poolId, string memory name) external onlyAdmin {
+        require(poolId > 0 && poolId <= _nextPoolId, Errors.INV_GAME_ID);
+
+        _pools[poolId].name = name;
+    }
+
+    // admin set image for pool
+    function adminSetImage(uint32 poolId, string memory image) external onlyAdmin {
+        require(poolId > 0 && poolId <= _nextPoolId, Errors.INV_GAME_ID);
+
+        _pools[poolId].image = image;
+    }
+
 
     // Admin change fee percent for a pool
     function adminChangeFeePercent(uint32 poolId, uint32 feePercent) external onlyAdmin {

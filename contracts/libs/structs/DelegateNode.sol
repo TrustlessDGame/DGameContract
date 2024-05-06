@@ -8,6 +8,8 @@ library DelegateNodeStruct {
     }
 
     struct PoolInfo {
+        string name;
+        string image;
         PoolStatus status;
         uint32 id;
         uint256 stakedAmount;
