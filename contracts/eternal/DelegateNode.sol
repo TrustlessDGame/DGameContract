@@ -7,7 +7,6 @@ pragma solidity ^0.8.0;
 // Will create pool to receive $EAI stake from user
 // We have some pools (similar to ERC-721), each pools have different state: id, status, staked amount
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/presets/ERC721PresetMinterPauserAutoIdUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -17,9 +16,8 @@ import "../libs/helpers/Errors.sol";
 import "../libs/helpers/StringsUtils.sol";
 import "../libs/structs/DelegateNode.sol";
 
-contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable {
+contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeable {
     using AddressUpgradeable for address;
-    using CountersUpgradeable for CountersUpgradeable.Counter;
 
     // event
     event CreatePool(uint32 poolId);
@@ -43,9 +41,7 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         _defaultAmountToActive = 8000 * 10**18;
         _defaultPoolFee = 1000;
 
-        __ERC721_init("DelegateNode", "DN");
         __ReentrancyGuard_init();
-        __ERC721Pausable_init();
         __Ownable_init();
     }
 
@@ -60,7 +56,6 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
 
         // change admin
         if (_admin != newAdm) {
-            address _previousAdmin = _admin;
             _admin = newAdm;
         }
     }
