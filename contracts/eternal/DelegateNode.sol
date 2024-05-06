@@ -38,9 +38,9 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         address admin
     ) initializer public {
         _admin = admin;
-        _defaultAmountToActive = 8000 * 10 ** 18;
+        _defaultAmountToActive = 200 * 10 ** 18;
         _defaultPoolFee = 1000;
-        _defaultWaitBlock = 28 * 24 * 60 * 30;
+        _defaultWaitBlock = 1;
         __ReentrancyGuard_init();
         __Ownable_init();
     }

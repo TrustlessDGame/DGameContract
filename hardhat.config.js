@@ -38,6 +38,14 @@ module.exports = {
                     apiURL: "https://nos-explorer.regtest.trustless.computer/api",
                     browserURL: "https://nos-explorer.regtest.trustless.computer/api"
                 }
+            },
+            {
+                network: "eai_testnet",
+                chainId: 20156,
+                urls: {
+                    apiURL: "https://eternal-ai3.tc.l2aas.com/api/v2",
+                    browserURL: "https://eternal-ai3.tc.l2aas.com/api/v2"
+                }
             }
         ]
     },
