@@ -22,12 +22,16 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
     // event
+    event CreatePool(uint32 poolId);
     event Stake(address user, uint256 amount, uint32 poolId);
+    event ActivePool(uint32 poolId);
+    event DeactivePool(uint32 poolId);
 
     address public _admin;
     uint32 public _nextPoolId;
     uint256 public _defaultAmountToActive; // 8000 EAI
     mapping(uint32 => DelegateNodeStruct.PoolInfo) public _pools;
+    uint32 public _defaultPoolFee; // 1000 => 10%
 
 
     function initialize(
@@ -37,6 +41,7 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
     )  initializer public {
         _admin = admin;
         _defaultAmountToActive = 8000 * 10**18;
+        _defaultPoolFee = 1000;
 
         __ERC721_init("DelegateNode", "DN");
         __ReentrancyGuard_init();
@@ -72,6 +77,14 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         _pools[poolId].amountToActive = amount;
     }
 
+    // Admin change fee percent for a pool
+    function adminChangeFeePercent(uint32 poolId, uint32 feePercent) external onlyAdmin {
+        require(poolId > 0 && poolId <= _nextPoolId, Errors.INV_GAME_ID);
+        require(feePercent > 0, Errors.INV_ADD);
+
+        _pools[poolId].feePercent = feePercent;
+    }
+
     function adminCreatePool(uint32 amountPool) external onlyAdmin {
         // loop to PRE-CREATE pool
         for (uint32 i = 0; i < amountPool; i++) {
@@ -81,26 +94,16 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
             pool.id = _nextPoolId;
             pool.amountToActive = _defaultAmountToActive;
             pool.stakedAmount = 0;
-        }
-    }
+            pool.feePercent = _defaultPoolFee;
 
-    function findFirstInactivePool() internal view returns (uint32) {
-        for (uint32 i = 1; i <= _nextPoolId; i++) {
-            if (_pools[i].status == DelegateNodeStruct.PoolStatus.INACTIVE) {
-                return i;
-            }
+            emit CreatePool(_nextPoolId);
         }
-
-        return 0;
     }
 
     // stake function is payable, user dont input pool, contract will FIND FIRST pool INACTIVE to stake
-    function stake(uint256 amount) external payable nonReentrant {
+    function stake(uint32 poolId, uint256 amount) external payable nonReentrant {
         require(amount > 0, Errors.INV_ADD);
         require(msg.value == amount, Errors.INV_ADD);
-
-        // find first inactive pool
-        uint32 poolId = findFirstInactivePool();
         require(poolId > 0, Errors.INV_ADD);
 
         // update pool info
@@ -108,11 +111,37 @@ contract DelegateNode is Initializable, ERC721PausableUpgradeable, ReentrancyGua
         _pools[poolId].stakedInfos.push(DelegateNodeStruct.StakedInfo({
             user: msg.sender,
             amount: amount,
-            blockTime: block.timestamp
+            blockNumber: block.number
         }));
+
+        if (_pools[poolId].stakedAmount >= _pools[poolId].amountToActive) {
+            _pools[poolId].status = DelegateNodeStruct.PoolStatus.ACTIVE;
+
+            // Emit for Backend enough $EAI to start a miner
+            emit ActivePool(poolId); // BE listen, BE create wallet for miner, BE start miner manually
+        }
 
         emit Stake(msg.sender, amount, poolId);
     }
+
+    // withdraw $EAI, for admin only, $EAI is native token of chain
+    function adminWithdraw(address to, uint256 amount) external onlyAdmin {
+        require(to != Errors.ZERO_ADDR, Errors.INV_ADD);
+        require(amount > 0, Errors.INV_ADD);
+
+        payable(to).transfer(amount);
+    }
+
+    // withdraw $EAI by poolId, for admin only, $EAI is native token of chain
+    function adminWithdrawByPoolId(uint32 poolId, address to, uint256 amount) external onlyAdmin {
+        require(to != Errors.ZERO_ADDR, Errors.INV_ADD);
+        require(amount > 0, Errors.INV_ADD);
+
+        _pools[poolId].stakedAmount = _pools[poolId].stakedAmount - amount;
+        payable(to).transfer(amount);
+    }
+
+
 }
 
 
