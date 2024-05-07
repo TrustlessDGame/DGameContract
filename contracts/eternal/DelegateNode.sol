@@ -36,8 +36,10 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     address public _moderator;
 
     event AdminWithdraw(address to, uint256 amount, DelegateNodeStruct.PoolInfo poolInfo);
-
     error FailedTransfer();
+
+    mapping(uint32 => mapping(address => uint256)) public _userStakedAmounts;
+    mapping(uint32 => mapping(address => uint256)) public _userRewardAmounts;
 
     function initialize(
         address admin,
@@ -140,7 +142,31 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         require(poolInfo.stakedAmount + msg.value <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
 
         internalUpdatePoolInfo(poolId, msg.value);
+        _userStakedAmounts[poolId][msg.sender] = _userStakedAmounts[poolId][msg.sender] + msg.value;
         emit Stake(msg.sender, msg.value, _pools[poolId]);
+    }
+
+    function stakeMultiple(uint32[] calldata poolIds, uint256[] calldata amounts) external payable nonReentrant {
+        require(poolIds.length == amounts.length, Errors.INV_ADD);
+        uint256 totalAmount = 0;
+        for (uint32 i = 0; i < amounts.length; i++) {
+            totalAmount = totalAmount + amounts[i];
+        }
+        require(totalAmount == msg.value, Errors.INV_ADD);
+
+        for (uint32 i = 0; i < poolIds.length; i++) {
+            uint32 poolId = poolIds[i];
+            uint256 amount = amounts[i];
+            require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
+            DelegateNodeStruct.PoolInfo memory poolInfo = _pools[poolId];
+            require(poolInfo.id > 0, Errors.INV_POOL_ID);
+            require(poolInfo.status == DelegateNodeStruct.PoolStatus.INACTIVE, Errors.INV_POOL_ID);
+            require(poolInfo.stakedAmount + amount <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
+
+            internalUpdatePoolInfo(poolId, amount);
+            _userStakedAmounts[poolId][msg.sender] = _userStakedAmounts[poolId][msg.sender] + amount;
+            emit Stake(msg.sender, amount, _pools[poolId]);
+        }
     }
 
     function updateMinerAddress(uint32 poolId, address minerAddress) external onlyAdminOrModerator {
@@ -179,6 +205,26 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
 
         emit AdminWithdraw(to, poolInfo.stakedAmount, poolInfo);
         return true;
+    }
+
+    // pool miner receive reward and call this function to contract, contract will receive reward and split to users base on % stake
+    function minerReceiveReward(uint32 poolId, uint256 amount) external payable {
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
+        require(amount > 0, Errors.INV_ADD);
+        DelegateNodeStruct.PoolInfo storage poolInfo = _pools[poolId];
+        require(poolInfo.id > 0, Errors.INV_POOL_ID);
+        require(poolInfo.minerAddress == msg.sender, Errors.INV_ADD);
+
+        uint256 feeAmount = amount * poolInfo.feePercent / 10_000;
+        uint256 rewardAmount = amount - feeAmount;
+
+        // dont transfer now, just save, user will call claim later
+
+        for (uint32 i = 0; i < poolInfo.stakedInfos.length; i++) {
+            DelegateNodeStruct.StakedInfo memory stakeInfo = poolInfo.stakedInfos[i];
+            uint256 userReward = stakeInfo.amount * rewardAmount / poolInfo.stakedAmount;
+            safeTransferNative(stakeInfo.user, userReward);
+        }
     }
 
 //    function unStake(uint32 poolId) external {

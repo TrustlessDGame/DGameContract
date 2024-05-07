@@ -26,6 +26,7 @@ library DelegateNodeStruct {
         uint256 amount;
         uint256 blockNumber;
     }
+
     struct UnStakedInfo {
         mapping(uint256 => uint256)  caps; // claimed block => amount
         uint256[] blocks;   // list keys of caps
