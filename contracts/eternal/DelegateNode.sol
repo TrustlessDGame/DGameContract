@@ -37,6 +37,8 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
 
     event AdminWithdraw(address to, uint256 amount, DelegateNodeStruct.PoolInfo poolInfo);
 
+    error FailedTransfer();
+
     function initialize(
         address admin,
         address moderator
@@ -157,20 +159,26 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         payable(to).transfer(amount);
     }
 
+    function safeTransferNative(address _to, uint256 _value) internal {
+        (bool success, ) = _to.call{value: _value}("");
+        if (!success) revert FailedTransfer();
+    }
+
     // only admin can withdraw by poolId
-    function adminWithdrawByPoolId(uint32 poolId, address to, uint256 amount) external onlyAdmin {
+    function adminWithdrawByPoolId(uint32 poolId, address to) external onlyAdmin returns (bool) {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         require(to != Errors.ZERO_ADDR, Errors.INV_ADD);
         DelegateNodeStruct.PoolInfo storage poolInfo = _pools[poolId];
         require(poolInfo.status == DelegateNodeStruct.PoolStatus.ACTIVE, Errors.INV_ADMIN_WITHDRAW);
         require(poolInfo.stakedAmount == poolInfo.amountToActive, Errors.INV_ADMIN_WITHDRAW); // only allow admin withdraw 1 time to go to run miner
-        require(amount == poolInfo.stakedAmount, Errors.INV_ADMIN_WITHDRAW);
 
-        poolInfo.stakedAmount = poolInfo.stakedAmount - amount;
+        safeTransferNative(to, poolInfo.amountToActive);
+
+        poolInfo.stakedAmount = 0;
         poolInfo.status = DelegateNodeStruct.PoolStatus.ADMIN_WITHDREW;
 
-        payable(to).transfer(amount);
-        emit AdminWithdraw(to, amount, poolInfo);
+        emit AdminWithdraw(to, poolInfo.stakedAmount, poolInfo);
+        return true;
     }
 
 //    function unStake(uint32 poolId) external {
