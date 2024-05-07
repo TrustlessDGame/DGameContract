@@ -134,9 +134,9 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     function stake(uint32 poolId) external payable nonReentrant {
         require(msg.value > 0, Errors.INV_ADD);
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
-        // more stake amount MUST <= amountToActive
         DelegateNodeStruct.PoolInfo memory poolInfo = _pools[poolId];
         require(poolInfo.id > 0, Errors.INV_POOL_ID);
+        require(poolInfo.status == DelegateNodeStruct.PoolStatus.INACTIVE, Errors.INV_POOL_ID);
         require(poolInfo.stakedAmount + msg.value <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
 
         internalUpdatePoolInfo(poolId, msg.value);
@@ -146,10 +146,10 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     function updateMinerAddress(uint32 poolId, address minerAddress) external onlyAdminOrModerator {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_GAME_ID);
         require(minerAddress != Errors.ZERO_ADDR, Errors.INV_ADD);
-        DelegateNodeStruct.PoolInfo memory poolInfo = _pools[poolId];
+        DelegateNodeStruct.PoolInfo storage poolInfo = _pools[poolId];
         require(poolInfo.id > 0, Errors.INV_POOL_ID);
 
-        _pools[poolId].minerAddress = minerAddress;
+        poolInfo.minerAddress = minerAddress;
     }
 
     function adminWithdraw(address to, uint256 amount) external onlyAdmin {
@@ -160,7 +160,7 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     }
 
     function safeTransferNative(address _to, uint256 _value) internal {
-        (bool success, ) = _to.call{value: _value}("");
+        (bool success,) = _to.call{value: _value}("");
         if (!success) revert FailedTransfer();
     }
 
