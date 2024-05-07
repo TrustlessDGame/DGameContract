@@ -20,8 +20,8 @@ class DelegateNode {
     async deployUpgradeable(adminAddress: any) {
         const contract = await ethers.getContractFactory("DelegateNode");
         console.log("DelegateNode.deploying ...")
-        const proxy = await upgrades.deployProxy(contract, [adminAddress], {
-            initializer: 'initialize(address)',
+        const proxy = await upgrades.deployProxy(contract, [adminAddress, adminAddress], {
+            initializer: 'initialize(address,address)',
         });
 
         await proxy.deployed();

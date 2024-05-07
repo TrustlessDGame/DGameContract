@@ -19,10 +19,10 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     using AddressUpgradeable for address;
 
     // event
-    event CreatePool(uint32 poolId);
-    event Stake(address user, uint256 amount, uint32 poolId);
-    event ActivePool(uint32 poolId);
-    event DeActivePool(uint32 poolId);
+    event CreatePool(DelegateNodeStruct.PoolInfo poolInfo);
+    event Stake(address user, uint256 amount, DelegateNodeStruct.PoolInfo poolInfo);
+    event ActivePool(DelegateNodeStruct.PoolInfo poolInfo);
+    event DeActivePool(DelegateNodeStruct.PoolInfo poolInfo);
     event UnStake(address user, uint256 amount, uint32 poolId, uint256 claimedBlock);
     event ClaimUnStake(address user, uint256 amount, uint32 poolId, uint256 claimedBlock);
     event ReStakeUnStakedPool(address user, uint256 unStakedAmount, uint32 oldPoolId, uint32 newPoolId);
@@ -31,13 +31,17 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     uint32 public _nextPoolId;
     uint256 public _defaultAmountToActive; // 8000 EAI
     mapping(uint32 => DelegateNodeStruct.PoolInfo) public _pools;
-    uint32 public _defaultPoolFee; // 1000 => 10%
+    uint32 public _defaultPoolFee; // 1000 => 10% (0.1)
     uint256 public _defaultWaitBlock; // (21 +7 )day * 24 hour * 60 min * 30 block (block time  = 2s)
+    address public _moderator;
 
     function initialize(
-        address admin
+        address admin,
+        address moderator
     ) initializer public {
+        _nextPoolId = 1;
         _admin = admin;
+        _moderator = moderator;
         _defaultAmountToActive = 200 * 10 ** 18;
         _defaultPoolFee = 1000;
         _defaultWaitBlock = 1;
@@ -51,53 +55,50 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         _;
     }
 
-    function changeAdmin(address newAdm) external {
-        require(msg.sender == _admin && newAdm != Errors.ZERO_ADDR, Errors.ONLY_ADMIN_ALLOWED);
-
-        // change admin
-        if (_admin != newAdm) {
-            _admin = newAdm;
-        }
+    modifier onlyAdminOrModerator() {
+        require(msg.sender == _admin || msg.sender == _moderator, Errors.ONLY_ADMIN_ALLOWED);
+        _;
     }
 
-//    function getPoolInfo(uint32 poolId) external view returns (DelegateNodeStruct.PoolInfo memory) {
-//        return _pools[poolId];
-//    }
+    function changeAdmin(address newAdm) external onlyAdmin {
+        require(newAdm != Errors.ZERO_ADDR, Errors.ONLY_ADMIN_ALLOWED);
+        _admin = newAdm;
+    }
 
-    // ADMIN update amountToActive for a pool
-    function adminUpdateAmountToActive(uint32 poolId, uint256 amount) external onlyAdmin {
-        require(poolId > 0 && poolId <= _nextPoolId, Errors.INV_GAME_ID);
+    function changeModerator(address newModerator) external onlyAdmin {
+        require(newModerator != Errors.ZERO_ADDR, Errors.ONLY_ADMIN_ALLOWED);
+        _moderator = newModerator;
+    }
+
+    function adminUpdateAmountToActive(uint32 poolId, uint256 amount) external onlyAdminOrModerator {
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_GAME_ID);
         require(amount > 0, Errors.INV_ADD);
 
         _pools[poolId].amountToActive = amount;
     }
 
-    // admin set name for pool
     function adminSetName(uint32 poolId, string memory name) external onlyAdmin {
-        require(poolId > 0 && poolId <= _nextPoolId, Errors.INV_GAME_ID);
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_GAME_ID);
 
         _pools[poolId].name = name;
     }
 
-    // admin set image for pool
     function adminSetImage(uint32 poolId, string memory image) external onlyAdmin {
-        require(poolId > 0 && poolId <= _nextPoolId, Errors.INV_GAME_ID);
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_GAME_ID);
 
         _pools[poolId].image = image;
     }
 
-    // Admin change fee percent for a pool
     function adminChangeFeePercent(uint32 poolId, uint32 feePercent) external onlyAdmin {
-        require(poolId > 0 && poolId <= _nextPoolId, Errors.INV_GAME_ID);
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_GAME_ID);
         require(feePercent > 0, Errors.INV_ADD);
 
         _pools[poolId].feePercent = feePercent;
     }
 
-    function adminCreatePool(uint32 amountPool) external onlyAdmin {
-        // loop to PRE-CREATE pool
+    function adminCreatePool(uint32 amountPool) external onlyAdminOrModerator {
+        // loop to PRE-CREATE pool; amountPool is number of pool want to pre-create
         for (uint32 i = 0; i < amountPool; i++) {
-            _nextPoolId = _nextPoolId + 1;
             DelegateNodeStruct.PoolInfo storage pool = _pools[_nextPoolId];
             pool.status = DelegateNodeStruct.PoolStatus.INACTIVE;
             pool.id = _nextPoolId;
@@ -105,7 +106,8 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
             pool.stakedAmount = 0;
             pool.feePercent = _defaultPoolFee;
 
-            emit CreatePool(_nextPoolId);
+            _nextPoolId = _nextPoolId + 1;
+            emit CreatePool(_pools[pool.id]);
         }
     }
 
@@ -120,18 +122,16 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
 
         if (_pools[poolId].stakedAmount >= _pools[poolId].amountToActive) {
             _pools[poolId].status = DelegateNodeStruct.PoolStatus.ACTIVE;
-            // Emit for Backend enough $EAI to start a miner
-            emit ActivePool(poolId); // BE listen, BE create wallet for miner, BE start miner manually
-        }
 
+            emit ActivePool(_pools[poolId]);
+        }
     }
-    // stake function is payable, user dont input pool, contract will FIND FIRST pool INACTIVE to stake
-    function stake(uint32 poolId, uint256 amount) external payable nonReentrant {
-        require(amount > 0, Errors.INV_ADD);
-        require(msg.value == amount, Errors.INV_ADD);
-        require(poolId > 0, Errors.INV_ADD);
-        internalUpdatePoolInfo(poolId, amount);
-        emit Stake(msg.sender, amount, poolId);
+
+    function stake(uint32 poolId) external payable nonReentrant {
+        require(msg.value > 0, Errors.INV_ADD);
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
+        internalUpdatePoolInfo(poolId, msg.value);
+        emit Stake(msg.sender, msg.value, _pools[poolId]);
     }
 
     // withdraw $EAI, for admin only, $EAI is native token of chain
@@ -151,61 +151,60 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         payable(to).transfer(amount);
     }
 
-    function unStake(uint32 poolId) external {
-        require(poolId > 0, Errors.INV_ADD);
-        require(poolId <= _nextPoolId, Errors.INV_ADD);
-
-        uint256 unStakedAmount = 0;
-        DelegateNodeStruct.StakedInfo[] memory stakedInfos = _pools[poolId].stakedInfos;
-        for (uint32 i = 0; i < stakedInfos.length; i++) {
-            DelegateNodeStruct.StakedInfo memory stakeInfo = stakedInfos[i];
-            if (stakeInfo.user == msg.sender && stakeInfo.amount > 0) {
-                unStakedAmount = unStakedAmount + stakeInfo.amount;
-                stakeInfo.amount = 0;
-            }
-        }
-        require(unStakedAmount > 0, Errors.INV_ADD);
-        require(_pools[poolId].stakedAmount > unStakedAmount, Errors.INV_ADD);
-        _pools[poolId].stakedAmount = _pools[poolId].stakedAmount - unStakedAmount;
-        if (_pools[poolId].stakedAmount < _pools[poolId].amountToActive) {
-            _pools[poolId].status = DelegateNodeStruct.PoolStatus.INACTIVE;
-
-            // Emit for Backend enough $EAI to start a miner
-            emit DeActivePool(poolId); // BE listen, BE create wallet for miner, BE start miner manually
-        }
-        uint256 claimedBlock = block.number + _defaultWaitBlock;
-        uint256 oldAmount = _pools[poolId].mapUnStakedInfos[msg.sender].caps[claimedBlock];
-        _pools[poolId].mapUnStakedInfos[msg.sender].caps[claimedBlock] = oldAmount + unStakedAmount;
-        _pools[poolId].mapUnStakedInfos[msg.sender].blocks.push(claimedBlock);
-        emit UnStake(msg.sender, unStakedAmount, poolId, claimedBlock);
-    }
-
-    function claimUnStake(uint32 poolId, uint256 claimedBlock) external payable {
-        require(poolId > 0, Errors.INV_ADD);
-        require(poolId <= _nextPoolId, Errors.INV_ADD);
-        require(block.number > claimedBlock, Errors.INV_ADD);
-       uint256 amount = _pools[poolId].mapUnStakedInfos[msg.sender].caps[claimedBlock];
-        require(amount > 0, Errors.INV_ADD);
-        payable(msg.sender).transfer(amount);
-        emit ClaimUnStake(msg.sender, amount, poolId, claimedBlock);
-    }
-
-    function reStakeUnStakedPool(uint32 oldPoolId, uint32 newPoolId) external {
-        require(oldPoolId > 0, Errors.INV_ADD);
-        require(oldPoolId > 0, Errors.INV_ADD);
-        require(newPoolId <= _nextPoolId, Errors.INV_ADD);
-        require(newPoolId <= _nextPoolId, Errors.INV_ADD);
-
-        DelegateNodeStruct.UnStakedInfo storage unStakeInfo = _pools[oldPoolId].mapUnStakedInfos[msg.sender];
-        uint256 unStakedAmount = 0;
-        for (uint32 i = 0; i < unStakeInfo.blocks.length; i++) {
-            unStakedAmount = unStakedAmount + unStakeInfo.caps[unStakeInfo.blocks[i]];
-            unStakeInfo.caps[unStakeInfo.blocks[i]] = 0;
-        }
-        require(unStakedAmount > 0, Errors.INV_ADD);
-        internalUpdatePoolInfo(newPoolId, unStakedAmount);
-        emit ReStakeUnStakedPool(msg.sender, unStakedAmount, oldPoolId, newPoolId);
-    }
+//    function unStake(uint32 poolId) external {
+//        require(poolId > 0, Errors.INV_ADD);
+//        require(poolId < _nextPoolId, Errors.INV_ADD);
+//
+//        uint256 unStakedAmount = 0;
+//        DelegateNodeStruct.StakedInfo[] memory stakedInfos = _pools[poolId].stakedInfos;
+//        for (uint32 i = 0; i < stakedInfos.length; i++) {
+//            DelegateNodeStruct.StakedInfo memory stakeInfo = stakedInfos[i];
+//            if (stakeInfo.user == msg.sender && stakeInfo.amount > 0) {
+//                unStakedAmount = unStakedAmount + stakeInfo.amount;
+//                stakeInfo.amount = 0;
+//            }
+//        }
+//        require(unStakedAmount > 0, Errors.INV_ADD);
+//        require(_pools[poolId].stakedAmount > unStakedAmount, Errors.INV_ADD);
+//        _pools[poolId].stakedAmount = _pools[poolId].stakedAmount - unStakedAmount;
+//        if (_pools[poolId].stakedAmount < _pools[poolId].amountToActive) {
+//            _pools[poolId].status = DelegateNodeStruct.PoolStatus.INACTIVE;
+//
+//            emit DeActivePool(_pools[poolId]);
+//        }
+//        uint256 claimedBlock = block.number + _defaultWaitBlock;
+//        uint256 oldAmount = _pools[poolId].mapUnStakedInfos[msg.sender].caps[claimedBlock];
+//        _pools[poolId].mapUnStakedInfos[msg.sender].caps[claimedBlock] = oldAmount + unStakedAmount;
+//        _pools[poolId].mapUnStakedInfos[msg.sender].blocks.push(claimedBlock);
+//        emit UnStake(msg.sender, unStakedAmount, poolId, claimedBlock);
+//    }
+//
+//    function claimUnStake(uint32 poolId, uint256 claimedBlock) external payable {
+//        require(poolId > 0, Errors.INV_ADD);
+//        require(poolId < _nextPoolId, Errors.INV_ADD);
+//        require(block.number > claimedBlock, Errors.INV_ADD);
+//        uint256 amount = _pools[poolId].mapUnStakedInfos[msg.sender].caps[claimedBlock];
+//        require(amount > 0, Errors.INV_ADD);
+//        payable(msg.sender).transfer(amount);
+//        emit ClaimUnStake(msg.sender, amount, poolId, claimedBlock);
+//    }
+//
+//    function reStakeUnStakedPool(uint32 oldPoolId, uint32 newPoolId) external {
+//        require(oldPoolId > 0, Errors.INV_ADD);
+//        require(oldPoolId > 0, Errors.INV_ADD);
+//        require(newPoolId <= _nextPoolId, Errors.INV_ADD);
+//        require(newPoolId <= _nextPoolId, Errors.INV_ADD);
+//
+//        DelegateNodeStruct.UnStakedInfo storage unStakeInfo = _pools[oldPoolId].mapUnStakedInfos[msg.sender];
+//        uint256 unStakedAmount = 0;
+//        for (uint32 i = 0; i < unStakeInfo.blocks.length; i++) {
+//            unStakedAmount = unStakedAmount + unStakeInfo.caps[unStakeInfo.blocks[i]];
+//            unStakeInfo.caps[unStakeInfo.blocks[i]] = 0;
+//        }
+//        require(unStakedAmount > 0, Errors.INV_ADD);
+//        internalUpdatePoolInfo(newPoolId, unStakedAmount);
+//        emit ReStakeUnStakedPool(msg.sender, unStakedAmount, oldPoolId, newPoolId);
+//    }
 }
 
 

@@ -8,8 +8,8 @@ import {DelegateNode} from "./DelegateNode";
             console.log("wrong network");
             return;
         }
-        const nft = new DelegateNode(process.env.NETWORK, process.env.PRIVATE_KEY, process.env.PUBLIC_KEY);
-        const address = await nft.deployUpgradeable(
+        const contract = new DelegateNode(process.env.NETWORK, process.env.PRIVATE_KEY, process.env.PUBLIC_KEY);
+        const address = await contract.deployUpgradeable(
             process.env.PUBLIC_KEY
         );
 
