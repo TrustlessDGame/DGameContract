@@ -4,7 +4,8 @@ pragma solidity ^0.8.0;
 library DelegateNodeStruct {
     enum PoolStatus {
         INACTIVE,
-        ACTIVE
+        ACTIVE,
+        ADMIN_WITHDREW
     }
 
     struct PoolInfo {

@@ -35,6 +35,8 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     uint256 public _defaultWaitBlock; // (21 +7 )day * 24 hour * 60 min * 30 block (block time  = 2s)
     address public _moderator;
 
+    event AdminWithdraw(address to, uint256 amount, DelegateNodeStruct.PoolInfo poolInfo);
+
     function initialize(
         address admin,
         address moderator
@@ -155,13 +157,20 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         payable(to).transfer(amount);
     }
 
-    // withdraw $EAI by poolId, for admin only, $EAI is native token of chain
+    // only admin can withdraw by poolId
     function adminWithdrawByPoolId(uint32 poolId, address to, uint256 amount) external onlyAdmin {
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         require(to != Errors.ZERO_ADDR, Errors.INV_ADD);
-        require(amount > 0, Errors.INV_ADD);
+        DelegateNodeStruct.PoolInfo storage poolInfo = _pools[poolId];
+        require(poolInfo.status == DelegateNodeStruct.PoolStatus.ACTIVE, Errors.INV_ADMIN_WITHDRAW);
+        require(poolInfo.stakedAmount == poolInfo.amountToActive, Errors.INV_ADMIN_WITHDRAW); // only allow admin withdraw 1 time to go to run miner
+        require(amount == poolInfo.stakedAmount, Errors.INV_ADMIN_WITHDRAW);
 
-        _pools[poolId].stakedAmount = _pools[poolId].stakedAmount - amount;
+        poolInfo.stakedAmount = poolInfo.stakedAmount - amount;
+        poolInfo.status = DelegateNodeStruct.PoolStatus.ADMIN_WITHDREW;
+
         payable(to).transfer(amount);
+        emit AdminWithdraw(to, amount, poolInfo);
     }
 
 //    function unStake(uint32 poolId) external {
