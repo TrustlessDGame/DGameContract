@@ -7,6 +7,7 @@ require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 require("@nomiclabs/hardhat-etherscan");
 require('@openzeppelin/hardhat-upgrades');
+require("@nomiclabs/hardhat-truffle5");
 var verify = require("@ericxstone/hardhat-blockscout-verify");
 
 module.exports = {
