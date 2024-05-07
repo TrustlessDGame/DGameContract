@@ -130,11 +130,24 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     function stake(uint32 poolId) external payable nonReentrant {
         require(msg.value > 0, Errors.INV_ADD);
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
+        // more stake amount MUST <= amountToActive
+        DelegateNodeStruct.PoolInfo memory poolInfo = _pools[poolId];
+        require(poolInfo.id > 0, Errors.INV_POOL_ID);
+        require(poolInfo.stakedAmount + msg.value <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
+
         internalUpdatePoolInfo(poolId, msg.value);
         emit Stake(msg.sender, msg.value, _pools[poolId]);
     }
 
-    // withdraw $EAI, for admin only, $EAI is native token of chain
+    function updateMinerAddress(uint32 poolId, address minerAddress) external onlyAdminOrModerator {
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_GAME_ID);
+        require(minerAddress != Errors.ZERO_ADDR, Errors.INV_ADD);
+        DelegateNodeStruct.PoolInfo memory poolInfo = _pools[poolId];
+        require(poolInfo.id > 0, Errors.INV_POOL_ID);
+
+        _pools[poolId].minerAddress = minerAddress;
+    }
+
     function adminWithdraw(address to, uint256 amount) external onlyAdmin {
         require(to != Errors.ZERO_ADDR, Errors.INV_ADD);
         require(amount > 0, Errors.INV_ADD);

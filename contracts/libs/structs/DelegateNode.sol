@@ -16,7 +16,8 @@ library DelegateNodeStruct {
         uint256 amountToActive;
         StakedInfo[] stakedInfos;
 //        mapping(address => UnStakedInfo) mapUnStakedInfos;  // map user => un stake info
-        uint32 feePercent; // feePercent / 10_000; 1 <=> 0.01%; reward 100 => fee for protocol = 1 => 99,99 to users
+        uint32 feePercent; // feePercent / 10_000; 0.1 <=> 10%
+        address minerAddress;
     }
 
     struct StakedInfo {

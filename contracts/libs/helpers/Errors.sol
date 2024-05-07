@@ -26,4 +26,5 @@ library Errors {
     // transfer fail
     string public constant TRANSFER_FAIL = "300";
     string public constant INV_POOL_ID = "400";
+    string public constant INV_STAKE_AMOUNT = "401";
 }
