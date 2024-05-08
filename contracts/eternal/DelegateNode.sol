@@ -41,6 +41,8 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     mapping(uint32 => mapping(address => uint256)) public _userStakedAmounts;
     mapping(uint32 => mapping(address => uint256)) public _userRewardAmounts;
 
+    mapping(uint32 => mapping(address => bool)) public _userPoolStakedTracker;
+
     function initialize(
         address admin,
         address moderator
@@ -142,6 +144,11 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         require(poolInfo.stakedAmount + msg.value <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
 
         internalUpdatePoolInfo(poolId, msg.value);
+        if (_userPoolStakedTracker[poolId][msg.sender] == false) {
+            _userPoolStakedTracker[poolId][msg.sender] = true;
+            _pools[poolId].stakedUsersSet.push(msg.sender);
+        }
+
         _userStakedAmounts[poolId][msg.sender] = _userStakedAmounts[poolId][msg.sender] + msg.value;
         emit Stake(msg.sender, msg.value, _pools[poolId]);
     }
@@ -164,6 +171,10 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
             require(poolInfo.stakedAmount + amount <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
 
             internalUpdatePoolInfo(poolId, amount);
+            if (_userPoolStakedTracker[poolId][msg.sender] == false) {
+                _userPoolStakedTracker[poolId][msg.sender] = true;
+                _pools[poolId].stakedUsersSet.push(msg.sender);
+            }
             _userStakedAmounts[poolId][msg.sender] = _userStakedAmounts[poolId][msg.sender] + amount;
             emit Stake(msg.sender, amount, _pools[poolId]);
         }
@@ -211,20 +222,25 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     function minerReceiveReward(uint32 poolId, uint256 amount) external payable {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         require(amount > 0, Errors.INV_ADD);
-        DelegateNodeStruct.PoolInfo storage poolInfo = _pools[poolId];
+        DelegateNodeStruct.PoolInfo memory poolInfo = _pools[poolId];
         require(poolInfo.id > 0, Errors.INV_POOL_ID);
         require(poolInfo.minerAddress == msg.sender, Errors.INV_ADD);
+        require(poolInfo.status != DelegateNodeStruct.PoolStatus.INACTIVE, Errors.INV_POOL_ID);
 
         uint256 feeAmount = amount * poolInfo.feePercent / 10_000;
         uint256 rewardAmount = amount - feeAmount;
 
-        // dont transfer now, just save, user will call claim later
-
-        for (uint32 i = 0; i < poolInfo.stakedInfos.length; i++) {
-            DelegateNodeStruct.StakedInfo memory stakeInfo = poolInfo.stakedInfos[i];
-            uint256 userReward = stakeInfo.amount * rewardAmount / poolInfo.stakedAmount;
-            safeTransferNative(stakeInfo.user, userReward);
+        for (uint32 i = 0; i < poolInfo.stakedUsersSet.length; i++) {
+            address userAddress = poolInfo.stakedUsersSet[i];
+            uint256 userStakedAmount = _userStakedAmounts[poolId][userAddress];
+            uint256 userReward = userStakedAmount * rewardAmount / poolInfo.stakedAmount;
+            _userRewardAmounts[poolId][userAddress] = _userRewardAmounts[poolId][userAddress] + userReward;
         }
+    }
+
+    function userGetRewardAmount(uint32 poolId) external view returns (uint256) {
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
+        return _userRewardAmounts[poolId][msg.sender];
     }
 
 //    function unStake(uint32 poolId) external {

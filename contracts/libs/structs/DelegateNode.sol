@@ -5,7 +5,8 @@ library DelegateNodeStruct {
     enum PoolStatus {
         INACTIVE,
         ACTIVE,
-        ADMIN_WITHDREW
+        ADMIN_WITHDREW,
+        ADMIN_RETURNED_FUND
     }
 
     struct PoolInfo {
@@ -19,6 +20,7 @@ library DelegateNodeStruct {
 //        mapping(address => UnStakedInfo) mapUnStakedInfos;  // map user => un stake info
         uint32 feePercent; // feePercent / 10_000; 0.1 <=> 10%
         address minerAddress;
+        address[] stakedUsersSet;
     }
 
     struct StakedInfo {
@@ -28,7 +30,7 @@ library DelegateNodeStruct {
     }
 
     struct UnStakedInfo {
-        mapping(uint256 => uint256)  caps; // claimed block => amount
+        mapping(uint256 => uint256) caps; // claimed block => amount
         uint256[] blocks;   // list keys of caps
     }
 }
