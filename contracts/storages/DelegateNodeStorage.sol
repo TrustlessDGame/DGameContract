@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.0;
+
+import {IDelegateNode} from "../interfaces/IDelegateNode.sol";
+
+abstract contract DelegateNodeStorage is IDelegateNode {
+    address public _admin;
+    address public _poolAdmin;
+    uint32 public _nextPoolId;
+    uint256 public _defaultAmountToActive; // 8000 EAI
+    mapping(uint32 => PoolInfo) public _pools;
+    uint32 public _defaultPoolFee; // 1000 => 10% (0.1)
+    uint256 public _defaultWaitBlock; // (21 +7 )day * 24 hour * 60 min * 30 block (block time  = 2s)
+    address public _moderator;
+    mapping(uint32 => mapping(address => UserPooInfo)) public _userPoolInfo;
+
+    uint256[100] private __gap;
+}
