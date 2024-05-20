@@ -42,8 +42,8 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
 
     function initialize(
         address admin,
-        address moderator,
-        address poolAdmin
+        address poolAdmin,
+        address moderator
     ) initializer public {
         _nextPoolId = 1;
         _admin = admin;
@@ -206,7 +206,7 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     }
 
     // only admin can withdraw by poolId
-    function adminWithdrawByPoolId(uint32 poolId, address to) external onlyAdmin returns (bool) {
+    function adminWithdrawByPoolId(uint32 poolId, address to) external onlyPoolAdmin returns (bool) {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         require(to != Errors.ZERO_ADDR, Errors.INV_ADD);
         DelegateNodeStruct.PoolInfo storage poolInfo = _pools[poolId];
