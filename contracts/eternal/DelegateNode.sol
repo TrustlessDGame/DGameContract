@@ -22,8 +22,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
     function initialize(
         address admin,
-        address poolAdmin
-        address moderator,
+        address poolAdmin,
+        address moderator
     ) initializer external {
         __Ownable_init();
         __Pausable_init();
