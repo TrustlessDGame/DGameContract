@@ -22,6 +22,13 @@ library DelegateNodeStruct {
         address[] stakedUsersSet;
     }
 
+    struct UserPooInfo {
+        bool isStaked;
+        uint256 stakedAmount;
+        uint256 rewardAmount;
+        uint256 claimedAmount;
+    }
+
     struct StakedInfo {
         address user;
         uint256 amount;

@@ -26,30 +26,28 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     event UnStake(address user, uint256 amount, uint32 poolId, uint256 claimedBlock);
     event ClaimUnStake(address user, uint256 amount, uint32 poolId, uint256 claimedBlock);
     event ReStakeUnStakedPool(address user, uint256 unStakedAmount, uint32 oldPoolId, uint32 newPoolId);
+    event AdminWithdraw(address to, uint256 amount, DelegateNodeStruct.PoolInfo poolInfo);
 
     address public _admin;
+    address public _poolAdmin;
     uint32 public _nextPoolId;
     uint256 public _defaultAmountToActive; // 8000 EAI
     mapping(uint32 => DelegateNodeStruct.PoolInfo) public _pools;
     uint32 public _defaultPoolFee; // 1000 => 10% (0.1)
     uint256 public _defaultWaitBlock; // (21 +7 )day * 24 hour * 60 min * 30 block (block time  = 2s)
     address public _moderator;
+    mapping(uint32 => mapping(address => DelegateNodeStruct.UserPooInfo)) public _userPoolInfo;
 
-    event AdminWithdraw(address to, uint256 amount, DelegateNodeStruct.PoolInfo poolInfo);
     error FailedTransfer();
-
-    // TODO @kelvin refactor to 1 map -> deploy mới lên testnet (change structure ko upgrade dc)
-    mapping(uint32 => mapping(address => uint256)) public _userStakedAmounts;
-    mapping(uint32 => mapping(address => uint256)) public _userRewardAmounts;
-
-    mapping(uint32 => mapping(address => bool)) public _userPoolStakedTracker;
 
     function initialize(
         address admin,
-        address moderator
+        address moderator,
+        address poolAdmin
     ) initializer public {
         _nextPoolId = 1;
         _admin = admin;
+        _poolAdmin = poolAdmin;
         _moderator = moderator;
         _defaultAmountToActive = 100 * 10 ** 18;
         _defaultPoolFee = 1000;
@@ -61,6 +59,11 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     // modifier admin only
     modifier onlyAdmin() {
         require(msg.sender == _admin, Errors.ONLY_ADMIN_ALLOWED);
+        _;
+    }
+
+    modifier onlyPoolAdmin() {
+        require(msg.sender == _poolAdmin, Errors.ONLY_ADMIN_ALLOWED);
         _;
     }
 
@@ -145,12 +148,12 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         require(poolInfo.stakedAmount + msg.value <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
 
         internalUpdatePoolInfo(poolId, msg.value);
-        if (_userPoolStakedTracker[poolId][msg.sender] == false) {
-            _userPoolStakedTracker[poolId][msg.sender] = true;
+        if (_userPoolInfo[poolId][msg.sender].isStaked == false) {
+            _userPoolInfo[poolId][msg.sender].isStaked = true;
             _pools[poolId].stakedUsersSet.push(msg.sender);
         }
 
-        _userStakedAmounts[poolId][msg.sender] = _userStakedAmounts[poolId][msg.sender] + msg.value;
+        _userPoolInfo[poolId][msg.sender].stakedAmount = _userPoolInfo[poolId][msg.sender].stakedAmount + msg.value;
         emit Stake(msg.sender, msg.value, _pools[poolId]);
     }
 
@@ -172,11 +175,11 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
             require(poolInfo.stakedAmount + amount <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
 
             internalUpdatePoolInfo(poolId, amount);
-            if (_userPoolStakedTracker[poolId][msg.sender] == false) {
-                _userPoolStakedTracker[poolId][msg.sender] = true;
+            if (_userPoolInfo[poolId][msg.sender].isStaked == false) {
+                _userPoolInfo[poolId][msg.sender].isStaked = true;
                 _pools[poolId].stakedUsersSet.push(msg.sender);
             }
-            _userStakedAmounts[poolId][msg.sender] = _userStakedAmounts[poolId][msg.sender] + amount;
+            _userPoolInfo[poolId][msg.sender].stakedAmount = _userPoolInfo[poolId][msg.sender].stakedAmount + amount;
             emit Stake(msg.sender, amount, _pools[poolId]);
         }
     }
@@ -190,7 +193,7 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         poolInfo.minerAddress = minerAddress;
     }
 
-    function adminWithdraw(address to, uint256 amount) external onlyAdmin {
+    function adminWithdraw(address to, uint256 amount) external onlyPoolAdmin {
         require(to != Errors.ZERO_ADDR, Errors.INV_ADD);
         require(amount > 0, Errors.INV_ADD);
 
@@ -234,23 +237,24 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
 
         for (uint32 i = 0; i < poolInfo.stakedUsersSet.length; i++) {
             address userAddress = poolInfo.stakedUsersSet[i];
-            uint256 userStakedAmount = _userStakedAmounts[poolId][userAddress];
+            uint256 userStakedAmount = _userPoolInfo[poolId][userAddress].stakedAmount;
             uint256 userReward = userStakedAmount * rewardAmount / poolInfo.stakedAmount;
-            _userRewardAmounts[poolId][userAddress] = _userRewardAmounts[poolId][userAddress] + userReward;
+            _userPoolInfo[poolId][userAddress].rewardAmount = _userPoolInfo[poolId][userAddress].rewardAmount + userReward;
         }
     }
 
     function userGetRewardAmount(uint32 poolId) external view returns (uint256) {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
-        return _userRewardAmounts[poolId][msg.sender];
+        return _userPoolInfo[poolId][msg.sender].rewardAmount;
     }
 
     function userClaimRewardOnPool(uint32 poolId, uint256 amount) external {
         // TODO @kelvin double check
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         require(amount > 0, Errors.INV_ADD);
-        require(_userRewardAmounts[poolId][msg.sender] >= amount, Errors.INV_USER_CLAIM_REWARD_AMOUNT);
-        _userRewardAmounts[poolId][msg.sender] = _userRewardAmounts[poolId][msg.sender] - amount;
+        require(_userPoolInfo[poolId][msg.sender].rewardAmount >= amount, Errors.INV_USER_CLAIM_REWARD_AMOUNT);
+        _userPoolInfo[poolId][msg.sender].rewardAmount = _userPoolInfo[poolId][msg.sender].rewardAmount - amount;
+        _userPoolInfo[poolId][msg.sender].claimedAmount = _userPoolInfo[poolId][msg.sender].claimedAmount + amount;
         safeTransferNative(msg.sender, amount);
     }
 

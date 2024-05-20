@@ -16,6 +16,7 @@ library Errors {
     string public constant ONLY_ADMIN_ALLOWED = "101";
     string public constant ONLY_CREATOR = "102";
     string public constant ONLY_MODERATOR = "103";
+    string public constant ONLY_POOL_ADMIN_ALLOWED = "104";
 
     // validation error
     string public constant MISSING_NAME = "200";
