@@ -62,5 +62,7 @@ interface IDelegateNode {
 
     // errors
     error FailedTransfer();
+    error InvalidPoolId();
+    error InvalidTransferedValue();
 
 }

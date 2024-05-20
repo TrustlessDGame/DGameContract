@@ -12,24 +12,11 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
-// import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-// import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-
-import {IDelegateNode} from "../libs/structs/DelegateNode.sol";
+import {DelegateNodeStorage} from "../storages/DelegateNodeStorage.sol";
 import "../libs/helpers/Errors.sol";
 
-contract DelegateNode is IDelegateNode, OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
-    // using AddressUpgradeable for address;
-
-    address public _admin;
-    address public _poolAdmin;
-    uint32 public _nextPoolId;
-    uint256 public _defaultAmountToActive; // 8000 EAI
-    mapping(uint32 => PoolInfo) public _pools;
-    uint32 public _defaultPoolFee; // 1000 => 10% (0.1)
-    uint256 public _defaultWaitBlock; // (21 +7 )day * 24 hour * 60 min * 30 block (block time  = 2s)
-    address public _moderator;
-    mapping(uint32 => mapping(address => UserPooInfo)) public _userPoolInfo;
+contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
+    uint256 constant private PERCENTAGE_DENOMINATOR = 10_000;
 
     receive() external payable {}
 
@@ -153,7 +140,7 @@ contract DelegateNode is IDelegateNode, OwnableUpgradeable, PausableUpgradeable,
     }
 
     function stakeNeededToActivate(uint32 poolId) public view returns(uint256) {
-        require(poolId < _nextPoolId, "Invalid Pool ID");
+        if (poolId >= _nextPoolId) revert InvalidPoolId();
 
         return _pools[poolId].amountToActive - _pools[poolId].stakedAmount;
     }
@@ -260,14 +247,14 @@ contract DelegateNode is IDelegateNode, OwnableUpgradeable, PausableUpgradeable,
         // TODO @kelvin review
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         require(amount > 0, Errors.INV_ADD);
-        require(amount == msg.value, "Transfered value is invalid");
+        if (amount != msg.value) revert InvalidTransferedValue();
 
         PoolInfo memory poolInfo = _pools[poolId];
         require(poolInfo.id == poolId, Errors.INV_POOL_ID);
         require(poolInfo.minerAddress == msg.sender, Errors.INV_ADD);
         require(poolInfo.status != PoolStatus.INACTIVE, Errors.INV_POOL_ID);
 
-        uint256 feeAmount = amount * poolInfo.feePercent / 10_000;
+        uint256 feeAmount = amount * poolInfo.feePercent / PERCENTAGE_DENOMINATOR;
         uint256 rewardAmount = amount - feeAmount;
 
         for (uint32 i = 0; i < poolInfo.stakedUsersSet.length; i++) {
