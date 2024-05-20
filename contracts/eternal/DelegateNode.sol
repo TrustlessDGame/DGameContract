@@ -38,6 +38,7 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     event AdminWithdraw(address to, uint256 amount, DelegateNodeStruct.PoolInfo poolInfo);
     error FailedTransfer();
 
+    // TODO @kelvin refactor to 1 map -> deploy mới lên testnet (change structure ko upgrade dc)
     mapping(uint32 => mapping(address => uint256)) public _userStakedAmounts;
     mapping(uint32 => mapping(address => uint256)) public _userRewardAmounts;
 
@@ -50,7 +51,7 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
         _nextPoolId = 1;
         _admin = admin;
         _moderator = moderator;
-        _defaultAmountToActive = 200 * 10 ** 18;
+        _defaultAmountToActive = 100 * 10 ** 18;
         _defaultPoolFee = 1000;
         _defaultWaitBlock = 1;
         __ReentrancyGuard_init();
@@ -220,6 +221,7 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
 
     // pool miner receive reward and call this function to contract, contract will receive reward and split to users base on % stake
     function minerReceiveReward(uint32 poolId, uint256 amount) external payable {
+        // TODO @kelvin review
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         require(amount > 0, Errors.INV_ADD);
         DelegateNodeStruct.PoolInfo memory poolInfo = _pools[poolId];
@@ -241,6 +243,15 @@ contract DelegateNode is Initializable, ReentrancyGuardUpgradeable, OwnableUpgra
     function userGetRewardAmount(uint32 poolId) external view returns (uint256) {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         return _userRewardAmounts[poolId][msg.sender];
+    }
+
+    function userClaimRewardOnPool(uint32 poolId, uint256 amount) external {
+        // TODO @kelvin double check
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
+        require(amount > 0, Errors.INV_ADD);
+        require(_userRewardAmounts[poolId][msg.sender] >= amount, Errors.INV_USER_CLAIM_REWARD_AMOUNT);
+        _userRewardAmounts[poolId][msg.sender] = _userRewardAmounts[poolId][msg.sender] - amount;
+        safeTransferNative(msg.sender, amount);
     }
 
 //    function unStake(uint32 poolId) external {

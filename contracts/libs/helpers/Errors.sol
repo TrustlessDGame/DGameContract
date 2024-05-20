@@ -28,4 +28,6 @@ library Errors {
     string public constant INV_POOL_ID = "400";
     string public constant INV_STAKE_AMOUNT = "401";
     string public constant INV_ADMIN_WITHDRAW = "402";
+    string public constant INV_USER_CLAIM_REWARD_AMOUNT = "403";
+
 }

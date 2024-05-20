@@ -17,7 +17,6 @@ library DelegateNodeStruct {
         uint256 stakedAmount;
         uint256 amountToActive;
         StakedInfo[] stakedInfos;
-//        mapping(address => UnStakedInfo) mapUnStakedInfos;  // map user => un stake info
         uint32 feePercent; // feePercent / 10_000; 0.1 <=> 10%
         address minerAddress;
         address[] stakedUsersSet;
