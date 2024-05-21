@@ -284,9 +284,9 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         emit MinerReceiveReward(msg.sender, poolId, amount, feeAmount);
     }
 
-    function userGetRewardAmount(uint32 poolId) external view returns (uint256) {
+    function userGetRewardAmount(uint32 poolId, address caller) external view returns (uint256) {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
-        return _userPoolInfo[poolId][msg.sender].rewardAmount;
+        return _userPoolInfo[poolId][caller].rewardAmount;
     }
 
     function userClaimRewardOnPool(uint32 poolId, uint256 amount) external nonReentrant whenNotPaused {
