@@ -286,6 +286,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
     function userGetRewardAmount(uint32 poolId, address caller) external view returns (uint256) {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
+        require(address != address(0), Errors.INV_ADD);
         return _userPoolInfo[poolId][caller].rewardAmount;
     }
 
