@@ -4,82 +4,86 @@
 require("dotenv").config();
 require("@nomiclabs/hardhat-ethers");
 require("hardhat-gas-reporter");
-require('hardhat-contract-sizer');
+require("hardhat-contract-sizer");
 require("@nomiclabs/hardhat-etherscan");
-require('@openzeppelin/hardhat-upgrades');
+require("@openzeppelin/hardhat-upgrades");
 require("@nomiclabs/hardhat-truffle5");
 var verify = require("@ericxstone/hardhat-blockscout-verify");
 
 module.exports = {
-    solidity: {
+  solidity: {
+    compilers: [
+      {
         version: "0.8.12",
         settings: {
-            optimizer: {
-                enabled: true,
-                runs: 200
-            }
-        }
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
+  },
+  defaultNetwork: process.env.NETWORK,
+  etherscan: {
+    apiKey: process.env.ETHSCAN_API_KEY,
+    customChains: [
+      {
+        network: "nos_mainnet",
+        chainId: 42213,
+        urls: {
+          apiURL: "https://explorer.l2.trustless.computer/api",
+          browserURL: "https://explorer.l2.trustless.computer/api",
+        },
+      },
+      {
+        network: "nos_testnet",
+        chainId: 42070,
+        urls: {
+          apiURL: "https://nos-explorer.regtest.trustless.computer/api",
+          browserURL: "https://nos-explorer.regtest.trustless.computer/api",
+        },
+      },
+      {
+        network: "eai_testnet",
+        chainId: 20156,
+        urls: {
+          apiURL: "https://eternal-ai3.tc.l2aas.com/api/v2",
+          browserURL: "https://eternal-ai3.tc.l2aas.com/api/v2",
+        },
+      },
+    ],
+  },
+  networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true,
     },
-    defaultNetwork: process.env.NETWORK,
-    etherscan: {
-        apiKey: process.env.ETHSCAN_API_KEY,
-        customChains: [
-            {
-                network: "nos_mainnet",
-                chainId: 42213,
-                urls: {
-                    apiURL: "https://explorer.l2.trustless.computer/api",
-                    browserURL: "https://explorer.l2.trustless.computer/api"
-                }
-            },
-            {
-                network: "nos_testnet",
-                chainId: 42070,
-                urls: {
-                    apiURL: "https://nos-explorer.regtest.trustless.computer/api",
-                    browserURL: "https://nos-explorer.regtest.trustless.computer/api"
-                }
-            },
-            {
-                network: "eai_testnet",
-                chainId: 20156,
-                urls: {
-                    apiURL: "https://eternal-ai3.tc.l2aas.com/api/v2",
-                    browserURL: "https://eternal-ai3.tc.l2aas.com/api/v2"
-                }
-            }
-        ]
+    local: {
+      url: process.env.LOCAL_API_URL,
+      accounts: [
+        `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`,
+      ],
     },
-    networks: {
-        hardhat: {
-            allowUnlimitedContractSize: true,
-        },
-        local: {
-            url: process.env.LOCAL_API_URL,
-            accounts: [
-                `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`,
-            ],
-        },
-        nos_testnet: {
-            url: process.env.NOS_TESTNET_API_URL,
-            accounts: [`0x${process.env.PRIVATE_KEY}`],
-        },
-        nos_mainnet: {
-            url: process.env.NOS_MAINNET_API_URL,
-            accounts: [`0x${process.env.PRIVATE_KEY}`],
-            timeout: 100_000,
-        },
-        eai_testnet: {
-            url: process.env.EAI_TESTNET_API_URL,
-            accounts: [`0x${process.env.PRIVATE_KEY}`],
-        },
-        eai_mainnet: {
-            url: process.env.EAI_MAINNET_API_URL,
-            accounts: [`0x${process.env.PRIVATE_KEY}`],
-            timeout: 100_000,
-        }
+    nos_testnet: {
+      url: process.env.NOS_TESTNET_API_URL,
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
-    mocha: {
-        timeout: 40000000,
-    }
+    nos_mainnet: {
+      url: process.env.NOS_MAINNET_API_URL,
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
+      timeout: 100_000,
+    },
+    eai_testnet: {
+      url: process.env.EAI_TESTNET_API_URL,
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
+    },
+    eai_mainnet: {
+      url: process.env.EAI_MAINNET_API_URL,
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
+      timeout: 100_000,
+    },
+  },
+  mocha: {
+    timeout: 40000000,
+  },
 };

@@ -12,10 +12,13 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
+import {Set} from "../libs/Set.sol";
 import {DelegateNodeStorage} from "../storages/DelegateNodeStorage.sol";
 import "../libs/helpers/Errors.sol";
 
 contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
+    using Set for Set.AddressSet;
+
     uint256 constant private PERCENTAGE_DENOMINATOR = 10_000;
 
     receive() external payable {}
@@ -167,9 +170,11 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         _internalUpdatePoolInfo(poolId, msg.value);
 
-        if (_userPoolInfo[poolId][msg.sender].isStaked == false) {
+        if (!_userPoolInfo[poolId][msg.sender].isStaked && !stakedUsersOf[poolId].hasValue(msg.sender)) {
             _userPoolInfo[poolId][msg.sender].isStaked = true;
             _pools[poolId].stakedUsersSet.push(msg.sender);
+
+            stakedUsersOf[poolId].insert(msg.sender);
         }
 
         _userPoolInfo[poolId][msg.sender].stakedAmount += msg.value;
@@ -199,10 +204,13 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             _internalUpdatePoolInfo(poolId, amount);
 
-            if (_userPoolInfo[poolId][msg.sender].isStaked == false) {
+            if (!_userPoolInfo[poolId][msg.sender].isStaked && !stakedUsersOf[poolId].hasValue(msg.sender)) {
                 _userPoolInfo[poolId][msg.sender].isStaked = true;
                 _pools[poolId].stakedUsersSet.push(msg.sender);
+
+                stakedUsersOf[poolId].insert(msg.sender);
             }
+
             _userPoolInfo[poolId][msg.sender].stakedAmount += amount;
 
             emit Stake(msg.sender, amount, _pools[poolId]);

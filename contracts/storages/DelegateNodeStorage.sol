@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import {Set} from "../libs/Set.sol";
 import {IDelegateNode} from "../interfaces/IDelegateNode.sol";
 
 abstract contract DelegateNodeStorage is IDelegateNode {
@@ -13,6 +14,7 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     uint256 public _defaultWaitBlock; // (21 +7 )day * 24 hour * 60 min * 30 block (block time  = 2s)
     address public _moderator;
     mapping(uint32 => mapping(address => UserPooInfo)) public _userPoolInfo;
+    mapping(uint32 => Set.AddressSet) internal stakedUsersOf;
 
     uint256[100] private __gap;
 }
