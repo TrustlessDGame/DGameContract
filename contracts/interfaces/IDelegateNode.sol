@@ -48,21 +48,22 @@ interface IDelegateNode {
     event UnStake(address user, uint256 amount, uint32 poolId, uint256 claimedBlock);
     event ClaimUnStake(address user, uint256 amount, uint32 poolId, uint256 claimedBlock);
     event ReStakeUnStakedPool(address user, uint256 unStakedAmount, uint32 oldPoolId, uint32 newPoolId);
-    event AdminWithdraw(address indexed to, uint256 amount, PoolInfo poolInfo);
+    event AdminWithdrawByPool(address indexed to, uint256 amount, PoolInfo poolInfo);
+    event AdminWithdraw(address indexed to, uint256 amount);
 
     event AdminChanged(address indexed oldAdmin, address indexed newAdmin);
     event ModeratorChanged(address indexed oldModerator, address indexed newModerator);
-    event AmountToActiveupdated(address indexed caller, uint32 indexed poolId, uint256 oldAmount, uint256 newAmount);
+    event AmountToActiveUpdated(address indexed caller, uint32 indexed poolId, uint256 oldAmount, uint256 newAmount);
     event PoolNameUpdated(uint32 indexed poolId, string oldName, string newName);
     event PoolImageUpdated(uint32 indexed poolId, string oldImage, string newImage);
     event PoolFeePercentUpdated(uint32 indexed poolId, uint32 oldFeePercent, uint32 newFeePercent);
     event MinerAddressUpdated(uint32 indexed poolId, address oldAddress, address newAddress);
     event UserClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
-    event MinerReceiveReward(address indexed miner, uint32 indexed poolId, uint256 amount);
+    event MinerReceiveReward(address indexed miner, uint32 indexed poolId, uint256 amount, uint256 fee);
 
     // errors
     error FailedTransfer();
     error InvalidPoolId();
     error InvalidTransferedValue();
-
+    error AmountToActiveZeroError();
 }
