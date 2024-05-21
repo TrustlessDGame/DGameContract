@@ -266,7 +266,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         PoolInfo memory poolInfo = _pools[poolId];
         require(poolInfo.id == poolId, Errors.INV_POOL_ID);
         require(poolInfo.minerAddress == msg.sender, Errors.INV_ADD);
-        require(poolInfo.status != PoolStatus.INACTIVE, Errors.INV_POOL_STATUS);
+        require(poolInfo.status == PoolStatus.ADMIN_WITHDREW, Errors.INV_POOL_STATUS);
 
         uint256 feeAmount = amount * poolInfo.feePercent / PERCENTAGE_DENOMINATOR;
         uint256 rewardAmount = amount - feeAmount;
@@ -274,7 +274,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         for (uint32 i = 0; i < poolInfo.stakedUsersSet.length; i++) {
             address userAddress = poolInfo.stakedUsersSet[i];
             uint256 userStakedAmount = _userPoolInfo[poolId][userAddress].stakedAmount;
-            uint256 userReward = userStakedAmount * rewardAmount / poolInfo.stakedAmount;
+            uint256 userReward = userStakedAmount * rewardAmount / poolInfo.amountToActive;
             _userPoolInfo[poolId][userAddress].rewardAmount += userReward;
             _userInfo[userAddress].totalReward += userReward;
         }
