@@ -8,7 +8,7 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     address public _admin;
     address public _poolAdmin;
     uint32 public _nextPoolId;
-    uint256 public _defaultAmountToActive; // 8000 EAI
+    uint256 public _defaultAmountToActive; // 25000 EAI
     mapping(uint32 => PoolInfo) public _pools;
     uint32 public _defaultPoolFee; // 1000 => 10% (0.1)
     uint256 public _defaultWaitBlock; // (21 +7 )day * 24 hour * 60 min * 30 block (block time  = 2s)
