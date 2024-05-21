@@ -67,6 +67,7 @@ interface IDelegateNode {
     event UserClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event UserFullClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event MinerReceiveReward(address indexed miner, uint32 indexed poolId, uint256 amount, uint256 fee);
+    event UserReceiveRewardFromMiner(address indexed receiver, uint32 indexed poolId, uint256 amount);
 
     // errors
     error FailedTransfer();

@@ -277,6 +277,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             uint256 userReward = userStakedAmount * rewardAmount / poolInfo.amountToActive;
             _userPoolInfo[poolId][userAddress].rewardAmount += userReward;
             _userInfo[userAddress].totalReward += userReward;
+
+            emit UserReceiveRewardFromMiner(userAddress, poolId, userReward);
         }
 
         emit MinerReceiveReward(msg.sender, poolId, amount, feeAmount);
