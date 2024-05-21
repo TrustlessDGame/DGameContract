@@ -300,4 +300,21 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         emit UserClaimReward(msg.sender, poolId, amount);
     }
+
+    function userClaimFullRewardOnPool(uint32 poolId) external nonReentrant whenNotPaused {
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
+        uint256 amount = _userPoolInfo[poolId][msg.sender].rewardAmount;
+        if (amount == 0) {
+            revert NoRewardToClaim();
+        }
+
+        _userPoolInfo[poolId][msg.sender].rewardAmount = 0;
+        _userPoolInfo[poolId][msg.sender].claimedAmount += amount;
+        _userInfo[msg.sender].totalReward -= amount;
+        _userInfo[msg.sender].totalClaimed += amount;
+
+        safeTransferNative(msg.sender, amount);
+
+        emit UserClaimReward(msg.sender, poolId, amount);
+    }
 }

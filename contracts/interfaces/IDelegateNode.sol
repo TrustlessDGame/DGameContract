@@ -65,6 +65,7 @@ interface IDelegateNode {
     event PoolFeePercentUpdated(uint32 indexed poolId, uint32 oldFeePercent, uint32 newFeePercent);
     event MinerAddressUpdated(uint32 indexed poolId, address oldAddress, address newAddress);
     event UserClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
+    event UserFullClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event MinerReceiveReward(address indexed miner, uint32 indexed poolId, uint256 amount, uint256 fee);
 
     // errors
@@ -72,4 +73,5 @@ interface IDelegateNode {
     error InvalidPoolId();
     error InvalidTransferedValue();
     error AmountToActiveZeroError();
+    error NoRewardToClaim();
 }
