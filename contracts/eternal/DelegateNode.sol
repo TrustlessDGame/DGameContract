@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT 
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 // DelegateNode contract is similar to staking contract, allow users stake $EAI, if enough $EAI staked, backend will manually start a miner
@@ -36,8 +36,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _admin = admin;
         _poolAdmin = poolAdmin;
         _moderator = moderator;
-        _defaultAmountToActive = 100 * 10 ** 18;
-        _defaultPoolFee = 1000;
+        _defaultAmountToActive = 25000 * 10 ** 18;
+        _defaultPoolFee = 0;
         _defaultWaitBlock = 1;
     }
 
@@ -74,7 +74,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             userPoolInfos[i] = _userPoolInfo[poolIds[i]][msg.sender];
         }
 
-        return userPoolInfos; 
+        return userPoolInfos;
     }
 
     function getRemainingStakeForActivation(uint32 poolId) public view returns(uint256) {
@@ -302,7 +302,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _userPoolInfo[poolId][msg.sender].claimedAmount += amount;
         _userInfo[msg.sender].totalReward -= amount;
         _userInfo[msg.sender].totalClaimed += amount;
-        
+
         safeTransferNative(msg.sender, amount);
 
         emit UserClaimReward(msg.sender, poolId, amount);
