@@ -1,13 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// DelegateNode contract is similar to staking contract, allow users stake $EAI, if enough $EAI staked, backend will manually start a miner
-// Miner run something outside login and earn reward, then reward will be split to users
-// mean a user dont have enough $EAI to run a miner, they stake with other people to run a miner
-// Contract is upgradeable and keep track about stake info (address, amount, block_time, etc)
-// Will create pool to receive $EAI stake from user
-// We have some pools (similar to ERC-721), each pools have different state: id, status, staked amount
-
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
