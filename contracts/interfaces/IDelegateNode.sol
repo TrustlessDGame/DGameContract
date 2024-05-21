@@ -40,6 +40,12 @@ interface IDelegateNode {
         uint256[] blocks;   // list keys of caps
     }
 
+    struct UserInfo {
+        uint256 totalReward;
+        uint256 totalClaimed;
+        uint256 reserve1;
+    }
+
     // event
     event CreatePool(PoolInfo poolInfo);
     event Stake(address indexed user, uint256 amount, PoolInfo poolInfo);

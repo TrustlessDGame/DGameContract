@@ -170,11 +170,11 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         _internalUpdatePoolInfo(poolId, msg.value);
 
-        if (!_userPoolInfo[poolId][msg.sender].isStaked && !stakedUsersOf[poolId].hasValue(msg.sender)) {
+        if (!_userPoolInfo[poolId][msg.sender].isStaked && !_stakedUsersOf[poolId].hasValue(msg.sender)) {
             _userPoolInfo[poolId][msg.sender].isStaked = true;
             _pools[poolId].stakedUsersSet.push(msg.sender);
 
-            stakedUsersOf[poolId].insert(msg.sender);
+            _stakedUsersOf[poolId].insert(msg.sender);
         }
 
         _userPoolInfo[poolId][msg.sender].stakedAmount += msg.value;
@@ -204,11 +204,11 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             _internalUpdatePoolInfo(poolId, amount);
 
-            if (!_userPoolInfo[poolId][msg.sender].isStaked && !stakedUsersOf[poolId].hasValue(msg.sender)) {
+            if (!_userPoolInfo[poolId][msg.sender].isStaked && !_stakedUsersOf[poolId].hasValue(msg.sender)) {
                 _userPoolInfo[poolId][msg.sender].isStaked = true;
                 _pools[poolId].stakedUsersSet.push(msg.sender);
 
-                stakedUsersOf[poolId].insert(msg.sender);
+                _stakedUsersOf[poolId].insert(msg.sender);
             }
 
             _userPoolInfo[poolId][msg.sender].stakedAmount += amount;
@@ -283,6 +283,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             uint256 userStakedAmount = _userPoolInfo[poolId][userAddress].stakedAmount;
             uint256 userReward = userStakedAmount * rewardAmount / poolInfo.stakedAmount;
             _userPoolInfo[poolId][userAddress].rewardAmount += userReward;
+            _userInfo[userAddress].totalReward += userReward;
         }
 
         emit MinerReceiveReward(msg.sender, poolId, amount, feeAmount);
@@ -299,6 +300,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         _userPoolInfo[poolId][msg.sender].rewardAmount -= amount;
         _userPoolInfo[poolId][msg.sender].claimedAmount += amount;
+        _userInfo[msg.sender].totalReward -= amount;
+        _userInfo[msg.sender].totalClaimed += amount;
         
         safeTransferNative(msg.sender, amount);
 
