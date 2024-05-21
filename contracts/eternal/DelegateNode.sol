@@ -170,11 +170,11 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         _internalUpdatePoolInfo(poolId, msg.value);
 
-        if (!_userPoolInfo[poolId][msg.sender].isStaked && !_stakedUsersOf[poolId].hasValue(msg.sender)) {
+        if (!_userPoolInfo[poolId][msg.sender].isStaked && !stakedUsersOf[poolId].hasValue(msg.sender)) {
             _userPoolInfo[poolId][msg.sender].isStaked = true;
             _pools[poolId].stakedUsersSet.push(msg.sender);
 
-            _stakedUsersOf[poolId].insert(msg.sender);
+            stakedUsersOf[poolId].insert(msg.sender);
         }
 
         _userPoolInfo[poolId][msg.sender].stakedAmount += msg.value;
@@ -204,11 +204,11 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             _internalUpdatePoolInfo(poolId, amount);
 
-            if (!_userPoolInfo[poolId][msg.sender].isStaked && !_stakedUsersOf[poolId].hasValue(msg.sender)) {
+            if (!_userPoolInfo[poolId][msg.sender].isStaked && !stakedUsersOf[poolId].hasValue(msg.sender)) {
                 _userPoolInfo[poolId][msg.sender].isStaked = true;
                 _pools[poolId].stakedUsersSet.push(msg.sender);
 
-                _stakedUsersOf[poolId].insert(msg.sender);
+                stakedUsersOf[poolId].insert(msg.sender);
             }
 
             _userPoolInfo[poolId][msg.sender].stakedAmount += amount;
@@ -308,5 +308,3 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         emit UserClaimReward(msg.sender, poolId, amount);
     }
 }
-
-

@@ -14,7 +14,7 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     uint256 public _defaultWaitBlock; // (21 +7 )day * 24 hour * 60 min * 30 block (block time  = 2s)
     address public _moderator;
     mapping(uint32 => mapping(address => UserPooInfo)) public _userPoolInfo;
-    mapping(uint32 => Set.AddressSet) internal _stakedUsersOf;
+    mapping(uint32 => Set.AddressSet) internal stakedUsersOf;
     mapping(address => UserInfo) public _userInfo;
 
     uint256[99] private __gap;
