@@ -52,6 +52,14 @@ module.exports = {
           browserURL: "https://eternal-ai3.tc.l2aas.com/api/v2",
         },
       },
+      {
+        network: "eai_mainnet",
+        chainId: 43338,
+        urls: {
+          apiURL: "https://explorer.eternalai.org/api",
+          browserURL: "https://explorer.eternalai.org/api",
+        },
+      },
     ],
   },
   networks: {
