@@ -44,7 +44,7 @@ interface IDelegateNode {
     struct UserInfo {
         uint256 totalReward;
         uint256 totalClaimed;
-        uint256 reserve1; //total unstaked? may be
+        uint256 reserve1; //total unstaked amount of user
     }
 
     struct UserUnstakedInfo {
@@ -56,9 +56,10 @@ interface IDelegateNode {
 
     struct PoolUnstakedInfo {
         uint40 firstReqTimestamp;
-        uint40 endUnstakeBufferingTimeStamp;
-        uint256 totalUnstakedAmount;
-        uint256 needToAddBufferAmount; // when have user stake to pool UNSTAKE_BUFFERING, this will -=amount
+
+        uint40 bufferTimeExpireAt;
+        uint256 totalUnstakedAmount; //The total amount that user WANNA unstake
+
     }
 
     // event
@@ -83,6 +84,8 @@ interface IDelegateNode {
     event UserFullClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event MinerReceiveReward(address indexed miner, uint32 indexed poolId, uint256 amount, uint256 fee);
     event UserReceiveRewardFromMiner(address indexed receiver, uint32 indexed poolId, uint256 amount);
+    event UserUnstakeOnPool(address indexed caller, uint32 indexed poolId, uint256 amount, uint256 unstakeId, uint40 requestTime, uint40 endBufferTime);
+
     event UserUnstakeOnPool(address indexed caller, uint32 indexed poolId, uint256 amount, uint256 unstakeId, uint40 requestTime, uint40 endBufferTime);
 
     // errors

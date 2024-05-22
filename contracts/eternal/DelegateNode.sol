@@ -337,18 +337,16 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
     //TODO: Kelvin
     function unstake(uint32 _poolId) public nonReentrant {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
+
         if (_pools[_poolId].status != PoolStatus.ADMIN_WITHDREW &&
             _pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING &&
             _pools[_poolId].status != PoolStatus.INACTIVE &&
             _pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND
         ) revert ("Can not unstake in active time");// if allow user to unstake when miner has not withdrawed, logic will be break
+        
+        if (_userPoolInfo[_poolId][msg.sender].stakedAmount == 0) revert ("User's staked balance is zero");
+
         // if (userUnstakeAmount[_poolId][msg.sender] > _userPoolInfo[_poolId][msg.sender]) revert ("msg sender does not have enough balance");// restake
-
-        uint256 userStakedAmount = _userPoolInfo[_poolId][msg.sender].stakedAmount;
-        if (userStakedAmount == 0) revert ("User has no staked amount");
-
-        uint256 userUnstakedAmount = userUnstakeAmount[_poolId][msg.sender];
-        if (userUnstakedAmount == userStakedAmount) revert ("User has already unstaked all");
 
         uint256 unstakeReqId = unstakedId++;
         userUnstakedInfo[unstakeReqId] = UserUnstakedInfo(_poolId, msg.sender, userStakedAmount, uint40(block.timestamp));
@@ -394,8 +392,17 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
     }
 
     //TODO: anh Vinkent
-    function minerRefundPoolBalance(uint32 poolId) external {
+    function minerRefundPoolBalance(uint32 _poolId) external payable {
+        require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
+        address poolMiner = _pools[_poolId].minerAddress;
+        uint256 refundValue = _pools[_poolId].amountToActive
+        if (msg.sender != poolMiner) revert ("Msg sender is not the pool miner");
+        if (msg.value != refundValue) revert ("Msg value is not enough");
+
+        //TODO: check status, check waiting time expire
+
+        
     }
 
     //TODO: anh Vinkent
