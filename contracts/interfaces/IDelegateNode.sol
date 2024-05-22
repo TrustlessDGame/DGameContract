@@ -44,7 +44,7 @@ interface IDelegateNode {
     struct UserInfo {
         uint256 totalReward;
         uint256 totalClaimed;
-        uint256 reserve1;
+        uint256 reserve1; //total unstaked? may be
     }
 
     struct UserUnstakedInfo {

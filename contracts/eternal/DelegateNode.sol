@@ -336,19 +336,49 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
     }
 
     //TODO: Kelvin
-    function unstake(uint32 poolId) external {
-        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
-        if (_pools[poolId].status == PoolStatus.ACTIVE) revert ("Can not unstake in active time");// if allow user to unstake when miner has not withdrawed, logic will be break
+    function unstake(uint32 _poolId) public nonReentrant {
+        require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
+        if (_pools[_poolId].status == PoolStatus.ACTIVE) revert ("Can not unstake in active time");// if allow user to unstake when miner has not withdrawed, logic will be break
+        // if (userUnstakeAmount[_poolId][msg.sender] > _userPoolInfo[_poolId][msg.sender]) revert ("msg sender does not have enough balance");// restake
+        
+        uint256 unstakeAmount = _userPoolInfo[_poolId][msg.sender].stakedAmount;
+        unstakeReqId = unstakedId++;
+        userUnstakedInfo[unstakeReqId] = new UserUnstakedInfo(_poolId, msg.sender, unstakeAmount, block.timestamp);
 
+        if (_pools[_poolId].status == PoolStatus.INACTIVE) {
+            // transfer
+            stakedUsersOf[_poolId].erase(msg.sender);
+            _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
+            _userInfo[_poolId].reserve1 += unstakeAmount;
+            
+            safeTransferNative(msg.sender, unstakeAmount);
+
+            //TODO: add event
+
+        } else if (_pools[_poolId].status == PoolStatus.ADMIN_WITHDREW) {
+            userUnstakeIds[_poolId][msg.sender].insert(unstakeReqId); //queue
+            unstakeIdsOf[_poolId].insert(unstakeReqId); //queue
+
+            if (poolUnstakedInfo[_poolId].firstReqTimestamp == 0) {
+                poolUnstakedInfo[_poolId] = new PoolUnstakedInfo(block.timestamp, unstakeAmount);
+            } else {
+                poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
+            }
+            //TODO: add event
+
+        }
+            //TODO: add event
     }
 
     //TODO: Kelvin
     function restake(uint32 poolId) external {
+        require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
+
 
     }
 
     //TODO: Kelvin
-    function getUnstakeInfo(uint32 poolId) public view {
+    function getUnstakeInfo(uint32 _poolId, address _user) public view {
 
     }
 
@@ -367,4 +397,60 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         defaultUnstakeWaitTime = amountInSecond;
     }
+
+
+//    function unStake(uint32 poolId) external {
+//        require(poolId > 0, Errors.INV_ADD);
+//        require(poolId < _nextPoolId, Errors.INV_ADD);
+//
+//        uint256 unStakedAmount = 0;
+//        DelegateNodeStruct.StakedInfo[] memory stakedInfos = _pools[poolId].stakedInfos;
+//        for (uint32 i = 0; i < stakedInfos.length; i++) {
+//            DelegateNodeStruct.StakedInfo memory stakeInfo = stakedInfos[i];
+//            if (stakeInfo.user == msg.sender && stakeInfo.amount > 0) {
+//                unStakedAmount = unStakedAmount + stakeInfo.amount;
+//                stakeInfo.amount = 0;
+//            }
+//        }
+//        require(unStakedAmount > 0, Errors.INV_ADD);
+//        require(_pools[poolId].stakedAmount > unStakedAmount, Errors.INV_ADD);
+//        _pools[poolId].stakedAmount = _pools[poolId].stakedAmount - unStakedAmount;
+//        if (_pools[poolId].stakedAmount < _pools[poolId].amountToActive) {
+//            _pools[poolId].status = DelegateNodeStruct.PoolStatus.INACTIVE;
+//
+//            emit DeActivePool(_pools[poolId]);
+//        }
+//        uint256 claimedBlock = block.number + _defaultWaitBlock;
+//        uint256 oldAmount = _pools[poolId].mapUnStakedInfos[msg.sender].caps[claimedBlock];
+//        _pools[poolId].mapUnStakedInfos[msg.sender].caps[claimedBlock] = oldAmount + unStakedAmount;
+//        _pools[poolId].mapUnStakedInfos[msg.sender].blocks.push(claimedBlock);
+//        emit UnStake(msg.sender, unStakedAmount, poolId, claimedBlock);
+//    }
+//
+//    function claimUnStake(uint32 poolId, uint256 claimedBlock) external payable {
+//        require(poolId > 0, Errors.INV_ADD);
+//        require(poolId < _nextPoolId, Errors.INV_ADD);
+//        require(block.number > claimedBlock, Errors.INV_ADD);
+//        uint256 amount = _pools[poolId].mapUnStakedInfos[msg.sender].caps[claimedBlock];
+//        require(amount > 0, Errors.INV_ADD);
+//        payable(msg.sender).transfer(amount);
+//        emit ClaimUnStake(msg.sender, amount, poolId, claimedBlock);
+//    }
+//
+//    function reStakeUnStakedPool(uint32 oldPoolId, uint32 newPoolId) external {
+//        require(oldPoolId > 0, Errors.INV_ADD);
+//        require(oldPoolId > 0, Errors.INV_ADD);
+//        require(newPoolId <= _nextPoolId, Errors.INV_ADD);
+//        require(newPoolId <= _nextPoolId, Errors.INV_ADD);
+//
+//        DelegateNodeStruct.UnStakedInfo storage unStakeInfo = _pools[oldPoolId].mapUnStakedInfos[msg.sender];
+//        uint256 unStakedAmount = 0;
+//        for (uint32 i = 0; i < unStakeInfo.blocks.length; i++) {
+//            unStakedAmount = unStakedAmount + unStakeInfo.caps[unStakeInfo.blocks[i]];
+//            unStakeInfo.caps[unStakeInfo.blocks[i]] = 0;
+//        }
+//        require(unStakedAmount > 0, Errors.INV_ADD);
+//        internalUpdatePoolInfo(newPoolId, unStakedAmount);
+//        emit ReStakeUnStakedPool(msg.sender, unStakedAmount, oldPoolId, newPoolId);
+//    }
 }
