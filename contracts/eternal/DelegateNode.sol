@@ -380,7 +380,6 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             } else {
                 poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
             }
-            //TODO: add event
         }
 
             //TODO: add event
