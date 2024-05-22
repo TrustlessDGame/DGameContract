@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-import {DoubleEndedQueue} from "@openzeppelin/contracts/utils/structs/DoubleEndedQueue.sol";
 
 import {Set} from "../libs/Set.sol";
 import {IDelegateNode} from "../interfaces/IDelegateNode.sol";
@@ -30,5 +29,5 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     uint40 public defaultUnstakeWaitTime; // Only buffer time at DELEGATE NODE contract, dont include waiting time from workerHubContract, Unit: second
     address public workerhubAddress;
 
-    uint256[93] private __gap;
+    uint256[91] private __gap;
 }

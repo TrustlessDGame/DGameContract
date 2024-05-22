@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import {DoubleEndedQueue} from "@openzeppelin/contracts/utils/structs/DoubleEndedQueue.sol";
 
 import {Set} from "../libs/Set.sol";
 import {DelegateNodeStorage} from "../storages/DelegateNodeStorage.sol";
@@ -13,7 +12,7 @@ import {IWorkerHub} from "../interfaces/IWorkerHub.sol";
 
 contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
     using Set for Set.AddressSet;
-    using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque ;
+    using Set for Set.Uint256Set;
 
     uint256 constant private PERCENTAGE_DENOMINATOR = 10_000;
 
@@ -342,15 +341,15 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         // if (userUnstakeAmount[_poolId][msg.sender] > _userPoolInfo[_poolId][msg.sender]) revert ("msg sender does not have enough balance");// restake
         
         uint256 unstakeAmount = _userPoolInfo[_poolId][msg.sender].stakedAmount;
-        unstakeReqId = unstakedId++;
-        userUnstakedInfo[unstakeReqId] = new UserUnstakedInfo(_poolId, msg.sender, unstakeAmount, block.timestamp);
+        uint256 unstakeReqId = unstakedId++;
+        userUnstakedInfo[unstakeReqId] = UserUnstakedInfo(_poolId, msg.sender, unstakeAmount, uint40(block.timestamp));
 
         if (_pools[_poolId].status == PoolStatus.INACTIVE) {
             // transfer
             stakedUsersOf[_poolId].erase(msg.sender);
             _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
-            _userInfo[_poolId].reserve1 += unstakeAmount;
-            
+            _userInfo[msg.sender].reserve1 += unstakeAmount;
+
             safeTransferNative(msg.sender, unstakeAmount);
 
             //TODO: add event
@@ -360,7 +359,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             unstakeIdsOf[_poolId].insert(unstakeReqId); //queue
 
             if (poolUnstakedInfo[_poolId].firstReqTimestamp == 0) {
-                poolUnstakedInfo[_poolId] = new PoolUnstakedInfo(block.timestamp, unstakeAmount);
+                poolUnstakedInfo[_poolId] = PoolUnstakedInfo(uint40(block.timestamp), unstakeAmount);
             } else {
                 poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
             }
@@ -371,7 +370,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
     }
 
     //TODO: Kelvin
-    function restake(uint32 poolId) external {
+    function restake(uint32 _poolId) external {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
 
