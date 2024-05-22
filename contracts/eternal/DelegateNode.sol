@@ -9,6 +9,7 @@ import {DoubleEndedQueue} from "@openzeppelin/contracts/utils/structs/DoubleEnde
 import {Set} from "../libs/Set.sol";
 import {DelegateNodeStorage} from "../storages/DelegateNodeStorage.sol";
 import "../libs/helpers/Errors.sol";
+import {IWorkerHub} from "../interfaces/IWorkerHub.sol";
 
 contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
     using Set for Set.AddressSet;
@@ -119,6 +120,13 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         emit PoolFeePercentUpdated(poolId, _pools[poolId].feePercent, feePercent);
         _pools[poolId].feePercent = feePercent;
+    }
+
+    function addminSetWorkerhubAddress(address _workerhubAddr) external onlyAdmin {
+        require(_workerhubAddr != address(0), Errors.INV_ADD);
+
+        //TODO add event
+        workerhubAddress = _workerhubAddr;
     }
 
     function adminCreatePool(uint32 amountPool) external onlyAdminOrModerator {
@@ -323,12 +331,14 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         emit UserClaimReward(msg.sender, poolId, amount);
     }
 
+    function getWorkerHubUnstakeDelayTime() public view returns(uint40) {
+        return IWorkerHub(workerhubAddress).unstakeDelayTime();
+    }
+
     //TODO: Kelvin
     function unstake(uint32 poolId) external {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         if (_pools[poolId].status == PoolStatus.ACTIVE) revert ("Can not unstake in active time");// if allow user to unstake when miner has not withdrawed, logic will be break
-
-
 
     }
 
