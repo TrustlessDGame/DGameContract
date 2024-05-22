@@ -6,6 +6,7 @@ interface IDelegateNode {
         INACTIVE,
         ACTIVE,
         ADMIN_WITHDREW,
+        UNSTAKING,
         ADMIN_RETURNED_FUND
     }
 
@@ -35,15 +36,27 @@ interface IDelegateNode {
         uint256 blockNumber;
     }
 
-    struct UnStakedInfo {
-        mapping(uint256 => uint256) caps; // claimed block => amount
-        uint256[] blocks;   // list keys of caps
-    }
+    // struct UnStakedInfo {
+    //     mapping(uint256 => uint256) caps; // claimed block => amount
+    //     uint256[] blocks;   // list keys of caps
+    // }
 
     struct UserInfo {
         uint256 totalReward;
         uint256 totalClaimed;
         uint256 reserve1;
+    }
+
+    struct UserUnstakedInfo {
+        uint32 poolId;
+        address unstaker;
+        uint256 amount;
+        uint40 requestTime;
+    }
+
+    struct PoolUnstakedInfo {
+        uint40 firstReqTimestamp;
+        uint256 totalUnstakedAmount;
     }
 
     // event

@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import {DoubleEndedQueue} from "@openzeppelin/contracts/utils/structs/DoubleEndedQueue.sol";
 
 import {Set} from "../libs/Set.sol";
 import {DelegateNodeStorage} from "../storages/DelegateNodeStorage.sol";
@@ -11,6 +12,7 @@ import "../libs/helpers/Errors.sol";
 
 contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
     using Set for Set.AddressSet;
+    using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque ;
 
     uint256 constant private PERCENTAGE_DENOMINATOR = 10_000;
 
@@ -320,4 +322,35 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         emit UserClaimReward(msg.sender, poolId, amount);
     }
+
+    //TODO: Kelvin
+    function unstake(uint32 poolId) external {
+        require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
+        if (_pools[poolId].status == PoolStatus.ACTIVE) revert ("Can not unstake in active time");// if allow user to unstake when miner has not withdrawed, logic will be break
+
+
+
+    }
+
+    //TODO: Kelvin
+    function restake(uint32 poolId) external {
+
+    }
+
+    //TODO: Kelvin
+    function getUnstakeInfo(uint32 poolId) public view {
+
+    }
+
+    //TODO: anh Vinkent
+    function minerRefundPoolBalance(uint32 poolId) external {
+
+    }
+
+    //TODO: anh Vinkent
+    function userClaimUnstakedAmount(uint32 poolId) external {
+
+    }
+
+
 }

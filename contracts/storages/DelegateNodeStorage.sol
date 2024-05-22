@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
+import {DoubleEndedQueue} from "@openzeppelin/contracts/utils/structs/DoubleEndedQueue.sol";
 
 import {Set} from "../libs/Set.sol";
 import {IDelegateNode} from "../interfaces/IDelegateNode.sol";
@@ -16,6 +17,13 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     mapping(uint32 => mapping(address => UserPooInfo)) public _userPoolInfo;
     mapping(uint32 => Set.AddressSet) internal stakedUsersOf;
     mapping(address => UserInfo) public _userInfo;
+
+    // Unstake
+    uint256 unstakedId; // current unstakeId
+    mapping(uint32 => mapping(address => uint256)) unstakeAmountRequested; //poolId => user address => total unstake amount user wanna unstake
+    mapping(uint32 => DoubleEndedQueue.Bytes32Deque) unstakeId; // pool Id => pending unstake req's id
+    mapping(uint256 => UserUnstakedInfo) userUnstakedInfo; // unstaked Id => UserUnstakedInfo
+    mapping(uint32 => PoolUnstakedInfo) poolUnstakedInfo; // pool Id => PoolUnstakedInfo
 
     uint256[99] private __gap;
 }
