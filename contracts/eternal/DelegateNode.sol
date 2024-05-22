@@ -33,7 +33,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _moderator = moderator;
         _defaultAmountToActive = 25000 * 10 ** 18;
         _defaultPoolFee = 0;
-        _defaultWaitBlock = 1;
+        _defaultWaitBlock = 28 days;
     }
 
     // modifier admin only
@@ -352,5 +352,9 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
     }
 
+    function setDefaultUnstakeWaitTime(uint40 amountInSecond) external onlyAdmin {
+        require(amountInSecond > 0, Errors.INV_ADD);
 
+        defaultUnstakeWaitTime = amountInSecond;
+    }
 }

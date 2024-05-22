@@ -12,7 +12,7 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     uint256 public _defaultAmountToActive; // 25000 EAI
     mapping(uint32 => PoolInfo) public _pools;
     uint32 public _defaultPoolFee; // 1000 => 10% (0.1)
-    uint256 public _defaultWaitBlock; // (21 +7 )day * 24 hour * 60 min * 30 block (block time  = 2s)
+    uint256 public _defaultWaitBlock; // DEPRECATE, dont use
     address public _moderator;
     mapping(uint32 => mapping(address => UserPooInfo)) public _userPoolInfo;
     mapping(uint32 => Set.AddressSet) internal stakedUsersOf;
@@ -25,5 +25,7 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     mapping(uint256 => UserUnstakedInfo) userUnstakedInfo; // unstaked Id => UserUnstakedInfo
     mapping(uint32 => PoolUnstakedInfo) poolUnstakedInfo; // pool Id => PoolUnstakedInfo
 
-    uint256[99] private __gap;
+    uint40 public defaultUnstakeWaitTime; // Only buffer time at DELEGATE NODE contract, dont include waiting time from workerHubContract, Unit: second
+
+    uint256[93] private __gap;
 }
