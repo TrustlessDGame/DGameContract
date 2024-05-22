@@ -337,20 +337,30 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
     //TODO: Kelvin
     function unstake(uint32 _poolId) public nonReentrant {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
-        if (_pools[_poolId].status == PoolStatus.ACTIVE) revert ("Can not unstake in active time");// if allow user to unstake when miner has not withdrawed, logic will be break
+        if (_pools[_poolId].status != PoolStatus.ADMIN_WITHDREW &&
+            _pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING &&
+            _pools[_poolId].status != PoolStatus.INACTIVE &&
+            _pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND
+        ) revert ("Can not unstake in active time");// if allow user to unstake when miner has not withdrawed, logic will be break
         // if (userUnstakeAmount[_poolId][msg.sender] > _userPoolInfo[_poolId][msg.sender]) revert ("msg sender does not have enough balance");// restake
-        
-        uint256 unstakeAmount = _userPoolInfo[_poolId][msg.sender].stakedAmount;
+
+        uint256 userStakedAmount = _userPoolInfo[_poolId][msg.sender].stakedAmount;
+        if (userStakedAmount == 0) revert ("User has no staked amount");
+
+        uint256 userUnstakedAmount = userUnstakeAmount[_poolId][msg.sender];
+        if (userUnstakedAmount == userStakedAmount) revert ("User has already unstaked all");
+
         uint256 unstakeReqId = unstakedId++;
-        userUnstakedInfo[unstakeReqId] = UserUnstakedInfo(_poolId, msg.sender, unstakeAmount, uint40(block.timestamp));
+        userUnstakedInfo[unstakeReqId] = UserUnstakedInfo(_poolId, msg.sender, userStakedAmount, uint40(block.timestamp));
+
 
         if (_pools[_poolId].status == PoolStatus.INACTIVE) {
             // transfer
             stakedUsersOf[_poolId].erase(msg.sender);
             _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
-            _userInfo[msg.sender].reserve1 += unstakeAmount;
+            _userInfo[msg.sender].reserve1 += userStakedAmount;
 
-            safeTransferNative(msg.sender, unstakeAmount);
+            safeTransferNative(msg.sender, userStakedAmount);
 
             //TODO: add event
 
@@ -359,13 +369,15 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             unstakeIdsOf[_poolId].insert(unstakeReqId); //queue
 
             if (poolUnstakedInfo[_poolId].firstReqTimestamp == 0) {
-                poolUnstakedInfo[_poolId] = PoolUnstakedInfo(uint40(block.timestamp), unstakeAmount);
+                poolUnstakedInfo[_poolId] = PoolUnstakedInfo(uint40(block.timestamp), userStakedAmount);
             } else {
-                poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
+                poolUnstakedInfo[_poolId].totalUnstakedAmount += userStakedAmount;
             }
             //TODO: add event
-
+            userUnstakeAmount[_poolId][msg.sender] += userStakedAmount;
         }
+
+
             //TODO: add event
     }
 
@@ -391,10 +403,10 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
     }
 
-    function setDefaultUnstakeWaitTime(uint40 amountInSecond) external onlyAdmin {
+    function setDefaultUnstakeBufferTime(uint40 amountInSecond) external onlyAdmin {
         require(amountInSecond > 0, Errors.INV_ADD);
 
-        defaultUnstakeWaitTime = amountInSecond;
+        defaultUnstakeBufferTime = amountInSecond;
     }
 
 

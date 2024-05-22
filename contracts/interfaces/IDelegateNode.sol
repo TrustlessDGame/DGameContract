@@ -6,8 +6,8 @@ interface IDelegateNode {
         INACTIVE,
         ACTIVE,
         ADMIN_WITHDREW,
-        UNSTAKING,
-        ADMIN_RETURNED_FUND
+        UNSTAKE_BUFFERING, // UNSTAKE_BUFFERING can back to ADMIN_WITHDREW or WAIT_ADMIN_RETURNED_FUND
+        WAIT_ADMIN_RETURNED_FUND // 21 days, after this 21 days, admin return fund to pool, and pool back to inactive, user claim unstake amount if exist in list unstake
     }
 
     struct PoolInfo {
@@ -56,7 +56,9 @@ interface IDelegateNode {
 
     struct PoolUnstakedInfo {
         uint40 firstReqTimestamp;
+        uint40 endUnstakeBufferingTimeStamp;
         uint256 totalUnstakedAmount;
+        uint256 needToAddBufferAmount; // when have user stake to pool UNSTAKE_BUFFERING, this will -=amount
     }
 
     // event
@@ -81,6 +83,7 @@ interface IDelegateNode {
     event UserFullClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event MinerReceiveReward(address indexed miner, uint32 indexed poolId, uint256 amount, uint256 fee);
     event UserReceiveRewardFromMiner(address indexed receiver, uint32 indexed poolId, uint256 amount);
+    event UserUnstakeOnPool(address indexed caller, uint32 indexed poolId, uint256 amount, uint256 unstakeId, uint40 requestTime, uint40 endBufferTime);
 
     // errors
     error FailedTransfer();
@@ -88,4 +91,6 @@ interface IDelegateNode {
     error InvalidTransferedValue();
     error AmountToActiveZeroError();
     error NoRewardToClaim();
+    error NoStakeAmount();
+    error UnstakedFullOnPool();
 }
