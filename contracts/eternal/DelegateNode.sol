@@ -338,45 +338,53 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
     function unstake(uint32 _poolId) public nonReentrant {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
-        if (_pools[_poolId].status != PoolStatus.ADMIN_WITHDREW &&
+        if (_pools[_poolId].status != PoolStatus.INACTIVE &&
+            _pools[_poolId].status != PoolStatus.ADMIN_WITHDREW &&
             _pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING &&
-            _pools[_poolId].status != PoolStatus.INACTIVE &&
             _pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND
         ) revert ("Can not unstake in active time");// if allow user to unstake when miner has not withdrawed, logic will be break
-        
-        if (_userPoolInfo[_poolId][msg.sender].stakedAmount == 0) revert ("User's staked balance is zero");
 
-        // if (userUnstakeAmount[_poolId][msg.sender] > _userPoolInfo[_poolId][msg.sender]) revert ("msg sender does not have enough balance");// restake
+        // In this function, we only allow user to unstake all.
+        uint256 unstakeAmount = _userPoolInfo[_poolId][msg.sender].stakedAmount;
 
-        uint256 unstakeReqId = unstakedId++;
-        userUnstakedInfo[unstakeReqId] = UserUnstakedInfo(_poolId, msg.sender, userStakedAmount, uint40(block.timestamp));
+        if (unstakeAmount == 0) revert ("User's staked balance is zero");
 
+        //check msg sender already has unstaked or unstake partial
+        if (userWannaUnstakeAmount[_poolId][msg.sender] == unstakeAmount || userWannaUnstakeAmount[_poolId][msg.sender] > 0) revert ("msg sender already have called unstake()");
+
+        uint256 reqId = unstakedReqId++;
+        unstakedReqInfo[reqId] = UnstakedReqInfo(_poolId, msg.sender, unstakeAmount, uint40(block.timestamp));
 
         if (_pools[_poolId].status == PoolStatus.INACTIVE) {
             // transfer
-            stakedUsersOf[_poolId].erase(msg.sender);
-            _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
-            _userInfo[msg.sender].reserve1 += userStakedAmount;
+            stakedUsersOf[_poolId].erase(msg.sender); //remove user from the staked list
+            _userPoolInfo[_poolId][msg.sender].stakedAmount = 0; 
+            userWannaUnstakeAmount[_poolId][msg.sender] = 0;
+            _userInfo[msg.sender].reserve1 += unstakeAmount; //total unstaked amount during the life time of contract
 
-            safeTransferNative(msg.sender, userStakedAmount);
+            safeTransferNative(msg.sender, unstakeAmount);
 
             //TODO: add event
 
         } else if (_pools[_poolId].status == PoolStatus.ADMIN_WITHDREW) {
-            userUnstakeIds[_poolId][msg.sender].insert(unstakeReqId); //queue
-            unstakeIdsOf[_poolId].insert(unstakeReqId); //queue
+            userUnstakeReqIds[_poolId][msg.sender].insert(reqId); //queue
+            poolUnstakeReqIds[_poolId].insert(reqId); //queue
+
+            userWannaUnstakeAmount[_poolId][msg.sender] += unstakeAmount;
 
             if (poolUnstakedInfo[_poolId].firstReqTimestamp == 0) {
-                poolUnstakedInfo[_poolId] = PoolUnstakedInfo(uint40(block.timestamp), userStakedAmount);
+                uint40 bufferingTimeExpireAt = uint40(block.timestamp + defaultUnstakeBufferTime);
+                poolUnstakedInfo[_poolId] = PoolUnstakedInfo(uint40(block.timestamp), bufferingTimeExpireAt, unstakeAmount);
+
+                emit FirstUnstakeSubmit(msg.sender, _poolId, unstakeAmount, reqId, uint40(block.timestamp), bufferingTimeExpireAt);
             } else {
-                poolUnstakedInfo[_poolId].totalUnstakedAmount += userStakedAmount;
+                poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
             }
             //TODO: add event
-            userUnstakeAmount[_poolId][msg.sender] += userStakedAmount;
         }
 
-
             //TODO: add event
+            emit UserUnstake(msg.sender, _poolId, unstakeAmount, reqId, _pools[_poolId].status);
     }
 
     //TODO: Kelvin
@@ -396,7 +404,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
         address poolMiner = _pools[_poolId].minerAddress;
-        uint256 refundValue = _pools[_poolId].amountToActive
+        uint256 refundValue = _pools[_poolId].amountToActive;
         if (msg.sender != poolMiner) revert ("Msg sender is not the pool miner");
         if (msg.value != refundValue) revert ("Msg value is not enough");
 
