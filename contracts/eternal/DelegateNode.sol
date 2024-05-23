@@ -283,9 +283,10 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         uint256 feeAmount = amount * poolInfo.feePercent / PERCENTAGE_DENOMINATOR;
         uint256 rewardAmount = amount - feeAmount;
+        uint256 len = stakedUsersOf[poolId].values.length;
 
-        for (uint32 i = 0; i < poolInfo.stakedUsersSet.length; i++) {
-            address userAddress = poolInfo.stakedUsersSet[i];
+        for (uint32 i = 0; i < len; i++) {
+            address userAddress = stakedUsersOf[poolId].at(i);
             uint256 userStakedAmount = _userPoolInfo[poolId][userAddress].stakedAmount;
             uint256 userReward = userStakedAmount * rewardAmount / poolInfo.amountToActive;
             _userPoolInfo[poolId][userAddress].rewardAmount += userReward;
