@@ -52,6 +52,7 @@ interface IDelegateNode {
         address unstaker;
         uint256 amount;
         uint40 requestTime;
+        uint40 claimableTime; // create new map TODO kelvin
     }
 
     struct PoolUnstakedInfo {
