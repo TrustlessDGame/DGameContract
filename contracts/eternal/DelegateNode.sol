@@ -186,13 +186,10 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             _userPoolInfo[poolId][msg.sender].stakedAmount += msg.value;
 
-            emit Stake(msg.sender, msg.value, _pools[poolId]);
         } else if (poolInfo.status == PoolStatus.UNSTAKE_BUFFERING) {
             //TODO check expire time
 
             require(msg.value <= poolUnstakedInfo[poolId].totalUnstakedAmount, Errors.INV_STAKE_AMOUNT);
-
-            poolUnstakedInfo[poolId].totalUnstakedAmount -= msg.value;
 
             PoolInfo storage pool = _pools[poolId];
 
@@ -212,12 +209,23 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             _userPoolInfo[poolId][msg.sender].stakedAmount += msg.value;
 
+            poolUnstakedInfo[poolId].totalUnstakedAmount -= msg.value;
+
+            //Resolve 
+            if (poolUnstakedInfo[poolId].totalUnstakedAmount == 0) {
+                _pools[poolId].status = PoolStatus.ACTIVE;
+                delete poolUnstakedInfo[poolId];
+
+                emit ActivePool(_pools[poolId]);
+            }
+
             //track providers
             // providers.insert(msg.sender);
             // totalStakedProvider[poolId][msg.sender] += msg.value;
 
-            emit Stake(msg.sender, msg.value, _pools[poolId]);
         } else revert("Invalid status");
+        
+        emit Stake(msg.sender, msg.value, _pools[poolId]);
     }
 
     function stakeMultiple(uint32[] calldata poolIds, uint256[] calldata amounts) external payable whenNotPaused {
@@ -432,23 +440,18 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         if (_pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING) revert ("Invalid pool status");
         //TODO ccheck timestamp >= buffering timestamp
 
-        // If the stake amounnt from providers is less than the unstake amount.
-        // We refund to providers and change status. Now, miner call unregister in workerhub
-        if (poolUnstakedInfo[_poolId].totalUnstakedAmount > 0) {
-//            _refundToProvider();
+        if (poolUnstakedInfo[_poolId].totalUnstakedAmount == 0) {
+            _pools[_poolId].status = PoolStatus.ACTIVE;
+            delete poolUnstakedInfo[_poolId];
+
+            emit ActivePool(_pools[_poolId]);
+        } else if (poolUnstakedInfo[_poolId].totalUnstakedAmount > 0) {
             _pools[_poolId].status = PoolStatus.WAIT_ADMIN_RETURNED_FUND;
             //TODO emit event
-        } else if (poolUnstakedInfo[_poolId].totalUnstakedAmount == 0) {
-            _payoutAndReplaceUnstakers();
-            _pools[_poolId].status = PoolStatus.ACTIVE;
         }
     }
 
-    function _refundToProvider(uint32 _poolId) internal virtual {
-
-    }
-
-    // function providerClaim(uint32 _poolId) external nonReentrant {
+    // function userClaimUnstakedAmount(uint32 _poolId) public nonReentrant {
     //     require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
     //     if (_pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND) revert ("Invalid pool status");
 
