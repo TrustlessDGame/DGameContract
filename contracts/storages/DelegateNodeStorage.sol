@@ -13,7 +13,7 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     uint32 public _defaultPoolFee; // 1000 => 10% (0.1)
     uint256 public _defaultWaitBlock; // DEPRECATE, dont use
     address public _moderator;
-    mapping(uint32 => mapping(address => UserPooInfo)) public _userPoolInfo;
+    mapping(uint32 => mapping(address => UserPoolInfo)) public _userPoolInfo;
     mapping(uint32 => Set.AddressSet) internal stakedUsersOf;
     mapping(address => UserInfo) public _userInfo;
 

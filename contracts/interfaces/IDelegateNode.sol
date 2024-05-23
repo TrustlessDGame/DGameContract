@@ -23,7 +23,7 @@ interface IDelegateNode {
         address[] stakedUsersSet; // TODO @kelvin update distribute reward DONT USE THIS INFO
     }
 
-    struct UserPooInfo {
+    struct UserPoolInfo {
         bool isStaked;
         uint256 stakedAmount;
         uint256 rewardAmount;
@@ -58,6 +58,7 @@ interface IDelegateNode {
         uint40 firstReqTimestamp;
         uint40 bufferTimeExpireAt;
         uint256 totalUnstakedAmount; //The total amount that user WANNA unstake
+        uint256 reimbursementAmount;
     }
 
     struct UserUnstakeEventInfo {
@@ -86,17 +87,34 @@ interface IDelegateNode {
     event PoolImageUpdated(uint32 indexed poolId, string oldImage, string newImage);
     event PoolFeePercentUpdated(uint32 indexed poolId, uint32 oldFeePercent, uint32 newFeePercent);
     event MinerAddressUpdated(uint32 indexed poolId, address oldAddress, address newAddress);
+    event DefaultUnstakeBufferTimeUpdate(address indexed caller, uint40 oldTime, uint40 newTime);
+    
     event UserClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event UserFullClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event MinerReceiveReward(address indexed miner, uint32 indexed poolId, uint256 amount, uint256 fee);
     event UserReceiveRewardFromMiner(address indexed receiver, uint32 indexed poolId, uint256 amount);
-    event UserUnstake(address indexed caller, uint32 indexed poolId,UserUnstakeEventInfo eventInfo);
+    event UserUnstake(address indexed caller, uint32 indexed poolId, UserUnstakeEventInfo eventInfo);
+    event ResolveUnstake(address indexed caller, uint32 indexed poolId, PoolStatus status);
+    event UserClaimUnstakedAmount(address indexed caller, uint32 indexed poolId, uint256 claimedAmount);
+    event MinerRefundPoolBalance(address indexed miner, uint32 indexed poolId, uint256 refundedValue);
     // errors
     error FailedTransfer();
     error InvalidPoolId();
+    error InvalidPoolStatus();
     error InvalidTransferedValue();
-    error AmountToActiveZeroError();
+    error ZeroAmountToActiveError();
     error NoRewardToClaim();
-    error NoStakeAmount();
-    error UnstakedFullOnPool();
+    error ZeroStakedAmountError();
+
+    error UnstakeBufferExpire();
+
+    error UnstakeAlreadyCalled();
+    error PrematureResolveUnstake();
+    error PrematureClaimUnstake();
+    error ZeroClaimableUnstakedAmount();
+
+    error PrematureMinerRefundPool();
+    error SenderNotPoolMiner();
+    error RefundedValueNotEnough();
+
 }
