@@ -211,7 +211,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             poolUnstakedInfo[poolId].totalUnstakedAmount -= msg.value;
 
-            //Resolve 
+            //Resolve
             if (poolUnstakedInfo[poolId].totalUnstakedAmount == 0) {
                 _pools[poolId].status = PoolStatus.ACTIVE;
                 delete poolUnstakedInfo[poolId];
@@ -224,7 +224,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             // totalStakedProvider[poolId][msg.sender] += msg.value;
 
         } else revert("Invalid status");
-        
+
         emit Stake(msg.sender, msg.value, _pools[poolId]);
     }
 
@@ -399,7 +399,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _userPoolInfo[_poolId][msg.sender].isStaked = false;
 
         uint256 reqId = unstakedReqId++;
-        uint40 claimableTime = poolUnstakedInfo[_poolId].firstReqTimestamp != 0 ? 
+        // TODO kelvin continue this line
+        uint40 claimableTime = poolUnstakedInfo[_poolId].firstReqTimestamp != 0 ?
         poolUnstakedInfo
         unstakedReqInfo[reqId] = UnstakedReqInfo(_poolId, msg.sender, unstakeAmount, uint40(block.timestamp));
 
@@ -412,11 +413,18 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             _userInfo[msg.sender].reserve1 += unstakeAmount; //total unstaked amount during the life time of contract
 
             safeTransferNative(msg.sender, unstakeAmount);
-        } else if (_pools[_poolId].status == PoolStatus.ADMIN_WITHDREW) {
+        } else if (_pools[_poolId].status == PoolStatus.ADMIN_WITHDREW ||
+            _pools[_poolId].status == PoolStatus.UNSTAKE_BUFFERING ||
+            _pools[_poolId].status == PoolStatus.WAIT_ADMIN_RETURNED_FUND
+        ) {
             userUnstakeReqIds[_poolId][msg.sender].insert(reqId); //queue
             poolUnstakeReqIds[_poolId].insert(reqId); //queue
 
             userWannaUnstakeAmount[_poolId][msg.sender] += unstakeAmount;
+
+            if (_pools[_poolId].status == PoolStatus.ADMIN_WITHDREW) {
+                _pools[_poolId].status = PoolStatus.UNSTAKE_BUFFERING;
+            } // from buffering to wait admin refund will decide in resolve unstake
 
             if (poolUnstakedInfo[_poolId].firstReqTimestamp == 0) {
                 isFirstUnstake = true;
@@ -443,10 +451,11 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         //TODO ccheck timestamp >= buffering timestamp
 
         if (poolUnstakedInfo[_poolId].totalUnstakedAmount == 0) {
-            _pools[_poolId].status = PoolStatus.ACTIVE;
+            _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
             delete poolUnstakedInfo[_poolId];
 
-            emit ActivePool(_pools[_poolId]);
+            //
+//            emit ActivePool(_pools[_poolId]);
         } else if (poolUnstakedInfo[_poolId].totalUnstakedAmount > 0) {
             _pools[_poolId].status = PoolStatus.WAIT_ADMIN_RETURNED_FUND;
             //TODO emit event
@@ -466,7 +475,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
         userWannaUnstakeAmount[_poolId][msg.sender] = 0;
         _pools[_poolId].stakedAmount -= claimableAmount;
-        _userInfo[msg.sender].reserve1 += claimableAmount; 
+        _userInfo[msg.sender].reserve1 += claimableAmount;
         poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
 
         uint256 userUnstakeReqId = userUnstakeReqIds[_poolId][msg.sender].at(0);
@@ -503,7 +512,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
     //TODO: anh Vinkent
     function userClaimUnstakedAmount(uint32 poolId) external {
-        
+
     }
 
     function setDefaultUnstakeBufferTime(uint40 amountInSecond) external onlyAdmin {
