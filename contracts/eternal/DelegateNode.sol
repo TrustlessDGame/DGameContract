@@ -179,7 +179,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             if (!_userPoolInfo[poolId][msg.sender].isStaked && !stakedUsersOf[poolId].hasValue(msg.sender)) {
                 _userPoolInfo[poolId][msg.sender].isStaked = true;
-                // _pools[poolId].stakedUsersSet.push(msg.sender);
+                _pools[poolId].stakedUsersSet.push(msg.sender);
 
                 stakedUsersOf[poolId].insert(msg.sender);
             }
@@ -188,6 +188,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             emit Stake(msg.sender, msg.value, _pools[poolId]);
         } else if (poolInfo.status == PoolStatus.UNSTAKE_BUFFERING) {
+            //TODO check expire time
+
             require(msg.value <= poolUnstakedInfo[poolId].totalUnstakedAmount, Errors.INV_STAKE_AMOUNT);
 
             poolUnstakedInfo[poolId].totalUnstakedAmount -= msg.value;
@@ -203,7 +205,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             if (!_userPoolInfo[poolId][msg.sender].isStaked && !stakedUsersOf[poolId].hasValue(msg.sender)) {
                 _userPoolInfo[poolId][msg.sender].isStaked = true;
-                // _pools[poolId].stakedUsersSet.push(msg.sender);
+                pool.stakedUsersSet.push(msg.sender);
 
                 stakedUsersOf[poolId].insert(msg.sender);
             }
@@ -211,7 +213,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             _userPoolInfo[poolId][msg.sender].stakedAmount += msg.value;
 
             //track providers
-            providers[poolId].insert(msg.sender);
+            // providers.insert(msg.sender);
+            // totalStakedProvider[poolId][msg.sender] += msg.value;
 
             emit Stake(msg.sender, msg.value, _pools[poolId]);
         } else revert("Invalid status");
@@ -371,7 +374,6 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
     //TODO: Kelvin
     function unstake(uint32 _poolId) public nonReentrant {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
-        // 1. kiem tra trang thai -> back lai sau
         if (_pools[_poolId].status != PoolStatus.INACTIVE &&
             _pools[_poolId].status != PoolStatus.ADMIN_WITHDREW &&
             _pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING &&
@@ -387,7 +389,6 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         if (userWannaUnstakeAmount[_poolId][msg.sender] == unstakeAmount || userWannaUnstakeAmount[_poolId][msg.sender] > 0) revert ("msg sender already have called unstake()");
 
         _userPoolInfo[_poolId][msg.sender].isStaked = false;
-//        stakedUsersOf[_poolId].erase(msg.sender);
 
         uint256 reqId = unstakedReqId++;
         unstakedReqInfo[reqId] = UnstakedReqInfo(_poolId, msg.sender, unstakeAmount, uint40(block.timestamp));
@@ -397,6 +398,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         if (_pools[_poolId].status == PoolStatus.INACTIVE) {
             _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
             userWannaUnstakeAmount[_poolId][msg.sender] = 0;
+            _pools[_poolId].stakedAmount -= unstakeAmount;
             _userInfo[msg.sender].reserve1 += unstakeAmount; //total unstaked amount during the life time of contract
 
             safeTransferNative(msg.sender, unstakeAmount);
@@ -410,13 +412,11 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
                 isFirstUnstake = true;
                 uint40 bufferingTimeExpireAt = uint40(block.timestamp + defaultUnstakeBufferTime);
                 poolUnstakedInfo[_poolId] = PoolUnstakedInfo(uint40(block.timestamp), bufferingTimeExpireAt, unstakeAmount);
-
             } else {
                 poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
             }
         }
 
-            //TODO: add event
         emit UserUnstake(msg.sender, _poolId, UserUnstakeEventInfo(unstakeAmount, reqId, _pools[_poolId].status, uint40(block.timestamp), isFirstUnstake));
     }
 
@@ -437,14 +437,38 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         if (poolUnstakedInfo[_poolId].totalUnstakedAmount > 0) {
 //            _refundToProvider();
             _pools[_poolId].status = PoolStatus.WAIT_ADMIN_RETURNED_FUND;
+            //TODO emit event
         } else if (poolUnstakedInfo[_poolId].totalUnstakedAmount == 0) {
-            _payoutAndReplaceUnstakers(_poolId);
+            _payoutAndReplaceUnstakers();
+            _pools[_poolId].status = PoolStatus.ACTIVE;
         }
     }
 
     function _refundToProvider(uint32 _poolId) internal virtual {
 
     }
+
+    // function providerClaim(uint32 _poolId) external nonReentrant {
+    //     require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
+    //     if (_pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND) revert ("Invalid pool status");
+
+    //     if (!providers[_poolId].hasValue(msg.sender) || !stakedUserOf[_poolId].hasValue(msg.sender)) revert("msg sender is not provider");
+
+    //     providers[_poolId].erase(msg.sender);
+    //     uint256 totalProvidedAmount = totalStakedProvider[_poolId][msg.sender];
+    //     totalStakedProvider[_poolId][msg.sender] = 0;
+
+    //     _pools[_poolId].stakedAmount -= totalProvidedAmount;
+    //     _userPoolInfo[_poolId][msg.sender].stakedAmount -= totalProvidedAmount;
+
+    //     if (!_userPoolInfo[_poolId][msg.sender].isStaked) {
+    //         stakedUsersOf[_poolId].erase(msg.sender);
+    //     }
+
+    //     safeTransferNative(msg.sender, totalProvidedAmount);
+
+    //     //emit event
+    // }
 
     function _payoutAndReplaceUnstakers(uint32 _poolId) internal virtual {
 

@@ -31,6 +31,7 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     address public workerhubAddress;
 
     mapping(uint32 => Set.AddressSet) providers;
+    mapping(uint32 => mapping(address => uint256)) totalStakedProvider;
 
     uint256[90] private __gap;
 }
