@@ -19,11 +19,11 @@ abstract contract DelegateNodeStorage is IDelegateNode {
 
     // Unstake
     uint256 public unstakedReqId; // current unstakeId
-    mapping(uint32 => mapping(address => uint256)) userWannaUnstakeAmount; //poolId => user address => total unstake amount user wanna unstake
+    mapping(uint32 => mapping(address => uint256)) public userWannaUnstakeAmount; //poolId => user address => total unstake amount user wanna unstake
     mapping(uint32 => mapping(address => Set.Uint256Set)) userUnstakeReqIds; //poolId => user address => set of unstake reqs that user wanna unstake
 
     mapping(uint32 => Set.Uint256Set) poolUnstakeReqIds; // pool Id => pending unstake req's id
-    mapping(uint256 => UnstakedReqInfo) unstakedReqInfo; // unstaked Id => UserUnstakedInfo
+    mapping(uint256 => UnstakedReqInfo) public unstakedReqInfo; // unstaked Id => UserUnstakedInfo
 
     mapping(uint32 => PoolUnstakedInfo) poolUnstakedInfo; // pool Id => PoolUnstakedInfo
 
