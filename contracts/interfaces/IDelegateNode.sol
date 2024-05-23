@@ -20,7 +20,7 @@ interface IDelegateNode {
         StakedInfo[] stakedInfos;
         uint32 feePercent; // feePercent / 10_000; 0.1 <=> 10%
         address minerAddress;
-        address[] stakedUsersSet;
+        address[] stakedUsersSet; // TODO @kelvin update distribute reward DONT USE THIS INFO
     }
 
     struct UserPooInfo {
@@ -60,6 +60,14 @@ interface IDelegateNode {
         uint256 totalUnstakedAmount; //The total amount that user WANNA unstake
     }
 
+    struct UserUnstakeEventInfo {
+        uint256 amount;
+        uint256 unstakeId;
+        PoolStatus poolStatus;
+        uint40 requestTime;
+        bool isFirstUnstake;
+    }
+
     // event
     event CreatePool(PoolInfo poolInfo);
     event Stake(address indexed user, uint256 amount, PoolInfo poolInfo);
@@ -82,8 +90,7 @@ interface IDelegateNode {
     event UserFullClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event MinerReceiveReward(address indexed miner, uint32 indexed poolId, uint256 amount, uint256 fee);
     event UserReceiveRewardFromMiner(address indexed receiver, uint32 indexed poolId, uint256 amount);
-    event FirstUnstakeSubmit(address indexed caller, uint32 indexed poolId, uint256 amount, uint256 unstakeId, uint40 requestTime, uint40 endBufferTime);
-    event UserUnstake(address indexed caller, uint32 indexed poolId, uint256 amount, uint256 unstakeId, PoolStatus poolStatus);
+    event UserUnstake(address indexed caller, uint32 indexed poolId,UserUnstakeEventInfo eventInfo);
     // errors
     error FailedTransfer();
     error InvalidPoolId();

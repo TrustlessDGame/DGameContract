@@ -161,6 +161,10 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         }
     }
 
+    function _stake(uint32 _poolId) internal {
+
+    }
+
     function stake(uint32 poolId) external payable whenNotPaused {
         require(msg.value > 0, Errors.INV_ADD);
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
@@ -334,10 +338,9 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         return IWorkerHub(workerhubAddress).unstakeDelayTime();
     }
 
-    //TODO: Kelvin
     function unstake(uint32 _poolId) public nonReentrant {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
-
+        // 1. kiem tra trang thai -> back lai sau
         if (_pools[_poolId].status != PoolStatus.INACTIVE &&
             _pools[_poolId].status != PoolStatus.ADMIN_WITHDREW &&
             _pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING &&
@@ -352,20 +355,20 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         //check msg sender already has unstaked or unstake partial
         if (userWannaUnstakeAmount[_poolId][msg.sender] == unstakeAmount || userWannaUnstakeAmount[_poolId][msg.sender] > 0) revert ("msg sender already have called unstake()");
 
+        _userPoolInfo[_poolId][msg.sender].isStaked = false;
+//        stakedUsersOf[_poolId].erase(msg.sender);
+
         uint256 reqId = unstakedReqId++;
         unstakedReqInfo[reqId] = UnstakedReqInfo(_poolId, msg.sender, unstakeAmount, uint40(block.timestamp));
 
+        stakedUsersOf[_poolId].erase(msg.sender); //remove user from the staked list
+        bool isFirstUnstake = false;
         if (_pools[_poolId].status == PoolStatus.INACTIVE) {
-            // transfer
-            stakedUsersOf[_poolId].erase(msg.sender); //remove user from the staked list
-            _userPoolInfo[_poolId][msg.sender].stakedAmount = 0; 
+            _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
             userWannaUnstakeAmount[_poolId][msg.sender] = 0;
             _userInfo[msg.sender].reserve1 += unstakeAmount; //total unstaked amount during the life time of contract
 
             safeTransferNative(msg.sender, unstakeAmount);
-
-            //TODO: add event
-
         } else if (_pools[_poolId].status == PoolStatus.ADMIN_WITHDREW) {
             userUnstakeReqIds[_poolId][msg.sender].insert(reqId); //queue
             poolUnstakeReqIds[_poolId].insert(reqId); //queue
@@ -373,23 +376,46 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             userWannaUnstakeAmount[_poolId][msg.sender] += unstakeAmount;
 
             if (poolUnstakedInfo[_poolId].firstReqTimestamp == 0) {
+                isFirstUnstake = true;
                 uint40 bufferingTimeExpireAt = uint40(block.timestamp + defaultUnstakeBufferTime);
                 poolUnstakedInfo[_poolId] = PoolUnstakedInfo(uint40(block.timestamp), bufferingTimeExpireAt, unstakeAmount);
 
-                emit FirstUnstakeSubmit(msg.sender, _poolId, unstakeAmount, reqId, uint40(block.timestamp), bufferingTimeExpireAt);
             } else {
                 poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
             }
         }
 
             //TODO: add event
-            emit UserUnstake(msg.sender, _poolId, unstakeAmount, reqId, _pools[_poolId].status);
+        emit UserUnstake(msg.sender, _poolId, UserUnstakeEventInfo(unstakeAmount, reqId, _pools[_poolId].status, uint40(block.timestamp), isFirstUnstake));
     }
 
     //TODO: Kelvin
     function restake(uint32 _poolId) external {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
+
+    }
+
+    function resolveUnstake(uint32 _poolId) public {
+        require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
+        if (_pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING) revert ("Invalid pool status");
+        //TODO ccheck timestamp >= buffering timestamp
+
+        // If the stake amounnt from providers is less than the unstake amount.
+        // We refund to providers and change status. Now, miner call unregister in workerhub
+        if (poolUnstakedInfo[_poolId].totalUnstakedAmount > 0) {
+//            _refundToProvider();
+            _pools[_poolId].status = PoolStatus.WAIT_ADMIN_RETURNED_FUND;
+        } else if (poolUnstakedInfo[_poolId].totalUnstakedAmount == 0) {
+            _payoutAndReplaceUnstakers(_poolId);
+        }
+    }
+
+    function _refundToProvider(uint32 _poolId) internal virtual {
+
+    }
+
+    function _payoutAndReplaceUnstakers(uint32 _poolId) internal virtual {
 
     }
 
@@ -409,7 +435,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         //TODO: check status, check waiting time expire
 
-        
+
     }
 
     //TODO: anh Vinkent
