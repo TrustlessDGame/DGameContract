@@ -154,7 +154,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             blockNumber: block.number
         }));
 
-        if (pool.stakedAmount >= pool.amountToActive) {
+        if (pool.stakedAmount - poolUnstakedInfo[_poolId].totalUnstakedAmount>= pool.amountToActive) {
             pool.status = PoolStatus.ACTIVE;
 
             emit ActivePool(pool);
@@ -399,6 +399,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _userPoolInfo[_poolId][msg.sender].isStaked = false;
 
         uint256 reqId = unstakedReqId++;
+        uint40 claimableTime = poolUnstakedInfo[_poolId].firstReqTimestamp != 0 ? 
+        poolUnstakedInfo
         unstakedReqInfo[reqId] = UnstakedReqInfo(_poolId, msg.sender, unstakeAmount, uint40(block.timestamp));
 
         stakedUsersOf[_poolId].erase(msg.sender); //remove user from the staked list
@@ -451,27 +453,30 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         }
     }
 
-    // function userClaimUnstakedAmount(uint32 _poolId) public nonReentrant {
-    //     require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
-    //     if (_pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND) revert ("Invalid pool status");
+    function userClaimUnstakedAmount(uint32 _poolId) public nonReentrant {
+        require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
-    //     if (!providers[_poolId].hasValue(msg.sender) || !stakedUserOf[_poolId].hasValue(msg.sender)) revert("msg sender is not provider");
+        //Review time and status
+        // if (_pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND) revert ("Invalid pool status");
 
-    //     providers[_poolId].erase(msg.sender);
-    //     uint256 totalProvidedAmount = totalStakedProvider[_poolId][msg.sender];
-    //     totalStakedProvider[_poolId][msg.sender] = 0;
+        uint256 claimableAmount = userWannaUnstakeAmount[_poolId][msg.sender];
+        if ( claimableAmount == 0) revert ("Zero claimable amount");
+        if (!_userPoolInfo[_poolId][msg.sender].isStaked) revert ("");
 
-    //     _pools[_poolId].stakedAmount -= totalProvidedAmount;
-    //     _userPoolInfo[_poolId][msg.sender].stakedAmount -= totalProvidedAmount;
+        _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
+        userWannaUnstakeAmount[_poolId][msg.sender] = 0;
+        _pools[_poolId].stakedAmount -= claimableAmount;
+        _userInfo[msg.sender].reserve1 += claimableAmount; 
+        poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
 
-    //     if (!_userPoolInfo[_poolId][msg.sender].isStaked) {
-    //         stakedUsersOf[_poolId].erase(msg.sender);
-    //     }
+        uint256 userUnstakeReqId = userUnstakeReqIds[_poolId][msg.sender].at(0);
+        poolUnstakeReqIds.erase(userUnstakeReqId);
+        userUnstakeReqIds[_poolId][msg.sender].erase(userUnstakeReqId);
 
-    //     safeTransferNative(msg.sender, totalProvidedAmount);
+        safeTransferNative(msg.sender, totalProvidedAmount);
 
-    //     //emit event
-    // }
+        //emit event
+    }
 
     function _payoutAndReplaceUnstakers(uint32 _poolId) internal virtual {
 
@@ -498,7 +503,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
     //TODO: anh Vinkent
     function userClaimUnstakedAmount(uint32 poolId) external {
-
+        
     }
 
     function setDefaultUnstakeBufferTime(uint40 amountInSecond) external onlyAdmin {
