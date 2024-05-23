@@ -225,7 +225,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             uint32 poolId = _poolIds[i];
             uint256 amount = _amounts[i];
 
-            //TODO need to confirm that if exist 1 stake req invalid, we will revert all change of only this req.
+            //TODO need to confirm that if exist 1 stake req invalid, we will revert all change or only this req.
             
             _stake(poolId, amount);
         }
