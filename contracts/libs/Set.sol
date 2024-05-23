@@ -9,6 +9,12 @@ library Set {
 
     error AddressSet_ValueNotFound(address value);
     error AddressSet_DuplicatedValue(address value);
+    error AddressSet_IndexOutOfBounds(uint256 index);
+
+    function at(AddressSet storage _set, uint256 _index) internal view returns (address){
+        if (_index >= _set.values.length) revert AddressSet_IndexOutOfBounds(_index);
+        return _set.values[_index];
+    }
 
     function insert(AddressSet storage _set, address _value) internal {
         if (_set.positions[_value] != 0) revert AddressSet_DuplicatedValue(_value);
@@ -46,6 +52,12 @@ library Set {
 
     error Uint256Set_ValueNotFound(uint256 value);
     error Uint256Set_DuplicatedValue(uint256 value);
+    error Uint256Set_IndexOutOfBounds(uint256 index);
+
+    function at(Uint256Set storage _set, uint256 _index) internal view returns (uint256){
+        if (_index >= _set.values.length) revert Uint256Set_IndexOutOfBounds(_index);
+        return _set.values[_index];
+    }
 
     function insert(Uint256Set storage _set, uint256 _value) internal {
         if (_set.positions[_value] != 0) revert Uint256Set_DuplicatedValue(_value);
