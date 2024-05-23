@@ -30,5 +30,7 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     uint40 public defaultUnstakeBufferTime; // Only buffer time at DELEGATE NODE contract, dont include waiting time from workerHubContract, Unit: second
     address public workerhubAddress;
 
-    uint256[90] private __gap;
+    mapping(uint256 => uint40) unstakeClaimableTime;
+
+    uint256[89] private __gap;
 }

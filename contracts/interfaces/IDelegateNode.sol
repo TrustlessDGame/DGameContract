@@ -15,7 +15,7 @@ interface IDelegateNode {
         string image;
         PoolStatus status;
         uint32 id;
-        uint256 stakedAmount;
+        uint256 stakedAmount; // This is the current balance of pool
         uint256 amountToActive;
         StakedInfo[] stakedInfos;
         uint32 feePercent; // feePercent / 10_000; 0.1 <=> 10%
@@ -52,7 +52,6 @@ interface IDelegateNode {
         address unstaker;
         uint256 amount;
         uint40 requestTime;
-        uint40 claimableTime; // create new map TODO kelvin
     }
 
     struct PoolUnstakedInfo {
