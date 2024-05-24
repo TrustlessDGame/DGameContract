@@ -199,18 +199,18 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
                 _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
                 delete poolUnstakedInfo[_poolId];
 
-                 emit ActivePool(_pools[_poolId]);
+                emit ActivePool(_pools[_poolId]);
             }
         } else revert InvalidPoolStatus();
 
         emit Stake(msg.sender, _amount, _pools[_poolId]);
     }
 
-    function stake(uint32 _poolId) public payable whenNotPaused {
+    function stake(uint32 _poolId) public payable nonReentrant whenNotPaused {
         _stake(_poolId, msg.value);
     }
 
-    function stakeMultiple(uint32[] calldata _poolIds, uint256[] calldata _amounts) external payable whenNotPaused {
+    function stakeMultiple(uint32[] calldata _poolIds, uint256[] calldata _amounts) external payable nonReentrant whenNotPaused {
         require(_poolIds.length == _amounts.length, Errors.INV_ADD);
         uint256 totalAmount = 0;
 
@@ -344,7 +344,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         return IWorkerHub(workerhubAddress).unstakeDelayTime();
     }
 
-    function unstake(uint32 _poolId) public nonReentrant {
+    function unstake(uint32 _poolId) public nonReentrant whenNotPaused {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
         PoolStatus poolStatus = _pools[_poolId].status;
 
@@ -419,7 +419,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         emit ResolveUnstake(msg.sender, _poolId, _pools[_poolId].status);
     }
 
-    function userClaimUnstakedAmount(uint32 _poolId) public nonReentrant {
+    function userClaimUnstakedAmount(uint32 _poolId) public nonReentrant whenNotPaused {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
         if (userUnstakeReqIds[_poolId][msg.sender].size() == 0) {return;}
@@ -447,7 +447,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         emit UserClaimUnstakedAmount(msg.sender, _poolId, claimableAmount);
     }
 
-    function minerRefundPoolBalance(uint32 _poolId) external payable {
+    function minerRefundPoolBalance(uint32 _poolId) external payable whenNotPaused {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
         if (_pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND) revert InvalidPoolStatus();
         if (block.timestamp < poolUnstakedInfo[_poolId].bufferTimeExpireAt + getWorkerHubUnstakeDelayTime()) revert PrematureMinerRefundPool();
