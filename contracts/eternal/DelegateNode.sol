@@ -166,7 +166,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         userPoolInfo.stakedAmount += msg.value;
     }
 
-    function _stake(uint32 _poolId, uint256 _amount) {
+    function _stake(uint32 _poolId, uint256 _amount) internal {
         require(_amount > 0, Errors.INV_ADD);
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
@@ -378,7 +378,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         unstakeClaimableTime[reqId] = firstUnstakeTimestamp + defaultUnstakeBufferTime + getWorkerHubUnstakeDelayTime();
         unstakedReqInfo[reqId] = UnstakedReqInfo(_poolId, msg.sender, unstakeAmount, uint40(block.timestamp));
-        stakedUsersOf[_poolId].erase(msg.sender); //remove user from the staked list
+        stakedUsersOf[_poolId].erase(msg.sender); //remove user from the staked list to dont distribute reward
 
         bool isFirstUnstake = false;
         if (poolStatus == PoolStatus.INACTIVE) {
