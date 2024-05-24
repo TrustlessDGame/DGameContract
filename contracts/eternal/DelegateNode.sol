@@ -34,6 +34,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _defaultAmountToActive = 25000 * 10 ** 18;
         _defaultPoolFee = 0;
         _defaultWaitBlock = 28 days;
+        unstakedReqId = 1;
     }
 
     // modifier admin only
@@ -414,13 +415,6 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         emit UserUnstake(msg.sender, _poolId, UserUnstakeEventInfo(unstakeAmount, reqId, _pools[_poolId].status, uint40(block.timestamp), isFirstUnstake));
     }
 
-    //TODO: Kelvin
-    function restake(uint32 _poolId) external {
-        require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
-
-
-    }
-
     function resolveUnstake(uint32 _poolId) public {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
         if (_pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING) revert InvalidPoolStatus();
@@ -441,8 +435,10 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
         uint256 userUnstakeReqId = userUnstakeReqIds[_poolId][msg.sender].at(0);
-        poolUnstakeReqIds[_poolId].erase(userUnstakeReqId);
-        userUnstakeReqIds[_poolId][msg.sender].erase(userUnstakeReqId);
+        if (poolUnstakeReqIds[_poolId].hasValue(userUnstakeReqId) && userUnstakeReqIds[_poolId][msg.sender].hasValue(userUnstakeReqId)) {
+            poolUnstakeReqIds[_poolId].erase(userUnstakeReqId);
+            userUnstakeReqIds[_poolId][msg.sender].erase(userUnstakeReqId);
+        }
 
         if (block.timestamp < unstakeClaimableTime[userUnstakeReqId]) revert PrematureClaimUnstake();
 
