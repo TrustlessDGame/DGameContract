@@ -25,7 +25,7 @@ abstract contract DelegateNodeStorage is IDelegateNode {
     mapping(uint32 => Set.Uint256Set) poolUnstakeReqIds; // pool Id => pending unstake req's id
     mapping(uint256 => UnstakedReqInfo) public unstakedReqInfo; // unstaked Id => UserUnstakedInfo
 
-    mapping(uint32 => PoolUnstakedInfo) poolUnstakedInfo; // pool Id => PoolUnstakedInfo
+    mapping(uint32 => PoolUnstakedInfo) public poolUnstakedInfo; // pool Id => PoolUnstakedInfo
 
     uint40 public defaultUnstakeBufferTime; // Only buffer time at DELEGATE NODE contract, dont include waiting time from workerHubContract, Unit: second
     address public workerhubAddress;
