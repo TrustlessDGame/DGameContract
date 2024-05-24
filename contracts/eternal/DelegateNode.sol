@@ -434,6 +434,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
     function userClaimUnstakedAmount(uint32 _poolId) public nonReentrant {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
+        if (userUnstakeReqIds[_poolId][msg.sender].size() == 0) { return; }
+
         uint256 userUnstakeReqId = userUnstakeReqIds[_poolId][msg.sender].at(0);
         if (poolUnstakeReqIds[_poolId].hasValue(userUnstakeReqId) && userUnstakeReqIds[_poolId][msg.sender].hasValue(userUnstakeReqId)) {
             poolUnstakeReqIds[_poolId].erase(userUnstakeReqId);
