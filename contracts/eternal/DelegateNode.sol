@@ -60,7 +60,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _unpause();
     }
 
-    function getUserPoolDetails(uint32[] memory poolIds) external view returns(UserPoolInfo[] memory) {
+    function getUserPoolDetails(uint32[] memory poolIds) external view returns (UserPoolInfo[] memory) {
         uint256 poolsLen = poolIds.length;
 
         UserPoolInfo[] memory userPoolInfos = new UserPoolInfo[](poolsLen);
@@ -72,7 +72,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         return userPoolInfos;
     }
 
-    function getRemainingStakeForActivation(uint32 poolId) public view returns(uint256) {
+    function getRemainingStakeForActivation(uint32 poolId) public view returns (uint256) {
         if (poolId >= _nextPoolId) revert InvalidPoolId();
 
         return _pools[poolId].amountToActive - _pools[poolId].stakedAmount;
@@ -177,7 +177,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         if (poolInfo.status == PoolStatus.INACTIVE) {
             uint256 availablePoolBalance = poolInfo.stakedAmount + _amount - poolUnstakedInfo[_poolId].totalUnstakedAmount + poolUnstakedInfo[_poolId].reimbursementAmount;
-            require( availablePoolBalance <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
+            require(availablePoolBalance <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
 
             _internalUpdateStakingInfo(_poolId, _amount);
 
@@ -188,7 +188,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             }
 
         } else if (poolInfo.status == PoolStatus.UNSTAKE_BUFFERING) {
-            require (_amount <= poolUnstakedInfo[_poolId].totalUnstakedAmount - poolUnstakedInfo[_poolId].reimbursementAmount, Errors.INV_STAKE_AMOUNT);
+            require(_amount <= poolUnstakedInfo[_poolId].totalUnstakedAmount - poolUnstakedInfo[_poolId].reimbursementAmount, Errors.INV_STAKE_AMOUNT);
             if (block.timestamp > poolUnstakedInfo[_poolId].bufferTimeExpireAt) revert UnstakeBufferExpire();
 
             _internalUpdateStakingInfo(_poolId, _amount);
@@ -206,7 +206,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         emit Stake(msg.sender, _amount, _pools[_poolId]);
     }
-    
+
     function stake(uint32 _poolId) public payable whenNotPaused {
         _stake(_poolId, msg.value);
     }
@@ -219,14 +219,14 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             totalAmount += _amounts[i];
         }
 
-        require (totalAmount == msg.value, Errors.INV_ADD);
+        require(totalAmount == msg.value, Errors.INV_ADD);
 
         for (uint32 i = 0; i < _poolIds.length; i++) {
             uint32 poolId = _poolIds[i];
             uint256 amount = _amounts[i];
 
             //TODO need to confirm that if exist 1 stake req invalid, we will revert all change or only this req.
-            
+
             _stake(poolId, amount);
         }
     }
@@ -329,7 +329,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
     function userClaimFullRewardOnPool(uint32 poolId) external nonReentrant whenNotPaused {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
-        
+
         UserPoolInfo storage userPoolInfo = _userPoolInfo[poolId][msg.sender];
 
         uint256 amount = userPoolInfo.rewardAmount;
@@ -347,7 +347,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         emit UserClaimReward(msg.sender, poolId, amount);
     }
 
-    function getWorkerHubUnstakeDelayTime() public view returns(uint40) {
+    function getWorkerHubUnstakeDelayTime() public view returns (uint40) {
         return IWorkerHub(workerhubAddress).unstakeDelayTime();
     }
 
@@ -356,8 +356,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         PoolStatus poolStatus = _pools[_poolId].status;
 
         if (poolStatus != PoolStatus.INACTIVE &&
-            poolStatus != PoolStatus.ADMIN_WITHDREW &&
-            poolStatus != PoolStatus.UNSTAKE_BUFFERING &&
+        poolStatus != PoolStatus.ADMIN_WITHDREW &&
+        poolStatus != PoolStatus.UNSTAKE_BUFFERING &&
             poolStatus != PoolStatus.WAIT_ADMIN_RETURNED_FUND
         ) revert InvalidPoolStatus();
 
@@ -376,7 +376,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         //TODO kelvin check again
         uint40 firstUnstakeTimestamp = uint40(poolUnstakedInfo[_poolId].firstReqTimestamp != 0 ? poolUnstakedInfo[_poolId].firstReqTimestamp : block.timestamp);
 
-        unstakeClaimableTime[reqId] = firstUnstakeTimestamp +  defaultUnstakeBufferTime + getWorkerHubUnstakeDelayTime();
+        unstakeClaimableTime[reqId] = firstUnstakeTimestamp + defaultUnstakeBufferTime + getWorkerHubUnstakeDelayTime();
         unstakedReqInfo[reqId] = UnstakedReqInfo(_poolId, msg.sender, unstakeAmount, uint40(block.timestamp));
         stakedUsersOf[_poolId].erase(msg.sender); //remove user from the staked list
 
@@ -389,7 +389,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             safeTransferNative(msg.sender, unstakeAmount);
         } else if (poolStatus == PoolStatus.ADMIN_WITHDREW ||
-            poolStatus == PoolStatus.UNSTAKE_BUFFERING ||
+        poolStatus == PoolStatus.UNSTAKE_BUFFERING ||
             poolStatus == PoolStatus.WAIT_ADMIN_RETURNED_FUND) {
 
             userUnstakeReqIds[_poolId][msg.sender].insert(reqId); //queue
@@ -402,8 +402,10 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
                 isFirstUnstake = true;
                 uint40 bufferingTimeExpireAt = uint40(block.timestamp + defaultUnstakeBufferTime);
-                poolUnstakedInfo[_poolId] = PoolUnstakedInfo({firstReqTimestamp: uint40(block.timestamp), bufferTimeExpireAt: bufferingTimeExpireAt, 
-                                                                totalUnstakedAmount: unstakeAmount, reimbursementAmount: 0});
+                poolUnstakedInfo[_poolId] = PoolUnstakedInfo({
+                    firstReqTimestamp: uint40(block.timestamp),
+                    bufferTimeExpireAt: bufferingTimeExpireAt,
+                    totalUnstakedAmount: unstakeAmount, reimbursementAmount: 0});
             } else {
                 poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
             }
@@ -445,13 +447,13 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         if (block.timestamp < unstakeClaimableTime[userUnstakeReqId]) revert PrematureClaimUnstake();
 
         uint256 claimableAmount = userWannaUnstakeAmount[_poolId][msg.sender];
-        if ( claimableAmount == 0) revert ZeroClaimableUnstakedAmount();
+        if (claimableAmount == 0) revert ZeroClaimableUnstakedAmount();
         // if (!_userPoolInfo[_poolId][msg.sender].isStaked) revert (""); //TODO kelvin check again -> may be dont use
 
         _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
         userWannaUnstakeAmount[_poolId][msg.sender] = 0;
         _pools[_poolId].stakedAmount -= claimableAmount;
-        _userInfo[msg.sender].reserve1 += claimableAmount; 
+        _userInfo[msg.sender].reserve1 += claimableAmount;
         poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
         poolUnstakedInfo[_poolId].reimbursementAmount -= claimableAmount;
 
@@ -469,7 +471,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
         if (_pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND) revert InvalidPoolStatus();
         if (block.timestamp < poolUnstakedInfo[_poolId].bufferTimeExpireAt + getWorkerHubUnstakeDelayTime()) revert PrematureMinerRefundPool();
-        
+
         address poolMiner = _pools[_poolId].minerAddress;
         uint256 refundValue = _pools[_poolId].amountToActive;
         if (msg.sender != poolMiner) revert SenderNotPoolMiner();
