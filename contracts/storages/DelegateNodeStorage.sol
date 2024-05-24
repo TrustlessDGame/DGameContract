@@ -32,5 +32,5 @@ abstract contract DelegateNodeStorage is IDelegateNode {
 
     mapping(uint256 => uint40) internal unstakeClaimableTime;
 
-    uint256[89] private __gap;
+    uint256[91] private __gap;
 }

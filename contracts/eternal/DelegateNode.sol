@@ -173,7 +173,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             revert ("Only support stake INACTIVE pool at this moment");
         }
 
-        userClaimUnstakedAmount(_poolId);
+//        userClaimUnstakedAmount(_poolId);
 
         if (poolInfo.status == PoolStatus.INACTIVE) {
             uint256 availablePoolBalance = poolInfo.stakedAmount + _amount - poolUnstakedInfo[_poolId].totalUnstakedAmount + poolUnstakedInfo[_poolId].reimbursementAmount;

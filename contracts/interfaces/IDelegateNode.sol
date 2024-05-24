@@ -6,6 +6,7 @@ interface IDelegateNode {
         INACTIVE,
         ACTIVE,
         ADMIN_WITHDREW,
+        ADMIN_RETURNED_FUND,
         UNSTAKE_BUFFERING, // UNSTAKE_BUFFERING can back to ADMIN_WITHDREW or WAIT_ADMIN_RETURNED_FUND
         WAIT_ADMIN_RETURNED_FUND // 21 days, after this 21 days, admin return fund to pool, and pool back to inactive, user claim unstake amount if exist in list unstake
     }
@@ -88,7 +89,7 @@ interface IDelegateNode {
     event PoolFeePercentUpdated(uint32 indexed poolId, uint32 oldFeePercent, uint32 newFeePercent);
     event MinerAddressUpdated(uint32 indexed poolId, address oldAddress, address newAddress);
     event DefaultUnstakeBufferTimeUpdate(address indexed caller, uint40 oldTime, uint40 newTime);
-    
+
     event UserClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event UserFullClaimReward(address indexed caller, uint32 indexed poolId, uint256 amount);
     event MinerReceiveReward(address indexed miner, uint32 indexed poolId, uint256 amount, uint256 fee);
