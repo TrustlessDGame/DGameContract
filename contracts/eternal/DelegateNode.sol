@@ -447,7 +447,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         if (block.timestamp < unstakeClaimableTime[userUnstakeReqId]) revert PrematureClaimUnstake();
 
         uint256 claimableAmount = userWannaUnstakeAmount[_poolId][msg.sender];
-        if (claimableAmount == 0) revert ZeroClaimableUnstakedAmount();
+        if (claimableAmount == 0) return; //revert ZeroClaimableUnstakedAmount();
         // if (!_userPoolInfo[_poolId][msg.sender].isStaked) revert (""); //TODO kelvin check again -> may be dont use
 
         _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
