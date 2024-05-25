@@ -173,7 +173,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
             revert ("Only support stake INACTIVE pool at this moment");
         }
 
-//        userClaimUnstakedAmount(_poolId);
+        _userClaimUnstakedAmount(_poolId);
 
         if (poolInfo.status == PoolStatus.INACTIVE) {
             uint256 availablePoolBalance = poolInfo.stakedAmount + _amount - poolUnstakedInfo[_poolId].totalUnstakedAmount + poolUnstakedInfo[_poolId].reimbursementAmount;
@@ -239,14 +239,14 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         poolInfo.minerAddress = minerAddress;
     }
 
-    function adminWithdraw(address to, uint256 amount) external onlyPoolAdmin nonReentrant whenNotPaused {
-        require(to != address(0), Errors.INV_ADD);
-        require(0 < amount && amount <= address(this).balance, Errors.INV_ADMIN_WITHDRAW);
+    // function adminWithdraw(address to, uint256 amount) external onlyPoolAdmin nonReentrant whenNotPaused {
+    //     require(to != address(0), Errors.INV_ADD);
+    //     require(0 < amount && amount <= address(this).balance, Errors.INV_ADMIN_WITHDRAW);
 
-        safeTransferNative(to, amount);
+    //     safeTransferNative(to, amount);
 
-        emit AdminWithdraw(to, amount);
-    }
+    //     emit AdminWithdraw(to, amount);
+    // }
 
     function safeTransferNative(address _to, uint256 _value) internal {
         (bool success,) = _to.call{value: _value}("");
@@ -419,7 +419,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         emit ResolveUnstake(msg.sender, _poolId, _pools[_poolId].status);
     }
 
-    function userClaimUnstakedAmount(uint32 _poolId) public nonReentrant whenNotPaused {
+    function _userClaimUnstakedAmount(uint32 _poolId) internal {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
         if (userUnstakeReqIds[_poolId][msg.sender].size() == 0) {return;}
@@ -445,6 +445,10 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         safeTransferNative(msg.sender, claimableAmount);
 
         emit UserClaimUnstakedAmount(msg.sender, _poolId, claimableAmount);
+    }
+
+    function userClaimUnstakedAmount(uint32 _poolId) public nonReentrant whenNotPaused {
+        _userClaimUnstakedAmount(_poolId);
     }
 
     function minerRefundPoolBalance(uint32 _poolId) external payable whenNotPaused {
