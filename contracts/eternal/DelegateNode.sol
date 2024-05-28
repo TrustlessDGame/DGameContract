@@ -72,11 +72,17 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         return userPoolInfos;
     }
 
-    function getRemainingStakeForActivation(uint32 poolId) public view returns (uint256) {
-        if (poolId >= _nextPoolId) revert InvalidPoolId();
+    // function getRemainingStakeForActivation(uint32 _poolId) public view returns (uint256) {
+    //     if (_poolId >= _nextPoolId) revert InvalidPoolId();
 
-        return _pools[poolId].amountToActive - _pools[poolId].stakedAmount;
-    }
+    //     uint256 poolBalance = _pools[_poolId].stakedAmount;
+    //     if (_pools[_poolId].status == PoolStatus.INACTIVE) {
+            
+    //     }
+    //     uint256 remainingUnstakedAmount = poolUnstakedInfo[_poolId].totalUnstakedAmount - poolUnstakedInfo[_poolId].reimbursementAmount;
+
+    //     return _pools[_poolId].amountToActive + remainingUnstakedAmount - poolBalance;
+    // }
 
     function changeAdmin(address newAdm) external onlyAdmin {
         require(newAdm != address(0), Errors.INV_ADD);
@@ -169,9 +175,9 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         PoolInfo memory poolInfo = _pools[_poolId];
         require(poolInfo.id == _poolId, Errors.INV_POOL_ID);
 
-        if (poolInfo.status != PoolStatus.INACTIVE) {
-            revert ("Only support stake INACTIVE pool at this moment");
-        }
+        // if (poolInfo.status != PoolStatus.INACTIVE) {
+        //     revert ("Only support stake INACTIVE pool at this moment");
+        // }
 
         _userClaimUnstakedAmount(_poolId);
 
@@ -440,7 +446,10 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _pools[_poolId].stakedAmount -= claimableAmount;
         _userInfo[msg.sender].reserve1 += claimableAmount;
         poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
-        poolUnstakedInfo[_poolId].reimbursementAmount -= claimableAmount;
+
+        if (poolUnstakedInfo[_poolId].reimbursementAmount >= claimableAmount) {
+            poolUnstakedInfo[_poolId].reimbursementAmount -= claimableAmount;
+        }
 
         safeTransferNative(msg.sender, claimableAmount);
 
