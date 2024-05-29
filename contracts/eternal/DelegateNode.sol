@@ -456,8 +456,12 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
     function resolveUnstake(uint32 _poolId) public {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
-        if (_pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING) revert InvalidPoolStatus();
         if (block.timestamp < poolUnstakedInfo[_poolId].bufferTimeExpireAt) revert PrematureResolveUnstake();
+        
+        if (_pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING) {
+            emit ResolveUnstake(msg.sender, _poolId, _pools[_poolId].status);
+            return;
+        }
 
         uint256 remainingStakeAmount = getRemainingStakeForActivation(_poolId);
 
