@@ -98,6 +98,7 @@ interface IDelegateNode {
     event ResolveUnstake(address indexed caller, uint32 indexed poolId, PoolStatus status);
     event UserClaimUnstakedAmount(address indexed caller, uint32 indexed poolId, uint256 claimedAmount);
     event MinerRefundPoolBalance(address indexed miner, uint32 indexed poolId, uint256 refundedValue);
+    event UserRestake(address indexed caller, uint32 indexed pooId, uint256 restakedAmount, uint256 remainingUnstakeAmount);
     // errors
     error FailedTransfer();
     error InvalidPoolId();
@@ -118,4 +119,5 @@ interface IDelegateNode {
     error SenderNotPoolMiner();
     error RefundedValueNotEnough();
 
+    error PrematureRestake();
 }

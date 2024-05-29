@@ -72,18 +72,6 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         return userPoolInfos;
     }
 
-    // function getRemainingStakeForActivation(uint32 _poolId) public view returns (uint256) {
-    //     if (_poolId >= _nextPoolId) revert InvalidPoolId();
-
-    //     uint256 poolBalance = _pools[_poolId].stakedAmount;
-    //     if (_pools[_poolId].status == PoolStatus.INACTIVE) {
-            
-    //     }
-    //     uint256 remainingUnstakedAmount = poolUnstakedInfo[_poolId].totalUnstakedAmount - poolUnstakedInfo[_poolId].reimbursementAmount;
-
-    //     return _pools[_poolId].amountToActive + remainingUnstakedAmount - poolBalance;
-    // }
-
     function changeAdmin(address newAdm) external onlyAdmin {
         require(newAdm != address(0), Errors.INV_ADD);
 
@@ -181,20 +169,21 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         _userClaimUnstakedAmount(_poolId);
 
+        uint256 remainingStakeAmount = getRemainingStakeForActivation(_poolId);
+
         if (poolInfo.status == PoolStatus.INACTIVE) {
-            uint256 availablePoolBalance = poolInfo.stakedAmount + _amount - poolUnstakedInfo[_poolId].totalUnstakedAmount + poolUnstakedInfo[_poolId].reimbursementAmount;
-            require(availablePoolBalance <= poolInfo.amountToActive, Errors.INV_STAKE_AMOUNT);
+            require(_amount <= remainingStakeAmount, Errors.INV_STAKE_AMOUNT);
 
             _internalUpdateStakingInfo(_poolId, _amount);
 
-            if (availablePoolBalance == _pools[_poolId].amountToActive) {
+            if (_amount == remainingStakeAmount) {
                 _pools[_poolId].status = PoolStatus.ACTIVE;
 
                 emit ActivePool(_pools[_poolId]);
             }
 
         } else if (poolInfo.status == PoolStatus.UNSTAKE_BUFFERING) {
-            require(_amount <= poolUnstakedInfo[_poolId].totalUnstakedAmount - poolUnstakedInfo[_poolId].reimbursementAmount, Errors.INV_STAKE_AMOUNT);
+            require(_amount <= remainingStakeAmount, Errors.INV_STAKE_AMOUNT);
             if (block.timestamp > poolUnstakedInfo[_poolId].bufferTimeExpireAt) revert UnstakeBufferExpire();
 
             _internalUpdateStakingInfo(_poolId, _amount);
@@ -409,6 +398,71 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         emit UserUnstake(msg.sender, _poolId, UserUnstakeEventInfo(unstakeAmount, reqId, _pools[_poolId].status, uint40(block.timestamp), isFirstUnstake));
     }
 
+    function restake(uint32 _poolId) public {
+        require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
+        if (_pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING) revert InvalidPoolStatus();
+        if (block.timestamp > poolUnstakedInfo[_poolId].bufferTimeExpireAt) revert PrematureRestake();
+        //Check msg sender has already staked
+        if (_userPoolInfo[_poolId][msg.sender].isStaked) revert("The user is still staking");
+
+        uint256 reqId = userUnstakeReqIds[_poolId][msg.sender].at(0);
+        if (unstakedReqInfo[reqId].unstaker != msg.sender) revert("Invalid unstaker");
+
+        uint256 unstakedAmount = userWannaUnstakeAmount[_poolId][msg.sender];
+
+        if (unstakedAmount == 0) revert("Zero unstake amount");
+
+        uint256 remainingUnstakedAmount = poolUnstakedInfo[_poolId].totalUnstakedAmount - poolUnstakedInfo[_poolId].reimbursementAmount;
+
+        uint256 restakeableAmount = remainingUnstakedAmount >= unstakedAmount? unstakedAmount : remainingUnstakedAmount;
+
+        //TODO: Check restakeableAmount == 0, action?
+        if (restakeableAmount == 0) revert("Zero restakeable amount");
+
+        //TODO: Check nagative number...
+
+        userWannaUnstakeAmount[_poolId][msg.sender] -= restakeableAmount;
+        unstakedReqInfo[reqId].amount -= restakeableAmount;
+        poolUnstakedInfo[_poolId].totalUnstakedAmount -= restakeableAmount;
+
+        // If user restake all the staked amount, we remove the unstake request id from the unstake queue
+        if (restakeableAmount == unstakedAmount) {
+            // Remove unstake queue of user and pool
+            userUnstakeReqIds[_poolId][msg.sender].erase(reqId);
+            poolUnstakeReqIds[_poolId].erase(reqId);
+        }
+        //add user to the staked user list (keep track reward)
+        stakedUsersOf[_poolId].insert(msg.sender);
+        _userPoolInfo[_poolId][msg.sender].isStaked = true;
+
+        //Compare total unstake amount to reimbursement amount, resolve unstake to start the calculating reward
+        if (poolUnstakedInfo[_poolId].totalUnstakedAmount == poolUnstakedInfo[_poolId].reimbursementAmount) {
+                _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
+                delete poolUnstakedInfo[_poolId];
+
+                emit ActivePool(_pools[_poolId]);
+            }
+
+        emit UserRestake(msg.sender, _poolId, restakeableAmount, userWannaUnstakeAmount[_poolId][msg.sender]);
+    }
+
+    function getRemainingStakeForActivation(uint32 _poolId) public view returns (uint256) {
+        if (_poolId >= _nextPoolId) revert InvalidPoolId();
+
+        uint256 amountToActive = _pools[_poolId].amountToActive;
+        uint256 totalUnstake = poolUnstakedInfo[_poolId].totalUnstakedAmount;
+        uint256 totalReimburse = poolUnstakedInfo[_poolId].reimbursementAmount;
+        uint256 poolBalance = _pools[_poolId].stakedAmount;
+
+        if (_pools[_poolId].status == PoolStatus.INACTIVE || _pools[_poolId].status == PoolStatus.ACTIVE) {
+            return amountToActive - (poolBalance - totalUnstake);
+        } else if (_pools[_poolId].status == PoolStatus.ADMIN_WITHDREW || _pools[_poolId].status == PoolStatus.UNSTAKE_BUFFERING || _pools[_poolId].status == PoolStatus.WAIT_ADMIN_RETURNED_FUND){
+            return totalUnstake - totalReimburse;
+        }
+
+        return 0;
+    }
+
     function resolveUnstake(uint32 _poolId) public {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
         if (_pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING) revert InvalidPoolStatus();
@@ -441,7 +495,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         uint256 claimableAmount = userWannaUnstakeAmount[_poolId][msg.sender];
         if (claimableAmount == 0) return;
 
-        _userPoolInfo[_poolId][msg.sender].stakedAmount = 0;
+        _userPoolInfo[_poolId][msg.sender].stakedAmount -= claimableAmount;
         userWannaUnstakeAmount[_poolId][msg.sender] = 0;
         _pools[_poolId].stakedAmount -= claimableAmount;
         _userInfo[msg.sender].reserve1 += claimableAmount;
