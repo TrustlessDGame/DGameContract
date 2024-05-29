@@ -425,6 +425,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         //add user to the staked user list (keep track reward)
         stakedUsersOf[_poolId].insert(msg.sender);
         _userPoolInfo[_poolId][msg.sender].isStaked = true;
+        _userPoolInfo[_poolId][msg.sender].stakedAmount = restakeableAmount;
 
         //Compare total unstake amount to reimbursement amount, resolve unstake to start the calculating reward
         // uint256 remainingStakeAmount = getRemainingStakeForActivation(_poolId);
@@ -457,7 +458,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
     function resolveUnstake(uint32 _poolId) public {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
         if (block.timestamp < poolUnstakedInfo[_poolId].bufferTimeExpireAt) revert PrematureResolveUnstake();
-        
+
         if (_pools[_poolId].status != PoolStatus.UNSTAKE_BUFFERING) {
             emit ResolveUnstake(msg.sender, _poolId, _pools[_poolId].status);
             return;
