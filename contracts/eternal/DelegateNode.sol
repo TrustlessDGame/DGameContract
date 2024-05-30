@@ -181,6 +181,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             if (_amount == remainingStakeAmount) {
                 _pools[_poolId].status = PoolStatus.ACTIVE;
+                delete poolUnstakedInfo[_poolId];
 
                 emit ActivePool(_pools[_poolId]);
             }
@@ -190,7 +191,6 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             _internalUpdateStakingInfo(_poolId, _amount);
 
-            //TODO review kelvin // consider to remove
             poolUnstakedInfo[_poolId].reimbursementAmount += _amount;
 
             if (_amount == remainingStakeAmount) {
@@ -313,8 +313,8 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
 
         UserPoolInfo storage userPoolInfo = _userPoolInfo[poolId][msg.sender];
-
         uint256 amount = userPoolInfo.rewardAmount;
+
         if (amount == 0) {
             revert NoRewardToClaim();
         }
@@ -351,7 +351,6 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         _userPoolInfo[_poolId][msg.sender].isStaked = false;
 
         uint256 reqId = unstakedReqId++;
-
         uint40 firstUnstakeTimestamp = uint40(poolUnstakedInfo[_poolId].firstReqTimestamp != 0 ? poolUnstakedInfo[_poolId].firstReqTimestamp : block.timestamp);
 
         unstakeClaimableTime[reqId] = firstUnstakeTimestamp + defaultUnstakeBufferTime + getWorkerHubUnstakeDelayTime();
@@ -372,7 +371,6 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
             userUnstakeReqIds[_poolId][msg.sender].insert(reqId);
             poolUnstakeReqIds[_poolId].insert(reqId);
-
             userWannaUnstakeAmount[_poolId][msg.sender] += unstakeAmount;
 
             if (poolStatus == PoolStatus.ADMIN_WITHDREW) {
@@ -380,6 +378,7 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
                 isFirstUnstake = true;
                 uint40 bufferingTimeExpireAt = uint40(block.timestamp + defaultUnstakeBufferTime);
+                
                 poolUnstakedInfo[_poolId] = PoolUnstakedInfo({
                     firstReqTimestamp: uint40(block.timestamp),
                     bufferTimeExpireAt: bufferingTimeExpireAt,
@@ -400,16 +399,13 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         if (_userPoolInfo[_poolId][msg.sender].isStaked) revert("The user is still staking");
 
         uint256 reqId = userUnstakeReqIds[_poolId][msg.sender].at(0);
-
         if (unstakedReqInfo[reqId].unstaker != msg.sender) revert("Invalid unstaker");
 
         uint256 unstakedAmount = userWannaUnstakeAmount[_poolId][msg.sender];
-
         if (unstakedAmount == 0) revert("Zero unstake amount");
         
         uint256 remainingStakeAmount = getRemainingStakeForActivation(_poolId);
         uint256 restakeableAmount = remainingStakeAmount >= unstakedAmount? unstakedAmount : remainingStakeAmount;
-
         if (restakeableAmount == 0) revert("Zero restakeable amount");
 
         userWannaUnstakeAmount[_poolId][msg.sender] -= restakeableAmount;
@@ -497,7 +493,11 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
         userWannaUnstakeAmount[_poolId][msg.sender] = 0;
         _pools[_poolId].stakedAmount -= claimableAmount;
         _userInfo[msg.sender].reserve1 += claimableAmount;
-        poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
+
+        // In the case the reimbursement amount is equal the total unstaked amount, the poolUnstakedInfo will be deleted
+        if (poolUnstakedInfo[_poolId].totalUnstakedAmount != 0) {
+            poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
+        }
 
         safeTransferNative(msg.sender, claimableAmount);
 
@@ -529,5 +529,13 @@ contract DelegateNode is DelegateNodeStorage, OwnableUpgradeable, PausableUpgrad
 
         emit DefaultUnstakeBufferTimeUpdate(msg.sender, defaultUnstakeBufferTime, _amountInSecond);
         defaultUnstakeBufferTime = _amountInSecond;
+    }
+
+    function getUserUnstakeReqIds(uint32 _poolId, address _user) public view returns (uint256[] memory){
+        return  userUnstakeReqIds[_poolId][_user].values;
+    }
+
+    function getPoolUnstakeReqIds(uint32 _poolId) public view returns (uint256[] memory){
+        return  (poolUnstakeReqIds[_poolId].values);
     }
 }
