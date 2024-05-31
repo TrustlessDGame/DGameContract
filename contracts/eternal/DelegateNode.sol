@@ -573,9 +573,11 @@ contract DelegateNode is
             poolUnstakeReqIds[_poolId].erase(reqId);
         }
         //add user to the staked user list (keep track reward)
-        stakedUsersOf[_poolId].insert(msg.sender);
+        if (!stakedUsersOf[_poolId].hasValue(msg.sender)) {
+            stakedUsersOf[_poolId].insert(msg.sender);
+        }
         _userPoolInfo[_poolId][msg.sender].isStaked = true;
-        _userPoolInfo[_poolId][msg.sender].stakedAmount = restakeableAmount;
+        _userPoolInfo[_poolId][msg.sender].stakedAmount += restakeableAmount;
 
         //Compare total unstake amount to reimbursement amount, resolve unstake to start the calculating reward
         // uint256 remainingStakeAmount = getRemainingStakeForActivation(_poolId);
