@@ -68,20 +68,6 @@ contract DelegateNode is
         _unpause();
     }
 
-    function getUserPoolDetails(
-        uint32[] memory poolIds
-    ) external view returns (UserPoolInfo[] memory) {
-        uint256 poolsLen = poolIds.length;
-
-        UserPoolInfo[] memory userPoolInfos = new UserPoolInfo[](poolsLen);
-
-        for (uint256 i = 0; i < poolsLen; i++) {
-            userPoolInfos[i] = _userPoolInfo[poolIds[i]][msg.sender];
-        }
-
-        return userPoolInfos;
-    }
-
     function changeAdmin(address newAdm) external onlyAdmin {
         require(newAdm != address(0), Errors.INV_ADD);
 
@@ -210,10 +196,6 @@ contract DelegateNode is
             revert InvalidPoolStatus();
         }
 
-        // if (poolInfo.status != PoolStatus.INACTIVE) {
-        //     revert ("Only support stake INACTIVE pool at this moment");
-        // }
-
         _userClaimUnstakedAmount(_poolId);
 
         uint256 remainingStakeAmount = getRemainingStakeForActivation(_poolId);
@@ -224,7 +206,6 @@ contract DelegateNode is
 
             if (_amount == remainingStakeAmount) {
                 _pools[_poolId].status = PoolStatus.ACTIVE;
-                // delete poolUnstakedInfo[_poolId];
                 poolUnstakedInfo[_poolId].firstReqTimestamp = 0;
 
                 emit ActivePool(_pools[_poolId]);
@@ -239,7 +220,6 @@ contract DelegateNode is
 
             if (_amount == remainingStakeAmount) {
                 _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
-                // delete poolUnstakedInfo[_poolId];
                 poolUnstakedInfo[_poolId].firstReqTimestamp = 0;
 
                 emit ActivePool(_pools[_poolId]);
@@ -309,7 +289,7 @@ contract DelegateNode is
         require(
             clonedPoolInfo.stakedAmount == clonedPoolInfo.amountToActive,
             Errors.INV_ADMIN_WITHDRAW
-        ); // only allow admin withdraw 1 time to go to run miner
+        );
 
         uint256 staked = clonedPoolInfo.stakedAmount;
         _pools[poolId].stakedAmount = 0;
@@ -547,10 +527,6 @@ contract DelegateNode is
             revert InvalidPoolStatus();
         if (block.timestamp > poolUnstakedInfo[_poolId].bufferTimeExpireAt)
             revert PrematureRestake();
-        //Check msg sender has already staked
-        // if (_userPoolInfo[_poolId][msg.sender].isStaked)
-        //     revert("The user is still staking");
-        // ==> Allow restake multiple time
 
         uint256 reqId = userUnstakeReqIds[_poolId][msg.sender].at(0);
         if (unstakedReqInfo[reqId].unstaker != msg.sender)
@@ -569,21 +545,16 @@ contract DelegateNode is
         unstakedReqInfo[reqId].amount -= restakeableAmount;
         poolUnstakedInfo[_poolId].totalUnstakedAmount -= restakeableAmount;
 
-        // If user restake all the staked amount, we remove the unstake request id from the unstake queue
         if (restakeableAmount == unstakedAmount) {
-            // Remove unstake queue of user and pool
             userUnstakeReqIds[_poolId][msg.sender].erase(reqId);
             poolUnstakeReqIds[_poolId].erase(reqId);
         }
-        //add user to the staked user list (keep track reward)
         if (!stakedUsersOf[_poolId].hasValue(msg.sender)) {
             stakedUsersOf[_poolId].insert(msg.sender);
         }
         _userPoolInfo[_poolId][msg.sender].isStaked = true;
         _userPoolInfo[_poolId][msg.sender].stakedAmount += restakeableAmount;
 
-        //Compare total unstake amount to reimbursement amount, resolve unstake to start the calculating reward
-        // uint256 remainingStakeAmount = getRemainingStakeForActivation(_poolId);
         if (getRemainingStakeForActivation(_poolId) == 0) {
             _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
             poolUnstakedInfo[_poolId].firstReqTimestamp = 0;
@@ -617,7 +588,7 @@ contract DelegateNode is
             _pools[_poolId].status == PoolStatus.UNSTAKE_BUFFERING ||
             _pools[_poolId].status == PoolStatus.WAIT_ADMIN_RETURNED_FUND
         ) {
-            return totalUnstake - poolBalance; //always greater or equal 0
+            return totalUnstake - poolBalance;
         }
 
         return 0;
@@ -637,7 +608,6 @@ contract DelegateNode is
 
         if (remainingStakeAmount == 0) {
             _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
-            // delete poolUnstakedInfo[_poolId];
             poolUnstakedInfo[_poolId].firstReqTimestamp = 0;
         } else if (remainingStakeAmount > 0) {
             _pools[_poolId].status = PoolStatus.WAIT_ADMIN_RETURNED_FUND;
@@ -673,7 +643,6 @@ contract DelegateNode is
         _pools[_poolId].stakedAmount -= claimableAmount;
         _userInfo[msg.sender].reserve1 += claimableAmount;
 
-        // In the case the reimbursement amount is equal the total unstaked amount, the poolUnstakedInfo will be deleted
         if (poolUnstakedInfo[_poolId].totalUnstakedAmount != 0) {
             poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
         }
