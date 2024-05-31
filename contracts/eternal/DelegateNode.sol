@@ -506,7 +506,8 @@ contract DelegateNode is
                 poolUnstakedInfo[_poolId] = PoolUnstakedInfo({
                     firstReqTimestamp: uint40(block.timestamp),
                     bufferTimeExpireAt: bufferingTimeExpireAt,
-                    totalUnstakedAmount: unstakeAmount,
+                    totalUnstakedAmount: poolUnstakedInfo[_poolId]
+                        .totalUnstakedAmount + unstakeAmount,
                     reimbursementAmount: 0
                 });
             } else {
