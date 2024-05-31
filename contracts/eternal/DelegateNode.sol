@@ -224,7 +224,8 @@ contract DelegateNode is
 
             if (_amount == remainingStakeAmount) {
                 _pools[_poolId].status = PoolStatus.ACTIVE;
-                delete poolUnstakedInfo[_poolId];
+                // delete poolUnstakedInfo[_poolId];
+                poolUnstakedInfo[_poolId].firstReqTimestamp = 0;
 
                 emit ActivePool(_pools[_poolId]);
             }
@@ -238,7 +239,8 @@ contract DelegateNode is
 
             if (_amount == remainingStakeAmount) {
                 _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
-                delete poolUnstakedInfo[_poolId];
+                // delete poolUnstakedInfo[_poolId];
+                poolUnstakedInfo[_poolId].firstReqTimestamp = 0;
 
                 emit ActivePool(_pools[_poolId]);
             }
@@ -583,7 +585,7 @@ contract DelegateNode is
         // uint256 remainingStakeAmount = getRemainingStakeForActivation(_poolId);
         if (getRemainingStakeForActivation(_poolId) == 0) {
             _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
-            delete poolUnstakedInfo[_poolId];
+            poolUnstakedInfo[_poolId].firstReqTimestamp = 0;
 
             emit ActivePool(_pools[_poolId]);
         }
@@ -634,7 +636,8 @@ contract DelegateNode is
 
         if (remainingStakeAmount == 0) {
             _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
-            delete poolUnstakedInfo[_poolId];
+            // delete poolUnstakedInfo[_poolId];
+            poolUnstakedInfo[_poolId].firstReqTimestamp = 0;
         } else if (remainingStakeAmount > 0) {
             _pools[_poolId].status = PoolStatus.WAIT_ADMIN_RETURNED_FUND;
         }
@@ -732,5 +735,11 @@ contract DelegateNode is
         uint32 _poolId
     ) public view returns (uint256[] memory) {
         return (poolUnstakeReqIds[_poolId].values);
+    }
+
+    function getStakedUsersOf(
+        uint32 _poolId
+    ) public view returns (address[] memory) {
+        return stakedUsersOf[_poolId].values;
     }
 }
