@@ -332,7 +332,8 @@ contract DelegateNode is
         require(poolInfo.id == poolId, Errors.INV_POOL_ID);
         require(poolInfo.minerAddress == msg.sender, Errors.INV_ADD);
         require(
-            poolInfo.status == PoolStatus.ADMIN_WITHDREW || poolInfo.status == PoolStatus.UNSTAKE_BUFFERING,
+            poolInfo.status == PoolStatus.ADMIN_WITHDREW ||
+                poolInfo.status == PoolStatus.UNSTAKE_BUFFERING,
             Errors.INV_POOL_STATUS
         );
 
@@ -410,6 +411,29 @@ contract DelegateNode is
 
     function getWorkerHubUnstakeDelayTime() public view returns (uint40) {
         return IWorkerHub(workerhubAddress).unstakeDelayTime();
+    }
+
+    function isAvailableToUnstake(
+        uint32 _poolId,
+        address _caller
+    ) public view returns (bool) {
+        require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
+
+        PoolStatus poolStatus = _pools[_poolId].status;
+
+        if (
+            poolStatus != PoolStatus.INACTIVE &&
+            poolStatus != PoolStatus.ADMIN_WITHDREW &&
+            poolStatus != PoolStatus.UNSTAKE_BUFFERING &&
+            poolStatus != PoolStatus.WAIT_ADMIN_RETURNED_FUND
+        ) return false;
+
+        if (
+            !(userUnstakeReqIds[_poolId][_caller].isEmpty() &&
+                _userPoolInfo[_poolId][_caller].isStaked)
+        ) return false;
+
+        return true;
     }
 
     function unstake(uint32 _poolId) public nonReentrant whenNotPaused {
@@ -521,8 +545,9 @@ contract DelegateNode is
         if (block.timestamp > poolUnstakedInfo[_poolId].bufferTimeExpireAt)
             revert PrematureRestake();
         //Check msg sender has already staked
-        if (_userPoolInfo[_poolId][msg.sender].isStaked)
-            revert("The user is still staking");
+        // if (_userPoolInfo[_poolId][msg.sender].isStaked)
+        //     revert("The user is still staking");
+        // ==> Allow restake multiple time
 
         uint256 reqId = userUnstakeReqIds[_poolId][msg.sender].at(0);
         if (unstakedReqInfo[reqId].unstaker != msg.sender)
