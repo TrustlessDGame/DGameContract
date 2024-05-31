@@ -332,7 +332,7 @@ contract DelegateNode is
         require(poolInfo.id == poolId, Errors.INV_POOL_ID);
         require(poolInfo.minerAddress == msg.sender, Errors.INV_ADD);
         require(
-            poolInfo.status == PoolStatus.ADMIN_WITHDREW,
+            poolInfo.status == PoolStatus.ADMIN_WITHDREW || poolInfo.status == PoolStatus.UNSTAKE_BUFFERING,
             Errors.INV_POOL_STATUS
         );
 

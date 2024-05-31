@@ -6,7 +6,7 @@ interface IDelegateNode {
         INACTIVE,
         ACTIVE,
         ADMIN_WITHDREW,
-        ADMIN_RETURNED_FUND,
+        ADMIN_RETURNED_FUND, // DONT USE this
         UNSTAKE_BUFFERING, // UNSTAKE_BUFFERING can back to ADMIN_WITHDREW or WAIT_ADMIN_RETURNED_FUND
         WAIT_ADMIN_RETURNED_FUND // 21 days, after this 21 days, admin return fund to pool, and pool back to inactive, user claim unstake amount if exist in list unstake
     }
