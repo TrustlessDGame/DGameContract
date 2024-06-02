@@ -180,7 +180,7 @@ contract DelegateNode is
             stakedUsersOf[poolId].insert(msg.sender);
         }
 
-        userPoolInfo.stakedAmount += msg.value;
+        userPoolInfo.stakedAmount += amount;
     }
 
     function _stake(uint32 _poolId, uint256 _amount) internal {
