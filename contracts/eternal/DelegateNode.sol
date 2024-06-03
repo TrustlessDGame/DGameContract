@@ -287,11 +287,11 @@ contract DelegateNode is
             Errors.INV_ADMIN_WITHDRAW
         );
         require(
-            clonedPoolInfo.stakedAmount == clonedPoolInfo.amountToActive,
+            clonedPoolInfo.stakedAmount >= clonedPoolInfo.amountToActive,
             Errors.INV_ADMIN_WITHDRAW
         );
 
-        uint256 staked = clonedPoolInfo.stakedAmount;
+        uint256 staked = clonedPoolInfo.amountToActive;
         _pools[poolId].stakedAmount = 0;
         _pools[poolId].status = PoolStatus.ADMIN_WITHDREW;
 
