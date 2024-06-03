@@ -553,7 +553,7 @@ contract DelegateNode is
             stakedUsersOf[_poolId].insert(msg.sender);
         }
         _userPoolInfo[_poolId][msg.sender].isStaked = true;
-        _userPoolInfo[_poolId][msg.sender].stakedAmount += restakeableAmount;
+        _userPoolInfo[_poolId][msg.sender].stakedAmount = restakeableAmount;
 
         if (getRemainingStakeForActivation(_poolId) == 0) {
             _pools[_poolId].status = PoolStatus.ADMIN_WITHDREW;
