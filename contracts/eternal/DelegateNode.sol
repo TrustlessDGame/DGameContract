@@ -488,7 +488,7 @@ contract DelegateNode is
                     bufferTimeExpireAt: bufferingTimeExpireAt,
                     totalUnstakedAmount: poolUnstakedInfo[_poolId]
                         .totalUnstakedAmount + unstakeAmount,
-                    reimbursementAmount: 0
+                    reimbursementAmount: poolUnstakedInfo[_poolId].reimbursementAmount
                 });
             } else {
                 poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
