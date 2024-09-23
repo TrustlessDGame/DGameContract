@@ -11,12 +11,14 @@
     "hh:verify": "npx hardhat verify",
     "blockscout:verify": "npx hardhat blockscout-verify",
     "ts:run": "npx ts-node",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deployDelegate:zkTest": "hardhat --config hardhat.zk.config.js --network zkTestnet deploy-zksync --script deployDelegateNode.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@alch/alchemy-web3": "^1.2.4",
+    "@matterlabs/hardhat-zksync": "0.2.0",
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@nomiclabs/hardhat-truffle5": "^2.0.7",
@@ -36,6 +38,7 @@
     "hardhat-gas-reporter": "^1.0.8",
     "thumbor": "^0.1.5",
     "truffle": "^5.4.27",
+    "ts-node": "^10.9.2",
     "typescript": "^4.6.4"
   },
   "dependencies": {
