@@ -1,12 +1,10 @@
 const { deployOrUpgrade } = require("./utils");
 
-const archiveConstructor = ["0x0Aeb9DddE49632d59CE86a7d95334073ECE73Fdd", "0x0Aeb9DddE49632d59CE86a7d95334073ECE73Fdd"];
-
 async function main(hre) {
     console.log(`Deploying Delegate Node...`);
     const networkConfig = hre.network.config;
     try {
-        const constructorArguments = [...archiveConstructor, process.env.WALLET_PUBLIC_KEY];
+        const constructorArguments = [process.env.ADMIN_ADDRESS, process.env.POOL_ADMIN_ADDRESS, process.env.MODERATOR_ADDRESS];
         const contract = await deployOrUpgrade(process.env.DELETEGATE_NODE_ADDRESS, 'DelegateNode', constructorArguments, networkConfig, true);
         if (!contract) {
             throw new Error(`Failed to deploy Delegate Node`);
