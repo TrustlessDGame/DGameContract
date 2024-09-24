@@ -81,6 +81,7 @@ interface IDelegateNode {
     event AdminWithdrawByPool(address indexed to, uint256 amount, PoolInfo poolInfo);
     event AdminWithdraw(address indexed to, uint256 amount);
 
+    event TokenChanged(address indexed oldToken, address indexed newToken);
     event AdminChanged(address indexed oldAdmin, address indexed newAdmin);
     event ModeratorChanged(address indexed oldModerator, address indexed newModerator);
     event AmountToActiveUpdated(address indexed caller, uint32 indexed poolId, uint256 oldAmount, uint256 newAmount);

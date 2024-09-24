@@ -20,10 +20,13 @@ contract DelegateNode is
     using Set for Set.Uint256Set;
 
     uint256 private constant PERCENTAGE_DENOMINATOR = 10_000;
+    bytes4 constant private SELECTOR_TRANSFER = bytes4(keccak256(bytes('transfer(address,uint256)')));
+    bytes4 constant private SELECTOR_TRANSFER_FROM = bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
 
     receive() external payable {}
 
     function initialize(
+        address wToken,
         address admin,
         address poolAdmin,
         address moderator
@@ -33,6 +36,7 @@ contract DelegateNode is
         __ReentrancyGuard_init();
 
         _nextPoolId = 1;
+        _wToken = wToken;
         _admin = admin;
         _poolAdmin = poolAdmin;
         _moderator = moderator;
@@ -80,6 +84,12 @@ contract DelegateNode is
 
         emit ModeratorChanged(_moderator, newModerator);
         _moderator = newModerator;
+    }
+
+    function adminUpdateToken(address newToken) external onlyAdmin {
+        require(newToken != address(0), Errors.INV_ADD);
+        emit TokenChanged(_wToken, newToken);
+        _wToken = newToken;
     }
 
     function adminUpdateAmountToActive(
@@ -184,7 +194,7 @@ contract DelegateNode is
     }
 
     function _stake(uint32 _poolId, uint256 _amount) internal {
-        require(_amount > 0, Errors.INV_ADD);
+        require(_amount > 0, Errors.INV_STAKE_AMOUNT);
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
         PoolInfo memory poolInfo = _pools[_poolId];
@@ -227,24 +237,18 @@ contract DelegateNode is
         }
 
         emit Stake(msg.sender, _amount, _pools[_poolId]);
+        safeTransferErc20From(msg.sender, address(this), _amount);
     }
 
-    function stake(uint32 _poolId) public payable nonReentrant whenNotPaused {
-        _stake(_poolId, msg.value);
+    function stake(uint32 _poolId, uint256 _value) public nonReentrant whenNotPaused {
+        _stake(_poolId, _value);
     }
 
     function stakeMultiple(
         uint32[] calldata _poolIds,
         uint256[] calldata _amounts
-    ) external payable nonReentrant whenNotPaused {
+    ) external nonReentrant whenNotPaused {
         require(_poolIds.length == _amounts.length, Errors.INV_ADD);
-        uint256 totalAmount = 0;
-
-        for (uint32 i = 0; i < _amounts.length; i++) {
-            totalAmount += _amounts[i];
-        }
-
-        require(totalAmount == msg.value, Errors.INV_ADD);
 
         for (uint32 i = 0; i < _poolIds.length; i++) {
             uint32 poolId = _poolIds[i];
@@ -268,9 +272,40 @@ contract DelegateNode is
         poolInfo.minerAddress = minerAddress;
     }
 
-    function safeTransferNative(address _to, uint256 _value) internal {
-        (bool success, ) = _to.call{value: _value}("");
-        if (!success) revert FailedTransfer();
+    function safeTransferErc20(
+        address _to,
+        uint256 _value
+    ) internal {
+        require(_wToken != address(0), Errors.INV_ADD);
+        (bool success, bytes memory data) = _wToken.call(
+            abi.encodeWithSelector(
+                SELECTOR_TRANSFER,
+                _to,
+                _value
+            )
+        );
+        if (!success || (data.length > 0 && !abi.decode(data, (bool)))) {
+            revert FailedTransfer();
+        }
+    }
+
+    function safeTransferErc20From(
+        address _from,
+        address _to,
+        uint256 _value
+    ) internal {
+        require(_wToken != address(0), Errors.INV_ADD);
+        (bool success, bytes memory data) = _wToken.call(
+            abi.encodeWithSelector(
+                SELECTOR_TRANSFER_FROM,
+                _from,
+                _to,
+                _value
+            )
+        );
+        if (!success || (data.length > 0 && !abi.decode(data, (bool)))) {
+            revert FailedTransfer();
+        }
     }
 
     function adminWithdrawByPoolId(
@@ -295,20 +330,18 @@ contract DelegateNode is
         _pools[poolId].stakedAmount = 0;
         _pools[poolId].status = PoolStatus.ADMIN_WITHDREW;
 
-        safeTransferNative(to, staked);
-
         emit AdminWithdrawByPool(to, staked, clonedPoolInfo);
+
+        safeTransferErc20(to, staked);
         return true;
     }
 
     function minerReceiveReward(
         uint32 poolId,
         uint256 amount
-    ) external payable whenNotPaused {
+    ) external whenNotPaused {
         require(poolId > 0 && poolId < _nextPoolId, Errors.INV_POOL_ID);
         require(amount > 0, Errors.INV_ADD);
-
-        if (amount != msg.value) revert InvalidTransferedValue();
 
         PoolInfo memory poolInfo = _pools[poolId];
         require(poolInfo.id == poolId, Errors.INV_POOL_ID);
@@ -337,6 +370,7 @@ contract DelegateNode is
         }
 
         emit MinerReceiveReward(msg.sender, poolId, amount, feeAmount);
+        safeTransferErc20From(msg.sender, address(this), amount);
     }
 
     function userGetRewardAmount(
@@ -364,9 +398,8 @@ contract DelegateNode is
         _userInfo[msg.sender].totalReward -= amount;
         _userInfo[msg.sender].totalClaimed += amount;
 
-        safeTransferNative(msg.sender, amount);
-
         emit UserClaimReward(msg.sender, poolId, amount);
+        safeTransferErc20(msg.sender, amount);
     }
 
     function userClaimFullRewardOnPool(
@@ -386,9 +419,8 @@ contract DelegateNode is
         _userInfo[msg.sender].totalReward -= amount;
         _userInfo[msg.sender].totalClaimed += amount;
 
-        safeTransferNative(msg.sender, amount);
-
         emit UserClaimReward(msg.sender, poolId, amount);
+        safeTransferErc20(msg.sender, amount);
     }
 
     function getWorkerHubUnstakeDelayTime() public view returns (uint40) {
@@ -465,7 +497,7 @@ contract DelegateNode is
             _pools[_poolId].stakedAmount -= unstakeAmount;
             _userInfo[msg.sender].reserve1 += unstakeAmount;
 
-            safeTransferNative(msg.sender, unstakeAmount);
+            safeTransferErc20(msg.sender, unstakeAmount);
         } else if (
             poolStatus == PoolStatus.ADMIN_WITHDREW ||
             poolStatus == PoolStatus.UNSTAKE_BUFFERING ||
@@ -647,7 +679,7 @@ contract DelegateNode is
             poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
         }
 
-        safeTransferNative(msg.sender, claimableAmount);
+        safeTransferErc20(msg.sender, claimableAmount);
 
         emit UserClaimUnstakedAmount(msg.sender, _poolId, claimableAmount);
     }
@@ -659,8 +691,9 @@ contract DelegateNode is
     }
 
     function minerRefundPoolBalance(
-        uint32 _poolId
-    ) external payable whenNotPaused {
+        uint32 _poolId,
+        uint256 _value
+    ) external whenNotPaused {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
         if (_pools[_poolId].status != PoolStatus.WAIT_ADMIN_RETURNED_FUND)
             revert InvalidPoolStatus();
@@ -673,12 +706,13 @@ contract DelegateNode is
         address poolMiner = _pools[_poolId].minerAddress;
         uint256 refundValue = _pools[_poolId].amountToActive;
         if (msg.sender != poolMiner) revert SenderNotPoolMiner();
-        if (msg.value != refundValue) revert RefundedValueNotEnough();
+        if (_value != refundValue) revert RefundedValueNotEnough();
 
-        _pools[_poolId].stakedAmount += msg.value;
+        _pools[_poolId].stakedAmount += _value;
         _pools[_poolId].status = PoolStatus.INACTIVE;
 
         emit MinerRefundPoolBalance(poolMiner, _poolId, refundValue);
+        safeTransferErc20From(msg.sender, address(this), _value);
     }
 
     function setDefaultUnstakeBufferTime(

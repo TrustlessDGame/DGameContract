@@ -5,6 +5,7 @@ import {Set} from "../libs/Set.sol";
 import {IDelegateNode} from "../interfaces/IDelegateNode.sol";
 
 abstract contract DelegateNodeStorage is IDelegateNode {
+    address public _wToken;
     address public _admin;
     address public _poolAdmin;
     uint32 public _nextPoolId;
