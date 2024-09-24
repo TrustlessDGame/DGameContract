@@ -237,7 +237,7 @@ contract DelegateNode is
         }
 
         emit Stake(msg.sender, _amount, _pools[_poolId]);
-        safeTransferErc20From(msg.sender, address(this), _amount);
+        _safeTransferErc20From(msg.sender, address(this), _amount);
     }
 
     function stake(uint32 _poolId, uint256 _value) public nonReentrant whenNotPaused {
@@ -272,7 +272,7 @@ contract DelegateNode is
         poolInfo.minerAddress = minerAddress;
     }
 
-    function safeTransferErc20(
+    function _safeTransferErc20(
         address _to,
         uint256 _value
     ) internal {
@@ -289,7 +289,7 @@ contract DelegateNode is
         }
     }
 
-    function safeTransferErc20From(
+    function _safeTransferErc20From(
         address _from,
         address _to,
         uint256 _value
@@ -332,7 +332,7 @@ contract DelegateNode is
 
         emit AdminWithdrawByPool(to, staked, clonedPoolInfo);
 
-        safeTransferErc20(to, staked);
+        _safeTransferErc20(to, staked);
         return true;
     }
 
@@ -370,7 +370,7 @@ contract DelegateNode is
         }
 
         emit MinerReceiveReward(msg.sender, poolId, amount, feeAmount);
-        safeTransferErc20From(msg.sender, address(this), amount);
+        _safeTransferErc20From(msg.sender, address(this), amount);
     }
 
     function userGetRewardAmount(
@@ -399,7 +399,7 @@ contract DelegateNode is
         _userInfo[msg.sender].totalClaimed += amount;
 
         emit UserClaimReward(msg.sender, poolId, amount);
-        safeTransferErc20(msg.sender, amount);
+        _safeTransferErc20(msg.sender, amount);
     }
 
     function userClaimFullRewardOnPool(
@@ -420,7 +420,7 @@ contract DelegateNode is
         _userInfo[msg.sender].totalClaimed += amount;
 
         emit UserClaimReward(msg.sender, poolId, amount);
-        safeTransferErc20(msg.sender, amount);
+        _safeTransferErc20(msg.sender, amount);
     }
 
     function getWorkerHubUnstakeDelayTime() public view returns (uint40) {
@@ -497,7 +497,7 @@ contract DelegateNode is
             _pools[_poolId].stakedAmount -= unstakeAmount;
             _userInfo[msg.sender].reserve1 += unstakeAmount;
 
-            safeTransferErc20(msg.sender, unstakeAmount);
+            _safeTransferErc20(msg.sender, unstakeAmount);
         } else if (
             poolStatus == PoolStatus.ADMIN_WITHDREW ||
             poolStatus == PoolStatus.UNSTAKE_BUFFERING ||
@@ -679,7 +679,7 @@ contract DelegateNode is
             poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
         }
 
-        safeTransferErc20(msg.sender, claimableAmount);
+        _safeTransferErc20(msg.sender, claimableAmount);
 
         emit UserClaimUnstakedAmount(msg.sender, _poolId, claimableAmount);
     }
@@ -712,7 +712,7 @@ contract DelegateNode is
         _pools[_poolId].status = PoolStatus.INACTIVE;
 
         emit MinerRefundPoolBalance(poolMiner, _poolId, refundValue);
-        safeTransferErc20From(msg.sender, address(this), _value);
+        _safeTransferErc20From(msg.sender, address(this), _value);
     }
 
     function setDefaultUnstakeBufferTime(
