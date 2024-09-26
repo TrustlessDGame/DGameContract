@@ -8,8 +8,6 @@ typechain-types
 #Hardhat files
 cache
 artifacts
-artifacts-zk
-cache-zk
 
 # python
 __pycache__/
@@ -50,3 +48,9 @@ package-lock.json
 .openzeppelin/unknown-22213-regtest.json
 
 deploy
+
+#zk
+.upgradable/zkSync-era-test-node.json
+deployments-zk
+artifacts-zk
+cache-zk
