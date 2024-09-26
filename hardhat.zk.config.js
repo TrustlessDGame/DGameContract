@@ -33,15 +33,23 @@ module.exports = {
       zksync: true,
       verifyURL: "https://zksync2-mainnet-explorer.zksync.io/contract_verification",
     },
+    localhost: {
+        url: "http://localhost:8545",
+        allowUnlimitedContractSize: true,
+        mining: {
+            auto: true,
+            interval: 5000,
+        },
+    },
     dockerizedNode: {
-      url: "http://localhost:3050",
-      ethNetwork: "http://localhost:8545",
-      zksync: true,
+        url: "http://localhost:3050",
+        ethNetwork: "http://localhost:8545",
+        zksync: true,
     },
     inMemoryNode: {
-      url: "http://127.0.0.1:8011",
-      ethNetwork: "localhost",
-      zksync: true,
+        url: "http://127.0.0.1:8011",
+        ethNetwork: "localhost", // in-memory node doesn't support eth node; removing this line will cause an error
+        zksync: true,
     },
     zkTestnet: {
       url: "https://rpc.testnet.supersonic2.bvm.network/",
@@ -55,4 +63,11 @@ module.exports = {
   mocha: {
     timeout: 40000000,
   },
+  zksolc: {
+        version: "latest",
+        settings: {
+            // find all available options in the official documentation
+            // https://era.zksync.io/docs/tools/hardhat/hardhat-zksync-solc.html#configuration
+        },
+    },
 };
