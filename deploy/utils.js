@@ -30,7 +30,7 @@ async function deployOrUpgradeZk(wallet, address, contractName, constructorParam
         // Upgrade existing contract
         try {
             let contract = await zkUpgrades.upgradeProxy(deployer.zkWallet, address, artifact);
-            await contract.deployed();
+            await contract.waitForDeployment();
             console.log(`${contractName} contract is upgraded to ${address}`);
             return contract;
         } catch (e) {
@@ -41,8 +41,8 @@ async function deployOrUpgradeZk(wallet, address, contractName, constructorParam
         try {
             const options = isInitializable ? { initializer: 'initialize' } : {};
             let contract = await zkUpgrades.deployProxy(deployer.zkWallet, artifact, constructorParams, options);
-            await contract.deployed();
-            const deployedAddress = contract.address;
+            await contract.waitForDeployment();
+            const deployedAddress = await contract.getAddress();
             console.log(`${contractName} contract is deployed to ${deployedAddress}`);
             return contract;
         } catch (e) {
@@ -58,15 +58,15 @@ async function deployOrUpgradeLocal(address, contractName, constructorParams, is
     return address
         ? await (async () => {
             var contract = await upgrades.upgradeProxy(address, contractFactory);
-            await contract.deployed();
+            await contract.waitForDeployment();
             console.log(`${contractName} contract is upgraded to ${address}`);
             return contract;
         })()
         : await (async () => {
             const options = isInitializable ? { initializer: 'initialize' } : {};
             var contract = await upgrades.deployProxy(contractFactory, constructorParams, options);
-            await contract.deployed();
-            console.log(`${contractName} contract is deployed to ${contract.address}`);
+            await contract.waitForDeployment();
+            console.log(`${contractName} contract is deployed to ${await contract.getAddress()}`);
             return contract;
         })();
 }
@@ -97,7 +97,7 @@ const deployContract = async (contractArtifactName, constructorArguments = [], o
 
     // Display contract deployment info
     log(`\n"${artifact.contractName}" was successfully deployed:`);
-    log(` - Contract address: ${contract.address}`);
+    log(` - Contract address: ${await contract.getAddress()}`);
     log(` - Contract source: ${fullContractSource}`);
     log(` - Encoded constructor arguments: ${constructorArgs}\n`);
 
@@ -113,7 +113,7 @@ const deployContractUpgradable = async (contractArtifactName, wallet, constructo
     console.log(constructorArguments);
     const contract = await upgrades.deployProxy(contractFactory, constructorArguments, options);
     console.log('d');
-    await contract.deployed();
+    await contract.waitForDeployment();
     console.log('e');
     return contract;
 };
