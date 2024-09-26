@@ -272,42 +272,6 @@ contract DelegateNode is
         poolInfo.minerAddress = minerAddress;
     }
 
-    function _safeTransferErc20(
-        address _to,
-        uint256 _value
-    ) internal {
-        require(_wToken != address(0), Errors.INV_ADD);
-        (bool success, bytes memory data) = _wToken.call(
-            abi.encodeWithSelector(
-                SELECTOR_TRANSFER,
-                _to,
-                _value
-            )
-        );
-        if (!success || (data.length > 0 && !abi.decode(data, (bool)))) {
-            revert FailedTransfer();
-        }
-    }
-
-    function _safeTransferErc20From(
-        address _from,
-        address _to,
-        uint256 _value
-    ) internal {
-        require(_wToken != address(0), Errors.INV_ADD);
-        (bool success, bytes memory data) = _wToken.call(
-            abi.encodeWithSelector(
-                SELECTOR_TRANSFER_FROM,
-                _from,
-                _to,
-                _value
-            )
-        );
-        if (!success || (data.length > 0 && !abi.decode(data, (bool)))) {
-            revert FailedTransfer();
-        }
-    }
-
     function adminWithdrawByPoolId(
         uint32 poolId,
         address to
@@ -745,5 +709,44 @@ contract DelegateNode is
         uint32 _poolId
     ) public view returns (address[] memory) {
         return stakedUsersOf[_poolId].values;
+    }
+
+    //transfer helper
+
+
+    function _safeTransferErc20(
+        address _to,
+        uint256 _value
+    ) internal {
+        require(_wToken != address(0), Errors.INV_ADD);
+        (bool success, bytes memory data) = _wToken.call(
+            abi.encodeWithSelector(
+                SELECTOR_TRANSFER,
+                _to,
+                _value
+            )
+        );
+        if (!success || (data.length > 0 && !abi.decode(data, (bool)))) {
+            revert FailedTransfer();
+        }
+    }
+
+    function _safeTransferErc20From(
+        address _from,
+        address _to,
+        uint256 _value
+    ) internal {
+        require(_wToken != address(0), Errors.INV_ADD);
+        (bool success, bytes memory data) = _wToken.call(
+            abi.encodeWithSelector(
+                SELECTOR_TRANSFER_FROM,
+                _from,
+                _to,
+                _value
+            )
+        );
+        if (!success || (data.length > 0 && !abi.decode(data, (bool)))) {
+            revert FailedTransfer();
+        }
     }
 }
