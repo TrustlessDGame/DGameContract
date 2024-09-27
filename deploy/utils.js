@@ -78,22 +78,25 @@ const deployContract = async (contractArtifactName, constructorArguments = [], o
 
     log(`\nStarting deployment process of "${contractArtifactName}"...`);
 
-    const wallet = options.wallet ?? getMasterWallet();
+    const wallet = options?.wallet ?? getMasterWallet();
     const deployer = new Deployer(hre, wallet);
     const artifact = await deployer.loadArtifact(contractArtifactName).catch((error) => {
         if (error?.message?.includes(`Artifact for contract "${contractArtifactName}" not found.`)) {
             console.error(error.message);
-            throw new Error(`⛔️ Please make sure you have compiled your contracts or specified the correct contract name!`);
+            throw `⛔️ Please make sure you have compiled your contracts or specified the correct contract name!`;
         } else {
             throw error;
         }
     });
 
+
     // Deploy the contract to zkSync
     const contract = await deployer.deploy(artifact, constructorArguments);
+    await contract.waitForDeployment();
 
     const constructorArgs = contract.interface.encodeDeploy(constructorArguments);
     const fullContractSource = `${artifact.sourceName}:${artifact.contractName}`;
+
 
     // Display contract deployment info
     log(`\n"${artifact.contractName}" was successfully deployed:`);
