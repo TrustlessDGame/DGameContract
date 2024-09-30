@@ -36,7 +36,7 @@ const deployOrUpgradeZk = async (wallet, contractName, constructorParams = []) =
             { initializer: 'initialize' }, 
             true
         );
-        await contract.deployed();
+        await contract.waitForDeployment();
         return contract;
     } catch (e) {
         console.log("Deployment failed:", e);
