@@ -283,7 +283,7 @@ contract DelegateNode is
 
         require(
             clonedPoolInfo.status == PoolStatus.ACTIVE,
-            Errors.INV_ADMIN_WITHDRAW
+            Errors.INV_POOL_STATUS
         );
         require(
             clonedPoolInfo.stakedAmount >= clonedPoolInfo.amountToActive,
@@ -334,7 +334,6 @@ contract DelegateNode is
         }
 
         emit MinerReceiveReward(msg.sender, poolId, amount, feeAmount);
-        _safeTransferErc20From(msg.sender, address(this), amount);
     }
 
     function userGetRewardAmount(
