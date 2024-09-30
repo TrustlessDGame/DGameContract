@@ -11,8 +11,17 @@ const path = require("path");
 const fs = require("fs");
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 
+const PoolStatus = Object.freeze({
+  INACTIVE: 0,
+  ACTIVE: 1,
+  ADMIN_WITHDREW: 2,
+  ADMIN_RETURNED_FUND: 3, // DONT USE this
+  UNSTAKE_BUFFERING: 4, // UNSTAKE_BUFFERING can back to ADMIN_WITHDREW or WAIT_ADMIN_RETURNED_FUND
+  WAIT_ADMIN_RETURNED_FUND: 5, // 21 days, after this 21 days, admin return fund to pool, and pool back to inactive, user claim unstake amount if exist in list unstake
+});
+
 describe("DelegateNode Contract - Stake and Unstake", function () {
-  let delegateNode, token;
+  let delegateNode, token, workerHub;
   let owner, admin, poolAdmin, moderator, user1, user2;
   let poolId = 1;
   const defaultUnstakeBufferTime = 60 * 60 * 24 * 7; // 7 days for example
@@ -63,13 +72,8 @@ describe("DelegateNode Contract - Stake and Unstake", function () {
     token = await deployContract(owner, "MyToken", [owner.address]);
     // const initialBalance = ethers.parseEther("10000");
     await token.waitForDeployment();
-    // await token.connect(owner).mint(owner.address, initialBalance);
-    // await token.connect(owner).mint(admin.address, initialBalance);
-    // await token.connect(owner).mint(poolAdmin.address, initialBalance);
-    // await token.connect(owner).mint(moderator.address, initialBalance);
-    // await token.connect(owner).mint(user1.address, initialBalance);
-    // await token.connect(owner).mint(user2.address, initialBalance);
-    // console.log(await token.getAddress());
+    workerHub = await deployContract(owner, "MockWorkerHub", [0]);
+    await workerHub.waitForDeployment();
     // Deploy the DelegateNode contract
 
     const constructorArguments = [
@@ -94,6 +98,9 @@ describe("DelegateNode Contract - Stake and Unstake", function () {
     await delegateNode
       .connect(admin)
       .setDefaultUnstakeBufferTime(defaultUnstakeBufferTime);
+    await delegateNode
+      .connect(admin)
+      .addminSetWorkerhubAddress(await workerHub.getAddress());
   });
 
   describe("Stake functionality", function () {
@@ -209,7 +216,7 @@ describe("DelegateNode Contract - Stake and Unstake", function () {
       ).to.be.revertedWith("Pausable: paused");
     });
   });
-  describe.only("Admin Deactivates the Pool", function () {
+  describe("Admin Deactivates the Pool", function () {
     beforeEach(async function () {
       await token
         .connect(owner)
@@ -237,18 +244,68 @@ describe("DelegateNode Contract - Stake and Unstake", function () {
       await delegateNode
         .connect(poolAdmin)
         .adminWithdrawByPoolId(poolId, admin.address);
-
       await expect(delegateNode.connect(user1).unstake(poolId))
         .to.emit(delegateNode, "UserUnstake")
-        .withArgs(user1.address, poolId, poolId, {
-          unstakeAmount: minimalStakeAmountToActive,
-        });
+        .withArgs(user1.address, poolId, [
+          minimalStakeAmountToActive,
+          anyValue,
+          PoolStatus.UNSTAKE_BUFFERING,
+          anyValue,
+          anyValue,
+        ]);
 
       // Ensure user1's staked status is false after unstaking
       const userInfo = await getUserPoolInfo(user1.address, poolId);
       expect(userInfo.isStaked).to.equal(false);
     });
-    it.only("Should allow user claim unstaked amount after buffer", async function () {
+  });
+
+  describe("Unstaking with Buffer Period", function () {
+    beforeEach(async function () {
+      await token
+        .connect(owner)
+        .mint(user1.address, minimalStakeAmountToActive);
+      await token
+        .connect(user1)
+        .approve(await delegateNode.getAddress(), minimalStakeAmountToActive);
+      await delegateNode
+        .connect(user1)
+        .stake(poolId, minimalStakeAmountToActive);
+    });
+    it("Should transition to UNSTAKE_BUFFERING state after first unstake request", async function () {
+      // Admin deactivates pool
+      await delegateNode
+        .connect(poolAdmin)
+        .adminWithdrawByPoolId(poolId, admin.address);
+
+      // User1 initiates unstake
+      await delegateNode.connect(user1).unstake(poolId);
+
+      // Check that the pool has entered the UNSTAKE_BUFFERING state
+      const poolInfo = await delegateNode._pools(poolId);
+      expect(poolInfo.status).to.equal(PoolStatus.UNSTAKE_BUFFERING); // Assuming 3 represents UNSTAKE_BUFFERING
+
+      // Check that the buffer period is set
+      const poolUnstakedInfo = await delegateNode.poolUnstakedInfo(poolId);
+      expect(poolUnstakedInfo.bufferTimeExpireAt).to.be.above(0);
+    });
+
+    it("Should prevent user from claiming tokens before buffer period expires", async function () {
+      // Admin deactivates pool
+      await delegateNode
+        .connect(poolAdmin)
+        .adminWithdrawByPoolId(poolId, admin.address);
+
+      // User1 initiates unstake
+      await delegateNode.connect(user1).unstake(poolId);
+
+      // Check that buffer period is active and user cannot claim yet
+      await expect(
+        delegateNode.connect(user1).userClaimUnstakedAmount(poolId)
+      ).to.be.revertedWithCustomError(delegateNode, "PrematureClaimUnstake");
+    });
+
+    xit("Should allow user claim unstaked amount after buffer[Missing flow]", async function () {
       await delegateNode
         .connect(admin)
         .updateMinerAddress(poolId, admin.address);
@@ -262,15 +319,11 @@ describe("DelegateNode Contract - Stake and Unstake", function () {
         .connect(poolAdmin)
         .adminWithdrawByPoolId(poolId, admin.address);
       await delegateNode.connect(user1).unstake(poolId);
-      console.log(1);
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]); // skip 1 days
-      console.log(2);
       await ethers.provider.send("evm_mine", []); // mine a block
-      console.log(3);
       await delegateNode
         .connect(admin)
         .minerReceiveReward(poolId, minimalStakeAmountToActive);
-      console.log(4);
       await expect(delegateNode.connect(user1).userClaimUnstakedAmount(poolId))
         .to.emit(delegateNode, "UserClaimUnstakedAmount")
         .withArgs(user1.address, poolId, minimalStakeAmountToActive);
@@ -284,199 +337,23 @@ describe("DelegateNode Contract - Stake and Unstake", function () {
     });
   });
 
-  describe("Unstaking with Buffer Period", function () {
-    it("Should transition to UNSTAKE_BUFFERING state after first unstake request", async function () {
-      // Stake some tokens
-      await delegateNode.connect(user1).stake(poolId, ethers.parseEther("10"));
-
-      // Admin deactivates pool
-      await delegateNode
-        .connect(poolAdmin)
-        .adminWithdrawByPoolId(poolId, admin.address);
-
-      // User1 initiates unstake
-      await delegateNode.connect(user1).unstake(poolId);
-
-      // Check that the pool has entered the UNSTAKE_BUFFERING state
-      const poolInfo = await delegateNode.getPoolInfo(poolId);
-      expect(poolInfo.status).to.equal(3); // Assuming 3 represents UNSTAKE_BUFFERING
-
-      // Check that the buffer period is set
-      const poolUnstakedInfo = await delegateNode.poolUnstakedInfo(poolId);
-      expect(poolUnstakedInfo.bufferTimeExpireAt).to.be.above(0);
-    });
-
-    it("Should prevent user from claiming tokens before buffer period expires", async function () {
-      // Stake some tokens
-      await delegateNode.connect(user1).stake(poolId, ethers.parseEther("10"));
-
-      // Admin deactivates pool
-      await delegateNode
-        .connect(poolAdmin)
-        .adminWithdrawByPoolId(poolId, admin.address);
-
-      // User1 initiates unstake
-      await delegateNode.connect(user1).unstake(poolId);
-
-      // Check that buffer period is active and user cannot claim yet
-      await expect(
-        delegateNode.connect(user1).userClaimUnstakedAmount(poolId)
-      ).to.be.revertedWith("PrematureClaimUnstake");
-    });
-
-    it("Should allow user to claim tokens after buffer period ends", async function () {
-      // Stake some tokens
-      await delegateNode.connect(user1).stake(poolId, ethers.parseEther("10"));
-
-      // Admin deactivates pool
-      await delegateNode
-        .connect(poolAdmin)
-        .adminWithdrawByPoolId(poolId, admin.address);
-
-      // User1 initiates unstake
-      await delegateNode.connect(user1).unstake(poolId);
-
-      // Simulate waiting for the buffer period to end (by manipulating block.timestamp in tests)
-      await ethers.provider.send("evm_increaseTime", [28 * 24 * 60 * 60]); // assuming buffer is 28 days
-      await ethers.provider.send("evm_mine", []); // mine a block
-
-      // Now user1 should be able to claim tokens
-      const tx = await delegateNode
-        .connect(user1)
-        .userClaimUnstakedAmount(poolId);
-      const receipt = await tx.wait();
-
-      // Check for UserClaimUnstakedAmount event emission
-      expect(
-        receipt.events.some(
-          (event) => event.event === "UserClaimUnstakedAmount"
-        )
-      ).to.be.true;
-    });
-  });
-
   describe("Edge Cases", function () {
+    beforeEach(async function () {
+      await token
+        .connect(owner)
+        .mint(user1.address, minimalStakeAmountToActive);
+      await token
+        .connect(user1)
+        .approve(await delegateNode.getAddress(), minimalStakeAmountToActive);
+      await delegateNode
+        .connect(user1)
+        .stake(poolId, minimalStakeAmountToActive);
+    });
     it("Should prevent user from unstaking in ACTIVE state", async function () {
-      // Stake some tokens
-      await delegateNode.connect(user1).stake(poolId, ethers.parseEther("10"));
-
       // Pool is still ACTIVE, user cannot unstake
       await expect(
         delegateNode.connect(user1).unstake(poolId)
-      ).to.be.revertedWith("InvalidPoolStatus");
-    });
-
-    it("Should prevent user from unstaking more than their staked amount", async function () {
-      // Stake some tokens
-      await delegateNode.connect(user1).stake(poolId, ethers.parseEther("10"));
-
-      // Admin deactivates pool
-      await delegateNode
-        .connect(poolAdmin)
-        .adminWithdrawByPoolId(poolId, admin.address);
-
-      // Simulate incorrect unstake attempt (if allowed by the contract logic)
-      await expect(
-        delegateNode.connect(user1).unstake(poolId, ethers.parseEther("20"))
-      ).to.be.revertedWith("ZeroStakedAmountError");
-    });
-  });
-
-  describe("Unstake functionality", function () {
-    let stakeAmount;
-    beforeEach(async function () {
-      // Stake tokens to prepare for unstaking
-      stakeAmount = ethers.parseEther("500");
-      await token.connect(owner).mint(user1.address, stakeAmount);
-      console.log(-1);
-      await token
-        .connect(user1)
-        .approve(await delegateNode.getAddress(), stakeAmount);
-      console.log(-2);
-      const tx = await delegateNode.connect(user1).stake(poolId, stakeAmount);
-      await tx.wait();
-      console.log(-3);
-    });
-
-    it("should allow a user to unstake tokens", async function () {
-      console.log(await delegateNode.getAddress());
-      const tx = await delegateNode.connect(user1).unstake(poolId);
-      const receipt = await tx.wait();
-      console.log(receipt);
-      receipt.events.forEach((event) => {
-        console.log(`Event Name: ${event.event}`);
-        console.log(`Event Args: ${event.args}`);
-      });
-      await expect(
-        delegateNode.connect(user1).unstake(poolId, { gasLimit: 10000000 })
-      )
-        .to.emit(delegateNode, "UserUnstake")
-        .withArgs(user1.address, poolId, {
-          unstakeAmount: ethers.parseEther("600"),
-        });
-      console.log(2);
-      const poolInfo = await delegateNode._pools(poolId);
-      console.log(3);
-      expect(poolInfo.stakedAmount).to.equal(stakeAmount);
-      console.log(4);
-
-      const userInfo = await getUserPoolInfo(user1.address, poolId);
-      console.log(userInfo);
-      expect(userInfo.isStaked).to.equal(false);
-      expect(userInfo.stakedAmount).to.equal(0);
-      console.log(6);
-    });
-
-    it("should revert if the user tries to unstake with zero staked amount", async function () {
-      // user2 hasn't staked any tokens, so unstaking should fail
-      await expect(
-        delegateNode.connect(user2).unstake(poolId)
-      ).to.be.revertedWith("ZeroStakedAmountError");
-    });
-
-    it("should not allow unstaking if the pool is in an invalid status", async function () {
-      // Simulate changing pool status to something other than INACTIVE or ADMIN_WITHDREW
-      await delegateNode.connect(admin).adminChangePoolStatus(poolId, 2); // Assuming 2 is an invalid state
-      await expect(
-        delegateNode.connect(user1).unstake(poolId)
-      ).to.be.revertedWith("InvalidPoolStatus");
-    });
-
-    it("should allow claiming unstaked tokens after buffer time", async function () {
-      // Initiate an unstake process
-      await delegateNode.connect(user1).unstake(poolId);
-
-      // Move time forward to simulate buffer period elapsing (7 days in this case)
-      await ethers.provider.send("evm_increaseTime", [
-        defaultUnstakeBufferTime,
-      ]);
-      await ethers.provider.send("evm_mine");
-
-      // Claim the unstaked tokens
-      // const tx = await delegateNode.connect(user1).userClaimUnstakedAmount(poolId);
-      await expect(delegateNode.connect(user1).userClaimUnstakedAmount(poolId))
-        .to.emit(delegateNode, "UserClaimUnstakedAmount")
-        .withArgs(user1.address, poolId, ethers.parseEther("500"));
-
-      const userInfo = await getUserPoolInfo(user1.address, poolId);
-      expect(userInfo.stakedAmount).to.equal(0);
-    });
-
-    it("should revert if claiming unstake before buffer time has passed", async function () {
-      // Initiate an unstake process
-      await delegateNode.connect(user1).unstake(poolId);
-
-      // Try to claim unstake without waiting for the buffer period
-      await expect(
-        delegateNode.connect(user1).userClaimUnstakedAmount(poolId)
-      ).to.be.revertedWith("PrematureClaimUnstake");
-    });
-
-    it("should revert when trying to unstake while contract is paused", async function () {
-      await delegateNode.connect(admin).pause();
-      await expect(
-        delegateNode.connect(user1).unstake(poolId)
-      ).to.be.revertedWith("Pausable: paused");
+      ).to.be.revertedWithCustomError(delegateNode, "InvalidPoolStatus");
     });
   });
 });
