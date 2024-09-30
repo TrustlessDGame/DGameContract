@@ -1,8 +1,7 @@
 require('dotenv/config');
-require('@nomicfoundation/hardhat-toolbox');
-require('@openzeppelin/hardhat-upgrades');
 require('@nomicfoundation/hardhat-ethers');
 require('@nomicfoundation/hardhat-chai-matchers');
+require('@openzeppelin/hardhat-upgrades');
 require('@matterlabs/hardhat-zksync');
 
 const LOCAL_RICH_WALLETS = [

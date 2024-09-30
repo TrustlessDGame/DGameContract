@@ -1,5 +1,7 @@
 require("dotenv").config();
 require("@matterlabs/hardhat-zksync");
+require('@nomicfoundation/hardhat-ethers');
+require('@nomicfoundation/hardhat-chai-matchers');
 
 module.exports = {
   solidity: {
