@@ -109,6 +109,10 @@ describe("DelegateNode Contract - Stake and Unstake", function () {
 
       // Transfer tokens to the user and approve the contract to spend them
       await token.connect(owner).mint(user1.address, stakeAmount);
+      expect(await token.balanceOf(user1.address)).to.equal(stakeAmount);
+      expect(await token.balanceOf(await delegateNode.getAddress())).to.equal(
+        0
+      );
       await token
         .connect(user1)
         .approve(await delegateNode.getAddress(), stakeAmount);
@@ -117,6 +121,10 @@ describe("DelegateNode Contract - Stake and Unstake", function () {
         .withArgs(user1.address, stakeAmount, anyValue);
       const poolInfo = await delegateNode._pools(poolId);
       expect(poolInfo.stakedAmount).to.equal(stakeAmount);
+      expect(await token.balanceOf(user1.address)).to.equal(0);
+      expect(await token.balanceOf(await delegateNode.getAddress())).to.equal(
+        stakeAmount
+      );
     });
 
     it("should revert if the stake amount is zero", async function () {
