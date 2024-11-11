@@ -196,7 +196,7 @@ contract DelegateNode is
             revert InvalidPoolStatus();
         }
 
-        _userClaimUnstakedAmount(_poolId);
+        _userClaimUnstakedAmount(_poolId, msg.sender);
 
         uint256 remainingStakeAmount = getRemainingStakeForActivation(_poolId);
         require(_amount <= remainingStakeAmount, Errors.INV_STAKE_AMOUNT);
@@ -488,7 +488,8 @@ contract DelegateNode is
                     bufferTimeExpireAt: bufferingTimeExpireAt,
                     totalUnstakedAmount: poolUnstakedInfo[_poolId]
                         .totalUnstakedAmount + unstakeAmount,
-                    reimbursementAmount: poolUnstakedInfo[_poolId].reimbursementAmount
+                    reimbursementAmount: poolUnstakedInfo[_poolId]
+                        .reimbursementAmount
                 });
             } else {
                 poolUnstakedInfo[_poolId].totalUnstakedAmount += unstakeAmount;
@@ -616,46 +617,52 @@ contract DelegateNode is
         emit ResolveUnstake(msg.sender, _poolId, _pools[_poolId].status);
     }
 
-    function _userClaimUnstakedAmount(uint32 _poolId) internal {
+    function _userClaimUnstakedAmount(
+        uint32 _poolId,
+        address _userAddress
+    ) internal {
         require(_poolId > 0 && _poolId < _nextPoolId, Errors.INV_POOL_ID);
 
-        if (userUnstakeReqIds[_poolId][msg.sender].size() == 0) {
+        if (userUnstakeReqIds[_poolId][_userAddress].size() == 0) {
             return;
         }
 
-        uint256 userUnstakeReqId = userUnstakeReqIds[_poolId][msg.sender].at(0);
+        uint256 userUnstakeReqId = userUnstakeReqIds[_poolId][_userAddress].at(
+            0
+        );
         if (
             poolUnstakeReqIds[_poolId].hasValue(userUnstakeReqId) &&
-            userUnstakeReqIds[_poolId][msg.sender].hasValue(userUnstakeReqId)
+            userUnstakeReqIds[_poolId][_userAddress].hasValue(userUnstakeReqId)
         ) {
             poolUnstakeReqIds[_poolId].erase(userUnstakeReqId);
-            userUnstakeReqIds[_poolId][msg.sender].erase(userUnstakeReqId);
+            userUnstakeReqIds[_poolId][_userAddress].erase(userUnstakeReqId);
         }
 
         if (block.timestamp < unstakeClaimableTime[userUnstakeReqId])
             revert PrematureClaimUnstake();
 
-        uint256 claimableAmount = userWannaUnstakeAmount[_poolId][msg.sender];
+        uint256 claimableAmount = userWannaUnstakeAmount[_poolId][_userAddress];
         if (claimableAmount == 0) return;
 
-        _userPoolInfo[_poolId][msg.sender].stakedAmount -= claimableAmount;
-        userWannaUnstakeAmount[_poolId][msg.sender] = 0;
+        _userPoolInfo[_poolId][_userAddress].stakedAmount -= claimableAmount;
+        userWannaUnstakeAmount[_poolId][_userAddress] = 0;
         _pools[_poolId].stakedAmount -= claimableAmount;
-        _userInfo[msg.sender].reserve1 += claimableAmount;
+        _userInfo[_userAddress].reserve1 += claimableAmount;
 
         if (poolUnstakedInfo[_poolId].totalUnstakedAmount != 0) {
             poolUnstakedInfo[_poolId].totalUnstakedAmount -= claimableAmount;
         }
 
-        safeTransferNative(msg.sender, claimableAmount);
+        safeTransferNative(_userAddress, claimableAmount);
 
-        emit UserClaimUnstakedAmount(msg.sender, _poolId, claimableAmount);
+        emit UserClaimUnstakedAmount(_userAddress, _poolId, claimableAmount);
     }
 
     function userClaimUnstakedAmount(
-        uint32 _poolId
+        uint32 _poolId,
+        address _userAddress
     ) public nonReentrant whenNotPaused {
-        _userClaimUnstakedAmount(_poolId);
+        _userClaimUnstakedAmount(_poolId, _userAddress);
     }
 
     function minerRefundPoolBalance(
