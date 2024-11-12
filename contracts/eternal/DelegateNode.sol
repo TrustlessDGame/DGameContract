@@ -665,6 +665,12 @@ contract DelegateNode is
         _userClaimUnstakedAmount(_poolId, _userAddress);
     }
 
+    function userClaimUnstakedAmount(
+        uint32 _poolId
+    ) public nonReentrant whenNotPaused {
+        _userClaimUnstakedAmount(_poolId, msg.sender);
+    }
+
     function minerRefundPoolBalance(
         uint32 _poolId
     ) external payable whenNotPaused {
