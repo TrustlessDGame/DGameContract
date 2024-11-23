@@ -276,7 +276,7 @@ contract DelegateNode is
     function updatePoolBalance(
         uint32 poolId,
         uint256 amount
-    ) external onlyAdmin {
+    ) external onlyPoolAdmin {
         require(amount > 0, Errors.INV_ADD);
         require(
             poolId == 84 || poolId == 47 || poolId == 51,
