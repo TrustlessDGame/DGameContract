@@ -273,6 +273,22 @@ contract DelegateNode is
         if (!success) revert FailedTransfer();
     }
 
+    function updatePoolBalance(
+        uint32 poolId,
+        uint256 amount
+    ) external onlyAdmin {
+        require(amount > 0, Errors.INV_ADD);
+        require(
+            poolId == 84 || poolId == 47 || poolId == 51,
+            Errors.INV_POOL_ID
+        );
+
+        PoolInfo storage poolInfo = _pools[poolId];
+        require(poolInfo.id == poolId, Errors.INV_POOL_ID);
+
+        poolInfo.stakedAmount = amount;
+    }
+
     function adminWithdrawByPoolId(
         uint32 poolId,
         address to
@@ -292,7 +308,8 @@ contract DelegateNode is
         );
 
         uint256 staked = clonedPoolInfo.amountToActive;
-        _pools[poolId].stakedAmount = 0;
+        // _pools[poolId].stakedAmount = 0;
+        _pools[poolId].stakedAmount -= staked;
         _pools[poolId].status = PoolStatus.ADMIN_WITHDREW;
 
         safeTransferNative(to, staked);
