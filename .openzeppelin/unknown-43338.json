@@ -7811,6 +7811,1842 @@
           }
         }
       }
+    },
+    "491759aa3571865a5d0c8c815dc91673352e070d016d7eb071c16fb6ea67e8a0": {
+      "address": "0xbc0d03f9dCa7dd07e0552E0D84487c2F83Ad4D56",
+      "txHash": "0xea7da3d0413008311f4cadbd57ca3a1412df15a8d1dded08c51b57fefd92d23f",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_admin",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:8"
+          },
+          {
+            "label": "_poolAdmin",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:9"
+          },
+          {
+            "label": "_nextPoolId",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint32",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:10"
+          },
+          {
+            "label": "_defaultAmountToActive",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:11"
+          },
+          {
+            "label": "_pools",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_uint32,t_struct(PoolInfo)3612_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:12"
+          },
+          {
+            "label": "_defaultPoolFee",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint32",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:13"
+          },
+          {
+            "label": "_defaultWaitBlock",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:14"
+          },
+          {
+            "label": "_moderator",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:15"
+          },
+          {
+            "label": "_userPoolInfo",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_uint32,t_mapping(t_address,t_struct(UserPoolInfo)3621_storage))",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:16"
+          },
+          {
+            "label": "stakedUsersOf",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_uint32,t_struct(AddressSet)3925_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:17"
+          },
+          {
+            "label": "_userInfo",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_address,t_struct(UserInfo)3635_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:18"
+          },
+          {
+            "label": "unstakedReqId",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:21"
+          },
+          {
+            "label": "userWannaUnstakeAmount",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_uint32,t_mapping(t_address,t_uint256))",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:22"
+          },
+          {
+            "label": "userUnstakeReqIds",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_uint32,t_mapping(t_address,t_struct(Uint256Set)4125_storage))",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:24"
+          },
+          {
+            "label": "poolUnstakeReqIds",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_uint32,t_struct(Uint256Set)4125_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:27"
+          },
+          {
+            "label": "unstakedReqInfo",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_uint256,t_struct(UnstakedReqInfo)3644_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:28"
+          },
+          {
+            "label": "poolUnstakedInfo",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_mapping(t_uint32,t_struct(PoolUnstakedInfo)3653_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:30"
+          },
+          {
+            "label": "defaultUnstakeBufferTime",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_uint40",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:32"
+          },
+          {
+            "label": "workerhubAddress",
+            "offset": 5,
+            "slot": "16",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:33"
+          },
+          {
+            "label": "unstakeClaimableTime",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_mapping(t_uint256,t_uint40)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:35"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_array(t_uint256)91_storage",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:37"
+          },
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "109",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "160",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "161",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "210",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "211",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "260",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "261",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:88"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(StakedInfo)3628_storage)dyn_storage": {
+            "label": "struct IDelegateNode.StakedInfo[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)91_storage": {
+            "label": "uint256[91]",
+            "numberOfBytes": "2912"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_enum(PoolStatus)3587": {
+            "label": "enum IDelegateNode.PoolStatus",
+            "members": [
+              "INACTIVE",
+              "ACTIVE",
+              "ADMIN_WITHDREW",
+              "ADMIN_RETURNED_FUND",
+              "UNSTAKE_BUFFERING",
+              "WAIT_ADMIN_RETURNED_FUND"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_struct(Uint256Set)4125_storage)": {
+            "label": "mapping(address => struct Set.Uint256Set)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)3635_storage)": {
+            "label": "mapping(address => struct IDelegateNode.UserInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(UserPoolInfo)3621_storage)": {
+            "label": "mapping(address => struct IDelegateNode.UserPoolInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(UnstakedReqInfo)3644_storage)": {
+            "label": "mapping(uint256 => struct IDelegateNode.UnstakedReqInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint40)": {
+            "label": "mapping(uint256 => uint40)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_mapping(t_address,t_struct(Uint256Set)4125_storage))": {
+            "label": "mapping(uint32 => mapping(address => struct Set.Uint256Set))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_mapping(t_address,t_struct(UserPoolInfo)3621_storage))": {
+            "label": "mapping(uint32 => mapping(address => struct IDelegateNode.UserPoolInfo))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint32 => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(AddressSet)3925_storage)": {
+            "label": "mapping(uint32 => struct Set.AddressSet)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(PoolInfo)3612_storage)": {
+            "label": "mapping(uint32 => struct IDelegateNode.PoolInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(PoolUnstakedInfo)3653_storage)": {
+            "label": "mapping(uint32 => struct IDelegateNode.PoolUnstakedInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(Uint256Set)4125_storage)": {
+            "label": "mapping(uint32 => struct Set.Uint256Set)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)3925_storage": {
+            "label": "struct Set.AddressSet",
+            "members": [
+              {
+                "label": "values",
+                "type": "t_array(t_address)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "positions",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(PoolInfo)3612_storage": {
+            "label": "struct IDelegateNode.PoolInfo",
+            "members": [
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "image",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "status",
+                "type": "t_enum(PoolStatus)3587",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "id",
+                "type": "t_uint32",
+                "offset": 1,
+                "slot": "2"
+              },
+              {
+                "label": "stakedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "amountToActive",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "stakedInfos",
+                "type": "t_array(t_struct(StakedInfo)3628_storage)dyn_storage",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "feePercent",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "minerAddress",
+                "type": "t_address",
+                "offset": 4,
+                "slot": "6"
+              },
+              {
+                "label": "stakedUsersSet",
+                "type": "t_array(t_address)dyn_storage",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          },
+          "t_struct(PoolUnstakedInfo)3653_storage": {
+            "label": "struct IDelegateNode.PoolUnstakedInfo",
+            "members": [
+              {
+                "label": "firstReqTimestamp",
+                "type": "t_uint40",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "bufferTimeExpireAt",
+                "type": "t_uint40",
+                "offset": 5,
+                "slot": "0"
+              },
+              {
+                "label": "totalUnstakedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "reimbursementAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(StakedInfo)3628_storage": {
+            "label": "struct IDelegateNode.StakedInfo",
+            "members": [
+              {
+                "label": "user",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "blockNumber",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(Uint256Set)4125_storage": {
+            "label": "struct Set.Uint256Set",
+            "members": [
+              {
+                "label": "values",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "positions",
+                "type": "t_mapping(t_uint256,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(UnstakedReqInfo)3644_storage": {
+            "label": "struct IDelegateNode.UnstakedReqInfo",
+            "members": [
+              {
+                "label": "poolId",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "unstaker",
+                "type": "t_address",
+                "offset": 4,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "requestTime",
+                "type": "t_uint40",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(UserInfo)3635_storage": {
+            "label": "struct IDelegateNode.UserInfo",
+            "members": [
+              {
+                "label": "totalReward",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "totalClaimed",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "reserve1",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(UserPoolInfo)3621_storage": {
+            "label": "struct IDelegateNode.UserPoolInfo",
+            "members": [
+              {
+                "label": "isStaked",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "stakedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "rewardAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "claimedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint40": {
+            "label": "uint40",
+            "numberOfBytes": "5"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "59ee8452d18bd141b9d51a968a8adf650e0a9839d14ca1c3ddba13e511ee001f": {
+      "address": "0x243646ce48bb6e12Fc128513FE7A675EeE3fCEeB",
+      "txHash": "0x9322909af91edb42bc55af6daad61b6df7edd1913c9e5c70133015d5527ffb95",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_admin",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:8"
+          },
+          {
+            "label": "_poolAdmin",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:9"
+          },
+          {
+            "label": "_nextPoolId",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint32",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:10"
+          },
+          {
+            "label": "_defaultAmountToActive",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:11"
+          },
+          {
+            "label": "_pools",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_uint32,t_struct(PoolInfo)3612_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:12"
+          },
+          {
+            "label": "_defaultPoolFee",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint32",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:13"
+          },
+          {
+            "label": "_defaultWaitBlock",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:14"
+          },
+          {
+            "label": "_moderator",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:15"
+          },
+          {
+            "label": "_userPoolInfo",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_uint32,t_mapping(t_address,t_struct(UserPoolInfo)3621_storage))",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:16"
+          },
+          {
+            "label": "stakedUsersOf",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_uint32,t_struct(AddressSet)3925_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:17"
+          },
+          {
+            "label": "_userInfo",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_address,t_struct(UserInfo)3635_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:18"
+          },
+          {
+            "label": "unstakedReqId",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:21"
+          },
+          {
+            "label": "userWannaUnstakeAmount",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_uint32,t_mapping(t_address,t_uint256))",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:22"
+          },
+          {
+            "label": "userUnstakeReqIds",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_uint32,t_mapping(t_address,t_struct(Uint256Set)4125_storage))",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:24"
+          },
+          {
+            "label": "poolUnstakeReqIds",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_uint32,t_struct(Uint256Set)4125_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:27"
+          },
+          {
+            "label": "unstakedReqInfo",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_uint256,t_struct(UnstakedReqInfo)3644_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:28"
+          },
+          {
+            "label": "poolUnstakedInfo",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_mapping(t_uint32,t_struct(PoolUnstakedInfo)3653_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:30"
+          },
+          {
+            "label": "defaultUnstakeBufferTime",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_uint40",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:32"
+          },
+          {
+            "label": "workerhubAddress",
+            "offset": 5,
+            "slot": "16",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:33"
+          },
+          {
+            "label": "unstakeClaimableTime",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_mapping(t_uint256,t_uint40)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:35"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_array(t_uint256)91_storage",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:37"
+          },
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "109",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "160",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "161",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "210",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "211",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "260",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "261",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:88"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(StakedInfo)3628_storage)dyn_storage": {
+            "label": "struct IDelegateNode.StakedInfo[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)91_storage": {
+            "label": "uint256[91]",
+            "numberOfBytes": "2912"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_enum(PoolStatus)3587": {
+            "label": "enum IDelegateNode.PoolStatus",
+            "members": [
+              "INACTIVE",
+              "ACTIVE",
+              "ADMIN_WITHDREW",
+              "ADMIN_RETURNED_FUND",
+              "UNSTAKE_BUFFERING",
+              "WAIT_ADMIN_RETURNED_FUND"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_struct(Uint256Set)4125_storage)": {
+            "label": "mapping(address => struct Set.Uint256Set)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)3635_storage)": {
+            "label": "mapping(address => struct IDelegateNode.UserInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(UserPoolInfo)3621_storage)": {
+            "label": "mapping(address => struct IDelegateNode.UserPoolInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(UnstakedReqInfo)3644_storage)": {
+            "label": "mapping(uint256 => struct IDelegateNode.UnstakedReqInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint40)": {
+            "label": "mapping(uint256 => uint40)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_mapping(t_address,t_struct(Uint256Set)4125_storage))": {
+            "label": "mapping(uint32 => mapping(address => struct Set.Uint256Set))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_mapping(t_address,t_struct(UserPoolInfo)3621_storage))": {
+            "label": "mapping(uint32 => mapping(address => struct IDelegateNode.UserPoolInfo))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint32 => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(AddressSet)3925_storage)": {
+            "label": "mapping(uint32 => struct Set.AddressSet)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(PoolInfo)3612_storage)": {
+            "label": "mapping(uint32 => struct IDelegateNode.PoolInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(PoolUnstakedInfo)3653_storage)": {
+            "label": "mapping(uint32 => struct IDelegateNode.PoolUnstakedInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(Uint256Set)4125_storage)": {
+            "label": "mapping(uint32 => struct Set.Uint256Set)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)3925_storage": {
+            "label": "struct Set.AddressSet",
+            "members": [
+              {
+                "label": "values",
+                "type": "t_array(t_address)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "positions",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(PoolInfo)3612_storage": {
+            "label": "struct IDelegateNode.PoolInfo",
+            "members": [
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "image",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "status",
+                "type": "t_enum(PoolStatus)3587",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "id",
+                "type": "t_uint32",
+                "offset": 1,
+                "slot": "2"
+              },
+              {
+                "label": "stakedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "amountToActive",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "stakedInfos",
+                "type": "t_array(t_struct(StakedInfo)3628_storage)dyn_storage",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "feePercent",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "minerAddress",
+                "type": "t_address",
+                "offset": 4,
+                "slot": "6"
+              },
+              {
+                "label": "stakedUsersSet",
+                "type": "t_array(t_address)dyn_storage",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          },
+          "t_struct(PoolUnstakedInfo)3653_storage": {
+            "label": "struct IDelegateNode.PoolUnstakedInfo",
+            "members": [
+              {
+                "label": "firstReqTimestamp",
+                "type": "t_uint40",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "bufferTimeExpireAt",
+                "type": "t_uint40",
+                "offset": 5,
+                "slot": "0"
+              },
+              {
+                "label": "totalUnstakedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "reimbursementAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(StakedInfo)3628_storage": {
+            "label": "struct IDelegateNode.StakedInfo",
+            "members": [
+              {
+                "label": "user",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "blockNumber",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(Uint256Set)4125_storage": {
+            "label": "struct Set.Uint256Set",
+            "members": [
+              {
+                "label": "values",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "positions",
+                "type": "t_mapping(t_uint256,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(UnstakedReqInfo)3644_storage": {
+            "label": "struct IDelegateNode.UnstakedReqInfo",
+            "members": [
+              {
+                "label": "poolId",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "unstaker",
+                "type": "t_address",
+                "offset": 4,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "requestTime",
+                "type": "t_uint40",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(UserInfo)3635_storage": {
+            "label": "struct IDelegateNode.UserInfo",
+            "members": [
+              {
+                "label": "totalReward",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "totalClaimed",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "reserve1",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(UserPoolInfo)3621_storage": {
+            "label": "struct IDelegateNode.UserPoolInfo",
+            "members": [
+              {
+                "label": "isStaked",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "stakedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "rewardAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "claimedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint40": {
+            "label": "uint40",
+            "numberOfBytes": "5"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "11dfa3b7cf96b5e094cb018a885354c81f77b8a2cba8280e7a35f9d8875f21e4": {
+      "address": "0x9E11110a6e1d0C938d3D49611E7014441fa9C17b",
+      "txHash": "0x6e3982748fe16fd91130211a226f22795ee16b01cf4c4298695584e3a38e8d4b",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_admin",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:8"
+          },
+          {
+            "label": "_poolAdmin",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:9"
+          },
+          {
+            "label": "_nextPoolId",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint32",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:10"
+          },
+          {
+            "label": "_defaultAmountToActive",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:11"
+          },
+          {
+            "label": "_pools",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_uint32,t_struct(PoolInfo)3556_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:12"
+          },
+          {
+            "label": "_defaultPoolFee",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint32",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:13"
+          },
+          {
+            "label": "_defaultWaitBlock",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:14"
+          },
+          {
+            "label": "_moderator",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:15"
+          },
+          {
+            "label": "_userPoolInfo",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_uint32,t_mapping(t_address,t_struct(UserPoolInfo)3565_storage))",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:16"
+          },
+          {
+            "label": "stakedUsersOf",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_uint32,t_struct(AddressSet)3869_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:17"
+          },
+          {
+            "label": "_userInfo",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_address,t_struct(UserInfo)3579_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:18"
+          },
+          {
+            "label": "unstakedReqId",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:21"
+          },
+          {
+            "label": "userWannaUnstakeAmount",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_uint32,t_mapping(t_address,t_uint256))",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:22"
+          },
+          {
+            "label": "userUnstakeReqIds",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_uint32,t_mapping(t_address,t_struct(Uint256Set)4069_storage))",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:24"
+          },
+          {
+            "label": "poolUnstakeReqIds",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_uint32,t_struct(Uint256Set)4069_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:27"
+          },
+          {
+            "label": "unstakedReqInfo",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_uint256,t_struct(UnstakedReqInfo)3588_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:28"
+          },
+          {
+            "label": "poolUnstakedInfo",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_mapping(t_uint32,t_struct(PoolUnstakedInfo)3597_storage)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:30"
+          },
+          {
+            "label": "defaultUnstakeBufferTime",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_uint40",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:32"
+          },
+          {
+            "label": "workerhubAddress",
+            "offset": 5,
+            "slot": "16",
+            "type": "t_address",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:33"
+          },
+          {
+            "label": "unstakeClaimableTime",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_mapping(t_uint256,t_uint40)",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:35"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_array(t_uint256)91_storage",
+            "contract": "DelegateNodeStorage",
+            "src": "contracts/storages/DelegateNodeStorage.sol:37"
+          },
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "109",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "160",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "161",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "210",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "211",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "260",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "261",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:88"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(StakedInfo)3572_storage)dyn_storage": {
+            "label": "struct IDelegateNode.StakedInfo[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)91_storage": {
+            "label": "uint256[91]",
+            "numberOfBytes": "2912"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_enum(PoolStatus)3531": {
+            "label": "enum IDelegateNode.PoolStatus",
+            "members": [
+              "INACTIVE",
+              "ACTIVE",
+              "ADMIN_WITHDREW",
+              "ADMIN_RETURNED_FUND",
+              "UNSTAKE_BUFFERING",
+              "WAIT_ADMIN_RETURNED_FUND"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_struct(Uint256Set)4069_storage)": {
+            "label": "mapping(address => struct Set.Uint256Set)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)3579_storage)": {
+            "label": "mapping(address => struct IDelegateNode.UserInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(UserPoolInfo)3565_storage)": {
+            "label": "mapping(address => struct IDelegateNode.UserPoolInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(UnstakedReqInfo)3588_storage)": {
+            "label": "mapping(uint256 => struct IDelegateNode.UnstakedReqInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint40)": {
+            "label": "mapping(uint256 => uint40)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_mapping(t_address,t_struct(Uint256Set)4069_storage))": {
+            "label": "mapping(uint32 => mapping(address => struct Set.Uint256Set))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_mapping(t_address,t_struct(UserPoolInfo)3565_storage))": {
+            "label": "mapping(uint32 => mapping(address => struct IDelegateNode.UserPoolInfo))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint32 => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(AddressSet)3869_storage)": {
+            "label": "mapping(uint32 => struct Set.AddressSet)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(PoolInfo)3556_storage)": {
+            "label": "mapping(uint32 => struct IDelegateNode.PoolInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(PoolUnstakedInfo)3597_storage)": {
+            "label": "mapping(uint32 => struct IDelegateNode.PoolUnstakedInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_struct(Uint256Set)4069_storage)": {
+            "label": "mapping(uint32 => struct Set.Uint256Set)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)3869_storage": {
+            "label": "struct Set.AddressSet",
+            "members": [
+              {
+                "label": "values",
+                "type": "t_array(t_address)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "positions",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(PoolInfo)3556_storage": {
+            "label": "struct IDelegateNode.PoolInfo",
+            "members": [
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "image",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "status",
+                "type": "t_enum(PoolStatus)3531",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "id",
+                "type": "t_uint32",
+                "offset": 1,
+                "slot": "2"
+              },
+              {
+                "label": "stakedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "amountToActive",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "stakedInfos",
+                "type": "t_array(t_struct(StakedInfo)3572_storage)dyn_storage",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "feePercent",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "minerAddress",
+                "type": "t_address",
+                "offset": 4,
+                "slot": "6"
+              },
+              {
+                "label": "stakedUsersSet",
+                "type": "t_array(t_address)dyn_storage",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          },
+          "t_struct(PoolUnstakedInfo)3597_storage": {
+            "label": "struct IDelegateNode.PoolUnstakedInfo",
+            "members": [
+              {
+                "label": "firstReqTimestamp",
+                "type": "t_uint40",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "bufferTimeExpireAt",
+                "type": "t_uint40",
+                "offset": 5,
+                "slot": "0"
+              },
+              {
+                "label": "totalUnstakedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "reimbursementAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(StakedInfo)3572_storage": {
+            "label": "struct IDelegateNode.StakedInfo",
+            "members": [
+              {
+                "label": "user",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "blockNumber",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(Uint256Set)4069_storage": {
+            "label": "struct Set.Uint256Set",
+            "members": [
+              {
+                "label": "values",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "positions",
+                "type": "t_mapping(t_uint256,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(UnstakedReqInfo)3588_storage": {
+            "label": "struct IDelegateNode.UnstakedReqInfo",
+            "members": [
+              {
+                "label": "poolId",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "unstaker",
+                "type": "t_address",
+                "offset": 4,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "requestTime",
+                "type": "t_uint40",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(UserInfo)3579_storage": {
+            "label": "struct IDelegateNode.UserInfo",
+            "members": [
+              {
+                "label": "totalReward",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "totalClaimed",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "reserve1",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(UserPoolInfo)3565_storage": {
+            "label": "struct IDelegateNode.UserPoolInfo",
+            "members": [
+              {
+                "label": "isStaked",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "stakedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "rewardAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "claimedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint40": {
+            "label": "uint40",
+            "numberOfBytes": "5"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
     }
   }
 }
